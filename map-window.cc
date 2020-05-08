@@ -2,7 +2,7 @@
 // $Id$
 //
 // File:		map-window.cc
-// Date:		Tue May  5 14:43:21 2020
+// Date:		Tue May  5 22:43:21 2020
 // Author:		pottendo (pottendo)
 // 
 // Abstract:

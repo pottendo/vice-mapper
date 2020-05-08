@@ -1,6 +1,6 @@
 /*  -*-c-*-
  * File:		myarea.h
- * Date:		Tue May  5 12:22:45 2020
+ * Date:		Tue May  5 21:22:45 2020
  * Author:		pottendo (pottendo)
  *  
  * Abstract:
@@ -9,8 +9,6 @@
  * Modifications:
  * $Log$
  */
-
-
 
 #ifndef __myarea_h__
 #define __myarea_h__

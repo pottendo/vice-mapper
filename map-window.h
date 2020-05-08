@@ -1,6 +1,6 @@
 /*  -*-c-*-
  * File:		map-window.h
- * Date:		Tue May  5 14:44:11 2020
+ * Date:		Tue May  5 22:44:11 2020
  * Author:		pottendo (pottendo)
  *  
  * Abstract:

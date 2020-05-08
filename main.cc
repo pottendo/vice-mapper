@@ -2,7 +2,7 @@
 // $Id$
 //
 // File:		main.cc
-// Date:		Tue May  5 11:53:54 2020
+// Date:		Tue May  5 21:53:54 2020
 // Author:		pottendo (pottendo)
 // 
 // Abstract:
@@ -27,7 +27,7 @@ int main(int argc, char** argv)
     auto app = Gtk::Application::create(argc1, argv, "org.gtkmm.example");
 
     if (argc <= 1) {
-	cerr << "usage: ..." << endl;
+	cerr << "usage: " << argv[0] << " vice-screen-XX:XX.png ..." << endl;
 	exit(1);
     }
 
