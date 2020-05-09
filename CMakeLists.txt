@@ -23,7 +23,7 @@ message(STATUS "Flags: ${GTK3_INCLUDE_DIRS} ${GTK3_CFLAGS_OTHER}")
 #set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${GTK3_FLAGS})
 
 # ${PROJECT_SOURCE_DIR}/dinphil-gtk.cc 
-set(SRC main.cc myarea.cc map-window.cc)
+set(SRC main.cc myarea.cc map-window.cc map-controls.cc)
 
 # Compile
 add_executable(mapper ${SRC})

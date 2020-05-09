@@ -11,10 +11,11 @@
 // Modifications:
 // 	$Log$
 //
-#include <gtkmm/label.h>
 #include <gtkmm/button.h>
 #include <gtkmm/widget.h>
+#include <gtkmm/frame.h>
 #include "map-window.h"
+#include "map-controls.h"
 #include <iostream>
 
 using namespace::std;
@@ -23,19 +24,27 @@ Glib::RefPtr<Gdk::Pixbuf> map_window::empty_image;
 map_window::map_window()
 {
     set_title("Map");
-    set_default_size(400,400);
-    set_border_width(12);
+    //set_default_size(400,400);
+    set_border_width(4);
 
     map_grid.set_hexpand(TRUE);
     map_grid.set_vexpand(TRUE);
-
-    scw.set_border_width(10);
+    
+    scw.set_border_width(4);
+    scw.set_size_request(400, 400);
     scw.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
     
     scw.add(map_grid);
     scw.set_hexpand(TRUE);
     scw.set_vexpand(TRUE);
-    add(scw);
+    Gtk::Frame *map_frame = new Gtk::Frame("Map"); // never deleted, TODO
+    map_frame->add(scw);
+    hbox.add(*map_frame);
+
+    map_controls *ctrls = new map_controls("Controls"); // never deleted, TODO
+    //ctrl_frame->set_size_request(200, -1);
+    hbox.add(*ctrls);
+    add(hbox);
 
     add_events(Gdk::SCROLL_MASK);
     //map_grid.attach_next_to(ma, m_button_quit, Gtk::POS_BOTTOM, 1, 1);
