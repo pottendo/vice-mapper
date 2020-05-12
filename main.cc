@@ -34,10 +34,9 @@ int main(int argc, char** argv)
     map_window mw;
     MyArea *tile;
     for (int i = 1; i < argc; i++) {
-	tile = new MyArea(argv[i]);
-	mw.add_tile(tile);
+	tile = new MyArea(mw, argv[i]);
     }
-    tile = new MyArea(NULL, 49, 49);
+    tile = new MyArea(mw, NULL, 49, 49);
     mw.add_tile(tile);
     mw.fill_empties();
     

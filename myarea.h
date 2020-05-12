@@ -17,19 +17,21 @@
 #include <gdkmm/pixbuf.h>
 #include <vector>
 
+class map_window;
+
 class MyArea : public Gtk::DrawingArea
 {
     const char *file_name;
-    int xk;
-    int yk;
-    static std::vector<Gtk::TargetEntry> listTargets;
+    int xk, yk;
+    map_window &mw;
     static Glib::RefPtr<Gdk::Pixbuf> dnd_image;
   
   public:
-    MyArea(const char *fn, int xk = -1, int yk = -1);
+    MyArea(map_window &m, const char *fn, int xk = -1, int yk = -1);
     virtual ~MyArea();
 
     static std::vector<MyArea *> all_tiles;
+    static std::vector<Gtk::TargetEntry> listTargets;
 
     void print(void);
     inline int getX(void) { return xk; }
@@ -37,6 +39,8 @@ class MyArea : public Gtk::DrawingArea
     static int xmin, ymin, xmax, ymax;
     static int cr_up, cr_do, cr_le, cr_ri;
     void scale(float sfx, float sfy);
+    inline const char *get_fname() { return file_name; }
+    inline const Glib::RefPtr<Gdk::Pixbuf> get_pixmap_icon() { return m_image_icon; }
 
   protected:
     //Override default signal handler:
@@ -52,6 +56,7 @@ class MyArea : public Gtk::DrawingArea
 
     Glib::RefPtr<Gdk::Pixbuf> m_image;
     Glib::RefPtr<Gdk::Pixbuf> m_image_scaled;
+    Glib::RefPtr<Gdk::Pixbuf> m_image_icon;
 };
 
 

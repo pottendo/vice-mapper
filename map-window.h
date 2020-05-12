@@ -20,6 +20,10 @@
 #include "myarea.h"
 #include "map-controls.h"
 
+const int map_max = 100;	/* 100x100 tiles should be enough */
+const int resX = 384;		/* typical C64 screen resolution */
+const int resY = 272;
+
 class map_window : public Gtk::Window
 {
     // Signal handlers:
@@ -30,7 +34,7 @@ class map_window : public Gtk::Window
     Gtk::ScrolledWindow scw;
     Gtk::HBox hbox;		/* main layout box */
     Glib::RefPtr<Gdk::Pixbuf> m_empty;
-    MyArea *tiles[100][100];
+    MyArea *tiles[map_max][map_max];
     map_controls ctrls;
 
   public:
@@ -38,12 +42,13 @@ class map_window : public Gtk::Window
     virtual ~map_window() {};
 
     void add_tile(MyArea *);
+    void add_unplaced_tile(MyArea *t) { ctrls.add_tile(t); }
+	
     void fill_empties();
     void scale_all(void);
     static Glib::RefPtr<Gdk::Pixbuf> empty_image;
     static double scale_factor_x;
     static double scale_factor_y;
-    static map_window *mw;
 };
 
 #endif /* __map_window_h__ */

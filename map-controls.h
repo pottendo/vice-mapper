@@ -16,6 +16,11 @@
 #include <gtkmm/frame.h>
 #include <gtkmm/button.h>
 #include <gtkmm/adjustment.h>
+#include <gtkmm/treemodel.h>
+#include <gtkmm/treeview.h>
+#include <gtkmm/liststore.h>
+#include <gtkmm/scrolledwindow.h>
+#include "myarea.h"
 
 class map_controls : public Gtk::Frame
 {
@@ -25,18 +30,41 @@ class map_controls : public Gtk::Frame
     void on_scale_event2();
     void on_scale_crop();
 
+    map_window &mw;
+    
+    // Zoom controls
     Glib::RefPtr<Gtk::Adjustment> adjx;
     Glib::RefPtr<Gtk::Adjustment> adjy;
+    // Crop controls
     Glib::RefPtr<Gtk::Adjustment> adj_crup;
     Glib::RefPtr<Gtk::Adjustment> adj_crdo;
     Glib::RefPtr<Gtk::Adjustment> adj_crle;
     Glib::RefPtr<Gtk::Adjustment> adj_crri;
-
+    // Unplaced tiles
+  protected:
+    //Tree model columns:
+    class ModelColumns : public Gtk::TreeModel::ColumnRecord {
+    public:
+      
+      ModelColumns() {
+	  add(m_col_fname); add(m_col_tilepixmap);
+      }
+      
+      Gtk::TreeModelColumn<Glib::ustring> m_col_fname;
+      Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > m_col_tilepixmap;
+  };
+  
+  ModelColumns m_Columns;    
+  Gtk::ScrolledWindow m_ScrolledWindow;
+  Gtk::TreeView m_TreeView;
+  Glib::RefPtr<Gtk::ListStore> m_refTreeModel;
+  
   public:
-    map_controls(const Glib::ustring &);
-    virtual ~map_controls() {};
-
-    void set_zoom(double x, double y);
+  map_controls(map_window &m, const Glib::ustring &);
+  virtual ~map_controls() {};
+  
+  void set_zoom(double x, double y);
+  void add_tile(MyArea *tile);
 };
 
 #endif /* __map_controls_h__ */

@@ -27,4 +27,4 @@ set(SRC main.cc myarea.cc map-window.cc map-controls.cc)
 
 # Compile
 add_executable(mapper ${SRC})
-target_link_libraries(mapper ${GTK3_LIBRARIES})
+target_link_libraries(mapper ${GTK3_LIBRARIES} -lstdc++fs)

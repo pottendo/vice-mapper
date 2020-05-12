@@ -22,13 +22,12 @@ using namespace::std;
 Glib::RefPtr<Gdk::Pixbuf> map_window::empty_image;
 double map_window::scale_factor_x = 3.0;
 double map_window::scale_factor_y = 3.0;
-map_window *map_window::mw;
+//map_window *map_window::mw;
 
 map_window::map_window()
-    : ctrls("Controls")
+    : ctrls(*this, "Controls")
 {
     set_title("Map");
-    mw = this;
     //set_default_size(400,400);
     set_border_width(4);
 
@@ -52,7 +51,7 @@ map_window::map_window()
 
     add_events(Gdk::SCROLL_MASK);
     //map_grid.attach_next_to(ma, m_button_quit, Gtk::POS_BOTTOM, 1, 1);
-    empty_image = Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, TRUE, 8, 384, 272);
+    empty_image = Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, TRUE, 8, resX, resY);
     empty_image->fill(0x0000001f);
     show_all_children();
     memset(tiles, 0, 100*100*sizeof(MyArea*));
@@ -92,13 +91,14 @@ void
 map_window::fill_empties() 
 {
     int x, y;
+/*    
     cout << "X:" << MyArea::xmin << "-" << MyArea::xmax
 	 << "Y:" << MyArea::ymin << "-" << MyArea::ymax << endl;
-	
+*/  
     for (x = MyArea::xmin; x <= MyArea::xmax; x++) {
 	for (y = MyArea::ymin; y <= MyArea::ymax; y++) {
 	    if (tiles[x][y] == NULL) {
-		add_tile(new MyArea(NULL, x, y));
+		add_tile(new MyArea(*this, NULL, x, y));
 	    }
 	}
     }

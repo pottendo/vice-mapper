@@ -25,11 +25,12 @@
 using namespace::std;
 std::vector<Gtk::TargetEntry> MyArea::listTargets;
 Glib::RefPtr<Gdk::Pixbuf> MyArea::dnd_image;
-int MyArea::xmin = -1, MyArea::ymin = -1, MyArea::xmax = -1, MyArea::ymax = -1;
+int MyArea::xmin = map_max+1, MyArea::ymin = map_max + 1, MyArea::xmax = -1, MyArea::ymax = -1;
 int MyArea::cr_up=36, MyArea::cr_do=36, MyArea::cr_le=32, MyArea::cr_ri=32;
 vector<MyArea *> MyArea::all_tiles;
 
-MyArea::MyArea(const char *fn, int x, int y)
+MyArea::MyArea(map_window &m, const char *fn, int x, int y)
+    : mw(m)
 {
     if (fn) {
 	file_name = fn;
@@ -37,7 +38,7 @@ MyArea::MyArea(const char *fn, int x, int y)
 	{
 	    // The fractal image has been created by the XaoS program.
 	    // http://xaos.sourceforge.net
-	    m_image_scaled = m_image = Gdk::Pixbuf::create_from_file(fn, 384, 272);
+	    m_image_scaled = m_image = Gdk::Pixbuf::create_from_file(fn, resX, resY);
 	}
 	catch(const Gio::ResourceError& ex)
 	{
@@ -53,30 +54,33 @@ MyArea::MyArea(const char *fn, int x, int y)
 	if (t != std::string::npos) {
 	    xk = std::stod(s.substr(t+12, 2));
 	    yk = std::stod(s.substr(t+12+3, 2));
-	    if (xk == -1) {	// hack to test default
-		xk = 55+yk;
-		yk = 50;
+	    if (xk == -1) {	// identify unplaced tiles
+		if (m_image) {
+		    m_image_icon = m_image->scale_simple(m_image->get_width()/4,
+							 m_image->get_height()/4,
+							 Gdk::INTERP_BILINEAR);
+		}
+		mw.add_unplaced_tile(this);
 	    }
-	    print();
+	    else {
+		xmin = MIN(xmin, xk);
+		ymin = MIN(ymin, yk);
+		xmax = MAX(xmax, xk);
+		ymax = MAX(ymax, yk);
+		mw.add_tile(this);
+		all_tiles.push_back(this);
+	    }
 	}
 	else {
 	    std::cerr << "filename not following convention (vice-screen-XX:YY.png): "
 		      << s << std::endl;
 	}
-	all_tiles.push_back(this);
     }
     else {
 	xk = x; yk = y;
 	file_name = "empty";
 	m_image = map_window::empty_image;
     }
-    if (xmin < 0) xmin = xk;
-    else xmin = MIN(xmin, xk);
-    if (ymin < 0) ymin = xk;
-    else ymin = MIN(ymin, yk);
-    xmax = MAX(xmax, xk);
-    ymax = MAX(ymax, yk);
-    
     // Show at least a quarter of the image.
     if (m_image) {
 	set_size_request(m_image->get_width()/3, m_image->get_height()/3);
@@ -85,7 +89,7 @@ MyArea::MyArea(const char *fn, int x, int y)
     set_hexpand(TRUE);
     set_vexpand(TRUE);
     
-    listTargets.push_back( Gtk::TargetEntry("SCREEN_MAPPER", Gtk::TARGET_SAME_APP) );
+    listTargets.push_back( Gtk::TargetEntry("MAPPER", Gtk::TARGET_SAME_APP) );
     drag_source_set(listTargets);
     drag_dest_set(listTargets);
     drag_source_set_icon(m_image->scale_simple(m_image->get_width()/3,
@@ -143,38 +147,13 @@ MyArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 				  (width - m_image_scaled->get_width())/2,
 				  (height - m_image_scaled->get_height())/2);
     cr->paint();
-    cout << "on_draw: " << file_name << endl;
     return true;
 }
 
 bool
 MyArea::on_configure_event(GdkEventConfigure *configure_event)
 {
-#if 0
-    /*
-    cout << "configure event: " << file_name << "-" <<
-	get_allocated_width() << "x" << get_allocated_height() << endl;
-    */
-    m_image_scaled =
-	Gdk::Pixbuf::create(m_image->get_colorspace(),
-			    m_image->get_has_alpha(),
-			    m_image->get_bits_per_sample(),
-			    m_image->get_width()-cr_le-cr_ri,
-			    m_image->get_height()-cr_up-cr_do);
-    m_image->copy_area(cr_le, cr_up,
-		       m_image->get_width()-cr_le-cr_ri,
-		       m_image->get_height()-cr_up-cr_do,
-		       m_image_scaled, 0, 0);
-    /*
-    cout << file_name << ": scaled size: " << m_image_scaled->get_width() << "x"
-	 << m_image_scaled->get_height() << cr_le << "," << cr_up << endl;
-    */
-    
-    m_image_scaled =
-	m_image_scaled->scale_simple(get_allocated_width(),
-				     get_allocated_height(),
-				     Gdk::INTERP_BILINEAR);
-#endif
+    //cout << __FUNCTION__ << ": " << file_name << endl;
     return TRUE;
 }
 
