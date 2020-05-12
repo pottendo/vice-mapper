@@ -20,10 +20,15 @@
 
 using namespace::std;
 Glib::RefPtr<Gdk::Pixbuf> map_window::empty_image;
+double map_window::scale_factor_x = 3.0;
+double map_window::scale_factor_y = 3.0;
+map_window *map_window::mw;
 
 map_window::map_window()
+    : ctrls("Controls")
 {
     set_title("Map");
+    mw = this;
     //set_default_size(400,400);
     set_border_width(4);
 
@@ -31,7 +36,7 @@ map_window::map_window()
     map_grid.set_vexpand(TRUE);
     
     scw.set_border_width(4);
-    scw.set_size_request(400, 400);
+    scw.set_size_request(200, 300);
     scw.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
     
     scw.add(map_grid);
@@ -41,9 +46,8 @@ map_window::map_window()
     map_frame->add(scw);
     hbox.add(*map_frame);
 
-    map_controls *ctrls = new map_controls("Controls"); // never deleted, TODO
     //ctrl_frame->set_size_request(200, -1);
-    hbox.add(*ctrls);
+    hbox.add(ctrls);
     add(hbox);
 
     add_events(Gdk::SCROLL_MASK);
@@ -59,17 +63,20 @@ map_window::on_scroll_event(GdkEventScroll *scroll_event)
 {
     switch(scroll_event->direction) {
     case GDK_SCROLL_UP:
-	scale_factor *= 1.05;
-	scale_all(scale_factor);
+	scale_factor_x *= 1.05;
+	scale_factor_y *= 1.05;
 	break;
     case GDK_SCROLL_DOWN:
-	scale_factor /= 1.05;
-	scale_all(scale_factor);
+	scale_factor_x /= 1.05;
+	scale_factor_y /= 1.05;
 	break;
     default:
 	;
 	//cout << scroll_event->direction;
     }
+    scale_factor_x = MIN(scale_factor_x, 4.0);
+    scale_factor_y = MIN(scale_factor_y, 4.0);
+    ctrls.set_zoom(scale_factor_x, scale_factor_y);
     return TRUE;
 }
 
@@ -98,13 +105,13 @@ map_window::fill_empties()
 }
 
 void
-map_window::scale_all(float sf) 
+map_window::scale_all(void) 
 {
     int x, y;
     for (x = MyArea::xmin; x <= MyArea::xmax; x++) {
 	for (y = MyArea::ymin; y <= MyArea::ymax; y++) {
 	    if (tiles[x][y] != NULL) {
-		tiles[x][y]->scale(sf);
+		tiles[x][y]->scale(scale_factor_x, scale_factor_y);
 	    }
 	}
     }

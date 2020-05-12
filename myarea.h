@@ -15,13 +15,13 @@
 
 #include <gtkmm/drawingarea.h>
 #include <gdkmm/pixbuf.h>
+#include <vector>
 
 class MyArea : public Gtk::DrawingArea
 {
     const char *file_name;
     int xk;
     int yk;
-    static const int cr_up=72, cr_do=36+5, cr_le=32+10, cr_ri=32+10;
     static std::vector<Gtk::TargetEntry> listTargets;
     static Glib::RefPtr<Gdk::Pixbuf> dnd_image;
   
@@ -29,11 +29,14 @@ class MyArea : public Gtk::DrawingArea
     MyArea(const char *fn, int xk = -1, int yk = -1);
     virtual ~MyArea();
 
+    static std::vector<MyArea *> all_tiles;
+
     void print(void);
     inline int getX(void) { return xk; }
     inline int getY(void) { return yk; }
     static int xmin, ymin, xmax, ymax;
-    void scale(float sf);
+    static int cr_up, cr_do, cr_le, cr_ri;
+    void scale(float sfx, float sfy);
 
   protected:
     //Override default signal handler:

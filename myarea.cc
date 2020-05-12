@@ -26,6 +26,8 @@ using namespace::std;
 std::vector<Gtk::TargetEntry> MyArea::listTargets;
 Glib::RefPtr<Gdk::Pixbuf> MyArea::dnd_image;
 int MyArea::xmin = -1, MyArea::ymin = -1, MyArea::xmax = -1, MyArea::ymax = -1;
+int MyArea::cr_up=36, MyArea::cr_do=36, MyArea::cr_le=32, MyArea::cr_ri=32;
+vector<MyArea *> MyArea::all_tiles;
 
 MyArea::MyArea(const char *fn, int x, int y)
 {
@@ -58,8 +60,10 @@ MyArea::MyArea(const char *fn, int x, int y)
 	    print();
 	}
 	else {
-	    std::cerr << "Invalid filename convention (vice-screen-XX:YY.png): " << s << std::endl;
+	    std::cerr << "filename not following convention (vice-screen-XX:YY.png): "
+		      << s << std::endl;
 	}
+	all_tiles.push_back(this);
     }
     else {
 	xk = x; yk = y;
@@ -109,8 +113,25 @@ MyArea::print(void)
 bool
 MyArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 {
-    if (!m_image_scaled)
-	return false;
+    m_image_scaled =
+	Gdk::Pixbuf::create(m_image->get_colorspace(),
+			    m_image->get_has_alpha(),
+			    m_image->get_bits_per_sample(),
+			    m_image->get_width()-cr_le-cr_ri,
+			    m_image->get_height()-cr_up-cr_do);
+    m_image->copy_area(cr_le, cr_up,
+		       m_image->get_width()-cr_le-cr_ri,
+		       m_image->get_height()-cr_up-cr_do,
+		       m_image_scaled, 0, 0);
+    /*
+    cout << file_name << ": scaled size: " << m_image_scaled->get_width() << "x"
+	 << m_image_scaled->get_height() << cr_le << "," << cr_up << endl;
+    */
+    
+    m_image_scaled =
+	m_image_scaled->scale_simple(get_allocated_width(),
+				     get_allocated_height(),
+				     Gdk::INTERP_BILINEAR);
 
     Gtk::Allocation allocation = get_allocation();
     const int width = allocation.get_width();
@@ -122,13 +143,14 @@ MyArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 				  (width - m_image_scaled->get_width())/2,
 				  (height - m_image_scaled->get_height())/2);
     cr->paint();
-
+    cout << "on_draw: " << file_name << endl;
     return true;
 }
 
 bool
 MyArea::on_configure_event(GdkEventConfigure *configure_event)
 {
+#if 0
     /*
     cout << "configure event: " << file_name << "-" <<
 	get_allocated_width() << "x" << get_allocated_height() << endl;
@@ -152,6 +174,7 @@ MyArea::on_configure_event(GdkEventConfigure *configure_event)
 	m_image_scaled->scale_simple(get_allocated_width(),
 				     get_allocated_height(),
 				     Gdk::INTERP_BILINEAR);
+#endif
     return TRUE;
 }
 
@@ -184,7 +207,7 @@ void MyArea::on_label_drop_drag_data_received(
 }
 
 void
-MyArea::scale(float sf) 
+MyArea::scale(float sfx, float sfy) 
 {
-    set_size_request(m_image->get_width()/sf, m_image->get_height()/sf);
+    set_size_request(m_image->get_width()/sfx, m_image->get_height()/sfy);
 }
