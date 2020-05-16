@@ -89,8 +89,9 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
     set_hexpand(TRUE);
     set_vexpand(TRUE);
     
-    listTargets.push_back( Gtk::TargetEntry("MAPPER", Gtk::TARGET_SAME_APP) );
-    drag_source_set(listTargets);
+    listTargets.push_back( Gtk::TargetEntry("text/plain",
+					    Gtk::TARGET_SAME_APP /*| Gtk::TARGET_OTHER_WIDGET*/) );
+    drag_source_set(listTargets, Gdk::BUTTON1_MASK, Gdk::ACTION_COPY|Gdk::ACTION_MOVE);
     drag_dest_set(listTargets);
     drag_source_set_icon(m_image->scale_simple(m_image->get_width()/3,
 					       m_image->get_height()/3,

@@ -41,30 +41,17 @@ class map_controls : public Gtk::Frame
     Glib::RefPtr<Gtk::Adjustment> adj_crle;
     Glib::RefPtr<Gtk::Adjustment> adj_crri;
     // Unplaced tiles
+    Gtk::VBox unpl_tilesbox;
+    
   protected:
-    //Tree model columns:
-    class ModelColumns : public Gtk::TreeModel::ColumnRecord {
-    public:
-      
-      ModelColumns() {
-	  add(m_col_fname); add(m_col_tilepixmap);
-      }
-      
-      Gtk::TreeModelColumn<Glib::ustring> m_col_fname;
-      Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > m_col_tilepixmap;
-  };
-  
-  ModelColumns m_Columns;    
-  Gtk::ScrolledWindow m_ScrolledWindow;
-  Gtk::TreeView m_TreeView;
-  Glib::RefPtr<Gtk::ListStore> m_refTreeModel;
-  
+    Gtk::ScrolledWindow m_ScrolledWindow;
+
   public:
-  map_controls(map_window &m, const Glib::ustring &);
-  virtual ~map_controls() {};
-  
-  void set_zoom(double x, double y);
-  void add_tile(MyArea *tile);
+    map_controls(map_window &m, const Glib::ustring &);
+    virtual ~map_controls() {};
+    
+    void set_zoom(double x, double y);
+    void add_tile(MyArea *tile);
 };
 
 #endif /* __map_controls_h__ */

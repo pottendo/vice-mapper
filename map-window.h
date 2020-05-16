@@ -26,23 +26,29 @@ const int resY = 272;
 
 class map_window : public Gtk::Window
 {
-    // Signal handlers:
-    bool on_scroll_event(GdkEventScroll *scroll_event) override;
-  
+  protected:
+    class MyScw : public Gtk::ScrolledWindow
+    {
+	// Signal handlers:
+	bool on_scroll_event(GdkEventScroll *scroll_event) override;
+      public:
+	MyScw() { add_events(Gdk::SCROLL_MASK); };
+	map_controls *mc;
+    };
     // Child widgets:
     Gtk::Grid map_grid;
-    Gtk::ScrolledWindow scw;
+    MyScw scw;
     Gtk::HBox hbox;		/* main layout box */
     Glib::RefPtr<Gdk::Pixbuf> m_empty;
     MyArea *tiles[map_max][map_max];
-    map_controls ctrls;
+    map_controls *ctrls;
 
   public:
     map_window();
     virtual ~map_window() {};
 
     void add_tile(MyArea *);
-    void add_unplaced_tile(MyArea *t) { ctrls.add_tile(t); }
+    void add_unplaced_tile(MyArea *t) { ctrls->add_tile(t); }
 	
     void fill_empties();
     void scale_all(void);

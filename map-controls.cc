@@ -25,14 +25,23 @@ using namespace::std;
 map_controls::map_controls(map_window &m, const Glib::ustring &name)
     : Gtk::Frame(name),
       button_quit("Quit"),
-      mw(m)
+      mw(m),
+      unpl_tilesbox(Gtk::VBox())
 {
     cout << __FILE__ << name << " created." << endl;
 
+    set_halign(Gtk::ALIGN_END);
+    
     Gtk::VBox *vb = new Gtk::VBox;
+    vb->set_hexpand(FALSE);
+    vb->set_vexpand(FALSE);
+    vb->set_size_request(200, -1);
     
     Gtk::Frame *zoom_frame = new Gtk::Frame("Zoom");
+    zoom_frame->set_halign(Gtk::ALIGN_END);
     Gtk::VBox *zvb = new Gtk::VBox;
+    zvb->set_size_request(200,-1);
+    zvb->set_halign(Gtk::ALIGN_END);
     zoom_frame->add(*zvb);
     
     adjx = Gtk::Adjustment::create(3.0, 0.1, 4.0, 0.05, 0.1, 0);
@@ -52,7 +61,11 @@ map_controls::map_controls(map_window &m, const Glib::ustring &name)
     vb->pack_start(*zoom_frame, FALSE, FALSE, 0);
 
     Gtk::Frame *crop_frame = new Gtk::Frame("Crop");
+    crop_frame->set_halign(Gtk::ALIGN_END);
     Gtk::VBox *cvb = new Gtk::VBox;
+    cvb->set_halign(Gtk::ALIGN_END);
+    cvb->set_size_request(200, -1);
+    
     crop_frame->add(*cvb);
     
     adj_crup = Gtk::Adjustment::create(36.0, 0, resY/2, 1.0, 10.0, 0);
@@ -83,33 +96,23 @@ map_controls::map_controls(map_window &m, const Glib::ustring &name)
 	.connect(sigc::mem_fun(*this, &map_controls::on_scale_crop));
     cvb->pack_start(*scale_crri, FALSE, FALSE, 0);
 
+    
     vb->pack_start(*crop_frame, FALSE, FALSE, 0);
+
+    Gtk::Frame *tiles_frame = new Gtk::Frame("Unplaced tiles");
+    m_ScrolledWindow.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+    tiles_frame->add(m_ScrolledWindow);
+    unpl_tilesbox.set_halign(Gtk::ALIGN_END);
+    m_ScrolledWindow.add(unpl_tilesbox);
+    
+    m_ScrolledWindow.set_size_request(200, -1);
+    vb->pack_start(*tiles_frame, TRUE, TRUE, 0);
 
     button_quit.add_events(Gdk::BUTTON_PRESS_MASK);
     button_quit.signal_button_press_event()
 	.connect(sigc::mem_fun(*this, &map_controls::on_button_quit_press_event));
 
-    Gtk::Frame *tiles_frame = new Gtk::Frame("Unplaced tiles");
-    Gtk::VBox *tvb = new Gtk::VBox;
-    tiles_frame->add(*tvb);
-    m_ScrolledWindow.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-    tvb->add(m_ScrolledWindow);
-    m_ScrolledWindow.add(m_TreeView);
-    m_ScrolledWindow.set_size_request(-1, 200);
-    
-    //Create the Tree model:
-    m_refTreeModel = Gtk::ListStore::create(m_Columns);
-    m_TreeView.set_model(m_refTreeModel);
-    m_TreeView.enable_model_drag_source(MyArea::listTargets);
-    //m_TreeView.enable_model_drag_dest(MyArea::listTargets);
-    
-    m_TreeView.append_column("Tile", m_Columns.m_col_tilepixmap);
-    m_TreeView.append_column("Name", m_Columns.m_col_fname);
-
-    vb->pack_start(*tiles_frame, FALSE, FALSE, 0);
-    
     vb->pack_start(button_quit, FALSE, FALSE, 0);
-
     add(*vb);
     show_all_children();
 }
@@ -124,7 +127,7 @@ map_controls::on_button_quit_press_event(GdkEventButton *)
 void
 map_controls::on_scale_event1() 
 {
-    //cout << "Scale 1: " << adjx->get_value() << endl;
+    cout << "Scale 1: " << adjx->get_value() << endl;
     map_window::scale_factor_x = adjx->get_value();
     mw.scale_all();
 }
@@ -132,7 +135,7 @@ map_controls::on_scale_event1()
 void
 map_controls::on_scale_event2() 
 {
-    //cout << "Scale 2: " << adjy->get_value() << endl;
+    cout << "Scale 2: " << adjy->get_value() << endl;
     map_window::scale_factor_y = adjy->get_value();
     mw.scale_all();
 }
@@ -160,7 +163,6 @@ void
 map_controls::add_tile(MyArea *tile) 
 {
     std::experimental::filesystem::path p(tile->get_fname());
-    Gtk::TreeModel::Row row = *(m_refTreeModel->append());
-    row[m_Columns.m_col_fname] = p.filename().string();
-    row[m_Columns.m_col_tilepixmap] = tile->get_pixmap_icon();
+    unpl_tilesbox.pack_end(*tile, TRUE, TRUE, 4);
 }
+
