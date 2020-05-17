@@ -24,7 +24,7 @@
 
 using namespace::std;
 std::vector<Gtk::TargetEntry> MyArea::listTargets;
-Glib::RefPtr<Gdk::Pixbuf> MyArea::dnd_image;
+MyArea *MyArea::dnd_tile;
 int MyArea::xmin = map_max+1, MyArea::ymin = map_max + 1, MyArea::xmax = -1, MyArea::ymax = -1;
 int MyArea::cr_up=36, MyArea::cr_do=36, MyArea::cr_le=32, MyArea::cr_ri=32;
 vector<MyArea *> MyArea::all_tiles;
@@ -163,12 +163,11 @@ MyArea::on_button_drag_data_get(
     const Glib::RefPtr<Gdk::DragContext>&,
     Gtk::SelectionData& selection_data, guint, guint)
 {
+    
     selection_data.set(selection_data.get_target(), 8 /* 8 bits format */,
-		       (const guchar*)"I'm Data!",
-		       9 /* the length of I'm Data! in bytes */);
+		       (const guchar*)"TILE", 4);
 
-    cout << "Drag start at " << file_name << endl;
-    dnd_image = m_image;
+    dnd_tile = this;
 }
 
 void MyArea::on_label_drop_drag_data_received(
@@ -178,11 +177,17 @@ void MyArea::on_label_drop_drag_data_received(
     const int length = selection_data.get_length();
     if((length >= 0) && (selection_data.get_format() == 8))
     {
-	std::cout << "Received \"" << selection_data.get_data_as_string()
-		  << "\" in label " << std::endl;
+	if (selection_data.get_data_as_string().compare("TILE") != 0) {
+	    cout << "Dragdest: " << selection_data.get_data_as_string() << " l: "
+		 << selection_data.get_data_as_string().length() << endl;
+	    return;
+	}
     }
+    /*
+    cout << "Drag start at "; dnd_tile->print();
     cout << "Drag stop at " << file_name << endl;
-    m_image = dnd_image;
+    */
+    xchange_tiles(*dnd_tile, *this);
     context->drag_finish(false, false, time);
 }
 
@@ -190,4 +195,12 @@ void
 MyArea::scale(float sfx, float sfy) 
 {
     set_size_request(m_image->get_width()/sfx, m_image->get_height()/sfy);
+}
+
+void
+MyArea::xchange_tiles(MyArea &s, MyArea &d) 
+{
+    // call this == destination tile
+    cout << __FUNCTION__ << ": " << s.get_fname() << " <-> " << d.get_fname() << endl;
+    // set dirty flag for later commit
 }

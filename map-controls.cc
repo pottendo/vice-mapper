@@ -28,8 +28,6 @@ map_controls::map_controls(map_window &m, const Glib::ustring &name)
       mw(m),
       unpl_tilesbox(Gtk::VBox())
 {
-    cout << __FILE__ << name << " created." << endl;
-
     set_halign(Gtk::ALIGN_END);
     
     Gtk::VBox *vb = new Gtk::VBox;
@@ -127,7 +125,7 @@ map_controls::on_button_quit_press_event(GdkEventButton *)
 void
 map_controls::on_scale_event1() 
 {
-    cout << "Scale 1: " << adjx->get_value() << endl;
+    //cout << "Scale 1: " << adjx->get_value() << endl;
     map_window::scale_factor_x = adjx->get_value();
     mw.scale_all();
 }
@@ -135,7 +133,7 @@ map_controls::on_scale_event1()
 void
 map_controls::on_scale_event2() 
 {
-    cout << "Scale 2: " << adjy->get_value() << endl;
+    //cout << "Scale 2: " << adjy->get_value() << endl;
     map_window::scale_factor_y = adjy->get_value();
     mw.scale_all();
 }

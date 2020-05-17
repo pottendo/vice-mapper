@@ -76,7 +76,7 @@ map_window::MyScw::on_scroll_event(GdkEventScroll *scroll_event)
 	GdkScrollDirection dir;
 	gdouble dx, dy;
 	if (gdk_event_get_scroll_direction((GdkEvent *)scroll_event, &dir)) {
-	    cout << __FUNCTION__ << ": direction = " << dir << endl;
+	    // cout << __FUNCTION__ << ": direction = " << dir << endl;
 	    switch (dir) {
 	    case GDK_SCROLL_UP:
 		scale_factor_x *= 1.05;
@@ -96,7 +96,7 @@ map_window::MyScw::on_scroll_event(GdkEventScroll *scroll_event)
 	    if (dx < 0) scale_factor_x /= 1.05;
 	    if (dy > 0) scale_factor_y *= 1.05;
 	    if (dy < 0) scale_factor_y /= 1.05;
-	    cout << __FUNCTION__ << ": dx = " << dx << ", dy = " << dy << endl;
+	    //cout << __FUNCTION__ << ": dx = " << dx << ", dy = " << dy << endl;
 	}
 
     }

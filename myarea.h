@@ -22,9 +22,10 @@ class map_window;
 class MyArea : public Gtk::DrawingArea
 {
     const char *file_name;
+    bool dirty;
     int xk, yk;
     map_window &mw;
-    static Glib::RefPtr<Gdk::Pixbuf> dnd_image;
+    static MyArea *dnd_tile;
   
   public:
     MyArea(map_window &m, const char *fn, int xk = -1, int yk = -1);
@@ -34,13 +35,17 @@ class MyArea : public Gtk::DrawingArea
     static std::vector<Gtk::TargetEntry> listTargets;
 
     void print(void);
+    inline const char *get_fname() { return file_name; }
+    inline const Glib::RefPtr<Gdk::Pixbuf> get_pixmap_icon() { return m_image_icon; }
     inline int getX(void) { return xk; }
     inline int getY(void) { return yk; }
+    inline bool get_dirty(void) { return dirty; }
+    inline void set_dirty(bool d) { dirty = d; }
+	
     static int xmin, ymin, xmax, ymax;
     static int cr_up, cr_do, cr_le, cr_ri;
     void scale(float sfx, float sfy);
-    inline const char *get_fname() { return file_name; }
-    inline const Glib::RefPtr<Gdk::Pixbuf> get_pixmap_icon() { return m_image_icon; }
+    void xchange_tiles(MyArea &s, MyArea &d);
 
   protected:
     //Override default signal handler:
