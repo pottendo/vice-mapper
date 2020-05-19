@@ -24,7 +24,6 @@ class MyArea : public Gtk::DrawingArea
     const char *file_name;
     bool dirty, empty;
     int xk, yk;
-    map_window &mw;
     static MyArea *dnd_tile;
   
   public:
@@ -33,6 +32,9 @@ class MyArea : public Gtk::DrawingArea
 
     static std::vector<MyArea *> all_tiles;
     static std::vector<Gtk::TargetEntry> listTargets;
+    static void refresh_minmax(void);
+
+    map_window &mw;
 
     void print(void);
     inline const char *get_fname() { return file_name; }
@@ -41,14 +43,15 @@ class MyArea : public Gtk::DrawingArea
     inline int getY(void) { return yk; }
     inline void setXY(int x, int y) { xk = x; yk = y; set_dirty(true);}
     inline void getXY(int &x, int &y) { x = getX(); y = getY(); }
-    inline bool get_dirty(void) { return dirty; }
-    inline void set_dirty(bool d) { dirty = d; }
+    inline bool is_dirty(void) { return dirty; }
+    inline void set_dirty(bool d) { dirty = (!is_empty()) ? d: FALSE; } /* empty is never dirty */
     inline bool is_empty(void) { return empty; }
 	
     static int xmin, ymin, xmax, ymax;
     static int cr_up, cr_do, cr_le, cr_ri;
     void scale(float sfx, float sfy);
     void xchange_tiles(MyArea &s, MyArea &d);
+    bool update_minmax(void);
 
   protected:
     //Override default signal handler:

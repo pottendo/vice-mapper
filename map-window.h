@@ -26,6 +26,7 @@ const int resY = 272;
 
 class map_window : public Gtk::Window
 {
+    int get_empty_area(int from_x, int from_y, int to_x, int to_y);
   protected:
     class MyScw : public Gtk::ScrolledWindow
     {

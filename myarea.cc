@@ -65,20 +65,13 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 	    else {
 	      print();
 	      cout << "A-xm:" << xmin << ",ym:" << ymin << endl;
-	      xmin = MIN(xmin, xk);
-	      ymin = MIN(ymin, yk);
-	      xmax = MAX(xmax, xk);
-	      ymax = MAX(ymax, yk);
-	      if (xmin == xk) xmin--;
-	      if (ymin == yk) ymin--;
-	      if (xmax == xk) xmax++;
-	      if (ymax == yk) ymax++;
+	      (void) update_minmax();
 	      cout << "B-xm:" << xmin << ",ym:" << ymin << endl;
 		
 	      mw.add_tile(this);
-	      all_tiles.push_back(this);
-	      empty = false;
 	    }
+	    empty = false;
+	    all_tiles.push_back(this);
 	}
 	else {
 	    std::cerr << "filename not following convention (vice-screen-XX:YY.png): "
@@ -91,6 +84,8 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 	m_image = map_window::empty_image;
 	empty = true;
     }
+    set_dirty(FALSE);		// initially we're in sync with files.
+    
     // Show at least a quarter of the image.
     if (m_image) {
 	set_size_request(m_image->get_width()/3, m_image->get_height()/3);
@@ -117,6 +112,8 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 
 MyArea::~MyArea()
 {
+    cout << "*** Destructor called for ";
+    print();
 }
 
 void
@@ -147,7 +144,10 @@ MyArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 	m_image_scaled->scale_simple(get_allocated_width(),
 				     get_allocated_height(),
 				     Gdk::INTERP_BILINEAR);
-
+    if (is_dirty()) {
+	m_image_scaled->saturate_and_pixelate(m_image_scaled, 0.7, TRUE);
+    }
+    
     Gtk::Allocation allocation = get_allocation();
     const int width = allocation.get_width();
     const int height = allocation.get_height();
@@ -197,6 +197,8 @@ void MyArea::on_label_drop_drag_data_received(
     cout << "Drag start at "; dnd_tile->print();
     cout << "Drag stop at " << file_name << endl;
     */
+    if (dnd_tile == this) return; // Don't do anything if we drag over ourselves
+    if (this->getX() == -1) return; // we don't drag back to unplaced tiles
     xchange_tiles(*dnd_tile, *this);
     context->drag_finish(false, false, time);
 }
@@ -213,7 +215,35 @@ MyArea::xchange_tiles(MyArea &s, MyArea &d)
     // call this == destination tile
     cout << __FUNCTION__ << ": " << s.get_fname() << " <-> " << d.get_fname() << endl;
     // set dirty flag for later commit
-    if (!this->is_empty()) this->set_dirty(true);
-    if (!s.is_empty()) s.set_dirty(true);
+    d.set_dirty(true);
+    s.set_dirty(true);
     mw.xchange_tiles(&s, this);
+}
+
+bool
+MyArea::update_minmax(void) 
+{
+    bool changed = false;
+
+    if (xk < 0) return false;	// unplaced tile, no update of maxima/minima
+    
+    xmin = MIN(xmin, xk);
+    ymin = MIN(ymin, yk);
+    xmax = MAX(xmax, xk);
+    ymax = MAX(ymax, yk);
+    if (xmin == xk) { xmin--; changed = true; }
+    if (ymin == yk) { ymin--; changed = true; }
+    if (xmax == xk) { xmax++; changed = true; }
+    if (ymax == yk) { ymax++; changed = true; }
+    return changed;
+}
+
+void
+MyArea::refresh_minmax(void)
+{
+    xmin = ymin = map_max + 1;
+    xmax = ymax = -1;
+    std::for_each(all_tiles.begin(), all_tiles.end(),
+		  [](MyArea *t)->void { (void) t->update_minmax(); } );
+    //cout << "New dimension: " << xmin << "," << ymin << "x" << xmax << "," << ymax << endl;
 }

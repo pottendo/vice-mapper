@@ -109,27 +109,19 @@ map_window::MyScw::on_scroll_event(GdkEventScroll *scroll_event)
 void
 map_window::add_tile(MyArea *a) 
 {
-  cout << "adding: ";
-  a->print();
-  if (map_grid.get_child_at(a->getX(), a->getY())) {
-    cout << "removing: ";
-    a->print();
-    map_grid.remove(*a);
-  }
-
-  map_grid.attach(*a, a->getX(), a->getY());
-  tiles[a->getX()][a->getY()] = a;
-  show_all_children();
+    map_grid.attach(*a, a->getX(), a->getY());
+    tiles[a->getX()][a->getY()] = a;
+    show_all_children();
 }
 
 void
 map_window::fill_empties() 
 {
     int x, y;
-    
+    /*
     cout << "X:" << MyArea::xmin << "-" << MyArea::xmax
 	 << "Y:" << MyArea::ymin << "-" << MyArea::ymax << endl;
-  
+    */
     for (x = MyArea::xmin; x <= MyArea::xmax; x++) {
 	for (y = MyArea::ymin; y <= MyArea::ymax; y++) {
 	    if (tiles[x][y] == NULL) {
@@ -152,13 +144,94 @@ map_window::scale_all(void)
     }
 }
 
+int
+map_window::get_empty_area(int from_x, int from_y, int to_x, int to_y)
+{
+    int x, y;
+    int do_scratch = 0;
+    MyArea *t;
+    std::vector<MyArea *> scratch;
+    
+    for (y = from_y; y < to_y; y++) {
+	for (x = from_x; x < to_x; x++) {
+	    if (tiles[x][y]) {
+		if (!(t = tiles[x][y])->is_empty()) {
+		    break;
+		    }
+		scratch.push_back(t);
+		do_scratch++;
+	    }
+	}
+    }
+    if (do_scratch) {
+	cout << "found " << do_scratch << " empty tiles to remove." << endl;
+	std::for_each(scratch.begin(), scratch.end(),
+		      [](MyArea *x)->void {
+			  if (x) {
+			      x->mw.map_grid.remove(*x);
+			      x->mw.tiles[x->getX()][x->getY()] = NULL;
+			      delete x;
+			  }
+		      });
+    }
+    return do_scratch;
+}
+
 void
 map_window::xchange_tiles(MyArea *s, MyArea *d)
 {
-    int tx, ty;
-    s->getXY(tx, ty);		// get x,y
-    s->setXY(d->getX(), d->getY());
-    d->setXY(tx, ty);
+    int tsx, tsy, tdx, tdy;
+    MyArea *t;
+    s->getXY(tsx, tsy);		// get x,y
+    d->getXY(tdx, tdy);
+
+    if ((tsx == -1) && (tsy == -1)) {
+	cout << "*** shoud not happen !!! - placed from/to unplaced tiles." << endl;
+	return;
+    }
+    
+    if (tsx == -1) {
+	//cout << "remove from unplaced tiles";
+	s->print();
+	ctrls->remove_tile(s);
+    }
+    if ((t = (MyArea *) map_grid.get_child_at(s->getX(), s->getY())) != NULL) {
+	//cout << "removing: ";
+	t->print();
+	map_grid.remove(*t);
+    }
+    if (tdx == -1) {
+	cout << "*** should not happen !!! - move to unplaced tiles";
+	//special case - add to list of unplace tiles
+	return;
+	
+    }
+    if ((t = (MyArea *) map_grid.get_child_at(d->getX(), d->getY())) != NULL) {
+	cout << "removing: ";
+	t->print();
+	map_grid.remove(*t);
+    }
+	
+    s->setXY(tdx, tdy);
     add_tile(s);
-    add_tile(d);
+    d->setXY(tsx, tsy);
+    if (tsx != -1) add_tile(d);
+    else {
+	if (!d->is_empty())	// pushback if we placed on occupied tile
+	    ctrls->add_tile(d);
+    }
+    
+    // check if we need to grow/shrink
+    if (s->update_minmax()) fill_empties(); // already placed therefore s(ource)!
+    else {
+	int do_scratch = 0;
+	MyArea::refresh_minmax();
+	do_scratch += get_empty_area(0, 0, map_max, MyArea::ymin);
+	do_scratch += get_empty_area(0, MyArea::ymax+1, map_max, map_max);
+	do_scratch += get_empty_area(0, 0, MyArea::xmin, map_max);
+	do_scratch += get_empty_area(MyArea::xmax+1, 0, map_max, map_max);
+	if (do_scratch) {
+	    cout << "found " << do_scratch << " empty tiles to remove." << endl;
+	}
+    }
 }

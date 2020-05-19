@@ -52,6 +52,7 @@ class map_controls : public Gtk::Frame
     
     void set_zoom(double x, double y);
     void add_tile(MyArea *tile);
+    void remove_tile(MyArea *t);
 };
 
 #endif /* __map_controls_h__ */

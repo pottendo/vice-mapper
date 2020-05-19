@@ -160,7 +160,12 @@ map_controls::set_zoom(double x, double y)
 void
 map_controls::add_tile(MyArea *tile) 
 {
-    std::experimental::filesystem::path p(tile->get_fname());
-    unpl_tilesbox.pack_end(*tile, TRUE, TRUE, 4);
+    //std::experimental::filesystem::path p(tile->get_fname());
+    unpl_tilesbox.pack_end(*tile, FALSE, FALSE, 4);
 }
 
+void
+map_controls::remove_tile(MyArea *tile) 
+{
+    unpl_tilesbox.remove(*tile);
+}
