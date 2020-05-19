@@ -22,7 +22,7 @@ class map_window;
 class MyArea : public Gtk::DrawingArea
 {
     const char *file_name;
-    bool dirty;
+    bool dirty, empty;
     int xk, yk;
     map_window &mw;
     static MyArea *dnd_tile;
@@ -39,8 +39,11 @@ class MyArea : public Gtk::DrawingArea
     inline const Glib::RefPtr<Gdk::Pixbuf> get_pixmap_icon() { return m_image_icon; }
     inline int getX(void) { return xk; }
     inline int getY(void) { return yk; }
+    inline void setXY(int x, int y) { xk = x; yk = y; set_dirty(true);}
+    inline void getXY(int &x, int &y) { x = getX(); y = getY(); }
     inline bool get_dirty(void) { return dirty; }
     inline void set_dirty(bool d) { dirty = d; }
+    inline bool is_empty(void) { return empty; }
 	
     static int xmin, ymin, xmax, ymax;
     static int cr_up, cr_do, cr_le, cr_ri;

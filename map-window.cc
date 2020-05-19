@@ -109,19 +109,27 @@ map_window::MyScw::on_scroll_event(GdkEventScroll *scroll_event)
 void
 map_window::add_tile(MyArea *a) 
 {
-    map_grid.attach(*a, a->getX(), a->getY());
-    tiles[a->getX()][a->getY()] = a;
-    show_all_children();
+  cout << "adding: ";
+  a->print();
+  if (map_grid.get_child_at(a->getX(), a->getY())) {
+    cout << "removing: ";
+    a->print();
+    map_grid.remove(*a);
+  }
+
+  map_grid.attach(*a, a->getX(), a->getY());
+  tiles[a->getX()][a->getY()] = a;
+  show_all_children();
 }
 
 void
 map_window::fill_empties() 
 {
     int x, y;
-/*    
+    
     cout << "X:" << MyArea::xmin << "-" << MyArea::xmax
 	 << "Y:" << MyArea::ymin << "-" << MyArea::ymax << endl;
-*/  
+  
     for (x = MyArea::xmin; x <= MyArea::xmax; x++) {
 	for (y = MyArea::ymin; y <= MyArea::ymax; y++) {
 	    if (tiles[x][y] == NULL) {
@@ -142,4 +150,15 @@ map_window::scale_all(void)
 	    }
 	}
     }
+}
+
+void
+map_window::xchange_tiles(MyArea *s, MyArea *d)
+{
+    int tx, ty;
+    s->getXY(tx, ty);		// get x,y
+    s->setXY(d->getX(), d->getY());
+    d->setXY(tx, ty);
+    add_tile(s);
+    add_tile(d);
 }

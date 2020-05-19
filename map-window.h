@@ -52,6 +52,7 @@ class map_window : public Gtk::Window
 	
     void fill_empties();
     void scale_all(void);
+    void xchange_tiles(MyArea *s, MyArea *d);
     static Glib::RefPtr<Gdk::Pixbuf> empty_image;
     static double scale_factor_x;
     static double scale_factor_y;

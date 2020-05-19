@@ -63,12 +63,21 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 		mw.add_unplaced_tile(this);
 	    }
 	    else {
-		xmin = MIN(xmin, xk);
-		ymin = MIN(ymin, yk);
-		xmax = MAX(xmax, xk);
-		ymax = MAX(ymax, yk);
-		mw.add_tile(this);
-		all_tiles.push_back(this);
+	      print();
+	      cout << "A-xm:" << xmin << ",ym:" << ymin << endl;
+	      xmin = MIN(xmin, xk);
+	      ymin = MIN(ymin, yk);
+	      xmax = MAX(xmax, xk);
+	      ymax = MAX(ymax, yk);
+	      if (xmin == xk) xmin--;
+	      if (ymin == yk) ymin--;
+	      if (xmax == xk) xmax++;
+	      if (ymax == yk) ymax++;
+	      cout << "B-xm:" << xmin << ",ym:" << ymin << endl;
+		
+	      mw.add_tile(this);
+	      all_tiles.push_back(this);
+	      empty = false;
 	    }
 	}
 	else {
@@ -80,6 +89,7 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 	xk = x; yk = y;
 	file_name = "empty";
 	m_image = map_window::empty_image;
+	empty = true;
     }
     // Show at least a quarter of the image.
     if (m_image) {
@@ -203,4 +213,7 @@ MyArea::xchange_tiles(MyArea &s, MyArea &d)
     // call this == destination tile
     cout << __FUNCTION__ << ": " << s.get_fname() << " <-> " << d.get_fname() << endl;
     // set dirty flag for later commit
+    if (!this->is_empty()) this->set_dirty(true);
+    if (!s.is_empty()) s.set_dirty(true);
+    mw.xchange_tiles(&s, this);
 }
