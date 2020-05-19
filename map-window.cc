@@ -106,6 +106,64 @@ map_window::MyScw::on_scroll_event(GdkEventScroll *scroll_event)
     return TRUE;
 }
 
+bool
+map_window::MyScw::on_motion_notify_event(GdkEventMotion* motion_event) 
+{
+    static gdouble xp, yp;
+    
+    if (space_modifier && button_press) {
+	int dx, dy;
+	
+	dx = ((motion_event->x - xp) < -10) ? -1 : ((motion_event->x - xp) > 10) ? 1 : 0;
+	dy = ((motion_event->y - yp) < -10) ? -1 : ((motion_event->y - yp) > 10) ? 1 : 0;
+	cout << __FUNCTION__ << ": space+mouse-move: hadj = " << get_hadjustment()->get_value()
+	     << "- dx: " << dx << ",dy: " << dy << endl;
+	xp = motion_event->x;
+	yp = motion_event->y;
+	get_hadjustment()->set_value(get_hadjustment()->get_value() + dx);
+	get_vadjustment()->set_value(get_vadjustment()->get_value() + dy);
+	
+	return FALSE;
+    }
+    
+    return TRUE;
+}
+
+bool
+map_window::MyScw::on_key_press_event(GdkEventKey *key_event) 
+{
+    if (key_event->keyval == GDK_KEY_space) {
+	space_modifier = true;
+	return FALSE;
+    }
+    return TRUE;
+}
+
+bool
+map_window::MyScw::on_key_release_event(GdkEventKey *key_event) 
+{
+    if (key_event->keyval == GDK_KEY_space) {
+	space_modifier = false;
+	return FALSE;
+    }
+    return TRUE;
+}
+
+bool
+map_window::MyScw::on_button_press_event(GdkEventButton* button_event) 
+{
+    button_press = TRUE;
+    return TRUE;
+}
+
+bool
+map_window::MyScw::on_button_release_event(GdkEventButton* button_event) 
+{
+    button_press = TRUE;
+    return TRUE;
+}
+
+
 void
 map_window::add_tile(MyArea *a) 
 {
