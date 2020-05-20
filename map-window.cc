@@ -112,16 +112,16 @@ map_window::MyScw::on_motion_notify_event(GdkEventMotion* motion_event)
     static gdouble xp, yp;
     
     if (space_modifier && button_press) {
-	int dx, dy;
+	gdouble dx, dy;
 	
-	dx = ((motion_event->x - xp) < -10) ? -1 : ((motion_event->x - xp) > 10) ? 1 : 0;
-	dy = ((motion_event->y - yp) < -10) ? -1 : ((motion_event->y - yp) > 10) ? 1 : 0;
+	dx = (motion_event->x - xp);
+	dy = (motion_event->y - yp);
 	cout << __FUNCTION__ << ": space+mouse-move: hadj = " << get_hadjustment()->get_value()
 	     << "- dx: " << dx << ",dy: " << dy << endl;
 	xp = motion_event->x;
 	yp = motion_event->y;
-	get_hadjustment()->set_value(get_hadjustment()->get_value() + dx);
-	get_vadjustment()->set_value(get_vadjustment()->get_value() + dy);
+	get_hadjustment()->set_value(get_hadjustment()->get_value() - dx);
+	get_vadjustment()->set_value(get_vadjustment()->get_value() - dy);
 	
 	return FALSE;
     }
@@ -132,9 +132,9 @@ map_window::MyScw::on_motion_notify_event(GdkEventMotion* motion_event)
 bool
 map_window::MyScw::on_key_press_event(GdkEventKey *key_event) 
 {
-    if (key_event->keyval == GDK_KEY_space) {
+    if (key_event->keyval == GDK_KEY_Alt_L) {
 	space_modifier = true;
-	return FALSE;
+	cout << "press Alt_L" << endl;
     }
     return TRUE;
 }
@@ -142,9 +142,9 @@ map_window::MyScw::on_key_press_event(GdkEventKey *key_event)
 bool
 map_window::MyScw::on_key_release_event(GdkEventKey *key_event) 
 {
-    if (key_event->keyval == GDK_KEY_space) {
+    if (key_event->keyval == GDK_KEY_Alt_L) {
 	space_modifier = false;
-	return FALSE;
+	cout << "release Alt_L" << endl;
     }
     return TRUE;
 }
@@ -153,13 +153,15 @@ bool
 map_window::MyScw::on_button_press_event(GdkEventButton* button_event) 
 {
     button_press = TRUE;
+    cout << "button press" << endl;
     return TRUE;
 }
 
 bool
 map_window::MyScw::on_button_release_event(GdkEventButton* button_event) 
 {
-    button_press = TRUE;
+    button_press = FALSE;
+    cout << "button rel" << endl;
     return TRUE;
 }
 
