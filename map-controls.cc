@@ -24,7 +24,7 @@ using namespace::std;
 
 map_controls::map_controls(map_window &m, const Glib::ustring &name)
     : Gtk::Frame(name),
-      button_quit("Quit"),
+      button_commit("commit"),
       mw(m),
       unpl_tilesbox(Gtk::VBox())
 {
@@ -42,14 +42,14 @@ map_controls::map_controls(map_window &m, const Glib::ustring &name)
     zvb->set_halign(Gtk::ALIGN_END);
     zoom_frame->add(*zvb);
     
-    adjx = Gtk::Adjustment::create(3.0, 0.1, 4.0, 0.05, 0.1, 0);
+    adjx = Gtk::Adjustment::create(3.0, 0.1, 6.0, 0.05, 0.1, 0);
     Gtk::Scale *scalex = new Gtk::Scale(adjx);
     // signal handler
     adjx->signal_value_changed()
 	.connect(sigc::mem_fun(*this, &map_controls::on_scale_event1));
     zvb->pack_start(*scalex, FALSE, FALSE, 0);
     
-    adjy = Gtk::Adjustment::create(3.0, 0.1, 4.0, 0.05, 0.1, 0);
+    adjy = Gtk::Adjustment::create(3.0, 0.1, 6.0, 0.05, 0.1, 0);
     Gtk::Scale *scaley = new Gtk::Scale(adjy);
     // signal handler
     adjy->signal_value_changed()
@@ -106,19 +106,24 @@ map_controls::map_controls(map_window &m, const Glib::ustring &name)
     m_ScrolledWindow.set_size_request(200, -1);
     vb->pack_start(*tiles_frame, TRUE, TRUE, 0);
 
-    button_quit.add_events(Gdk::BUTTON_PRESS_MASK);
-    button_quit.signal_button_press_event()
-	.connect(sigc::mem_fun(*this, &map_controls::on_button_quit_press_event));
-
-    vb->pack_start(button_quit, FALSE, FALSE, 0);
+    button_commit.add_events(Gdk::BUTTON_PRESS_MASK);
+    button_commit.signal_button_press_event()
+	.connect(sigc::mem_fun(*this, &map_controls::on_commit_press_event), false);
+    button_commit.set_sensitive(FALSE);
+    button_commit.set_label("all saved");
+    
+    vb->pack_start(button_commit, FALSE, FALSE, 0);
     add(*vb);
     show_all_children();
 }
 
 bool
-map_controls::on_button_quit_press_event(GdkEventButton *) 
+map_controls::on_commit_press_event(GdkEventButton *) 
 {
     cout << "Quit button pressed." << endl;
+    for_each(MyArea::all_tiles.begin(), MyArea::all_tiles.end(),
+	     [](MyArea *t)->void { t->commit_changes(); } );
+    set_dirty(FALSE);
     return TRUE;
 }
 
@@ -168,4 +173,16 @@ void
 map_controls::remove_tile(MyArea *tile) 
 {
     unpl_tilesbox.remove(*tile);
+}
+
+void
+map_controls::set_dirty(bool d) 
+{
+    if (d) {
+	button_commit.set_label("SAVE");
+	button_commit.set_sensitive(TRUE);
+    } else {
+	button_commit.set_label("all saved");
+	button_commit.set_sensitive(FALSE);
+    }
 }

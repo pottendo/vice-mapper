@@ -23,6 +23,7 @@
 const int map_max = 100;	/* 100x100 tiles should be enough */
 const int resX = 384;		/* typical C64 screen resolution */
 const int resY = 272;
+const std::string def_basename = "vice-screen-";
 
 class map_window : public Gtk::Window
 {
@@ -60,6 +61,7 @@ class map_window : public Gtk::Window
     map_window();
     virtual ~map_window() {};
 
+    inline void set_dirty(bool d) { ctrls->set_dirty(d); }
     void add_tile(MyArea *);
     void add_unplaced_tile(MyArea *t) { ctrls->add_tile(t); }
 	

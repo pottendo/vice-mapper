@@ -104,8 +104,8 @@ map_window::MyScw::on_scroll_event(GdkEventScroll *scroll_event)
 	}
 
     }
-    scale_factor_x = MIN(scale_factor_x, 4.0);
-    scale_factor_y = MIN(scale_factor_y, 4.0);
+    scale_factor_x = MIN(scale_factor_x, 6.0);
+    scale_factor_y = MIN(scale_factor_y, 6.0);
     mc->set_zoom(scale_factor_x, scale_factor_y);
     return TRUE;
 }
@@ -189,6 +189,7 @@ map_window::add_tile(MyArea *a)
 {
     map_grid.attach(*a, a->getX(), a->getY());
     tiles[a->getX()][a->getY()] = a;
+    a->scale(scale_factor_x, scale_factor_y); // make sure tile adjusts to current scaling
     show_all_children();
 }
 

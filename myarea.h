@@ -21,10 +21,12 @@ class map_window;
 
 class MyArea : public Gtk::DrawingArea
 {
-    const char *file_name;
+    std::string file_name;
     bool dirty, empty;
     int xk, yk;
     static MyArea *dnd_tile;
+    MyArea *lookup_by_name(std::string name);
+    void park_tile_file(void);
   
   public:
     MyArea(map_window &m, const char *fn, int xk = -1, int yk = -1);
@@ -37,22 +39,24 @@ class MyArea : public Gtk::DrawingArea
     map_window &mw;
 
     void print(void);
-    inline const char *get_fname() { return file_name; }
+    inline std::string get_fname() { return file_name; }
+    inline void set_fname(std::string f) { file_name = f; }
     inline const Glib::RefPtr<Gdk::Pixbuf> get_pixmap_icon() { return m_image_icon; }
     inline int getX(void) { return xk; }
     inline int getY(void) { return yk; }
     inline void setXY(int x, int y) { xk = x; yk = y; set_dirty(true);}
     inline void getXY(int &x, int &y) { x = getX(); y = getY(); }
-    inline bool is_dirty(void) { return dirty; }
-    inline void set_dirty(bool d) { dirty = (!is_empty()) ? d: FALSE; } /* empty is never dirty */
     inline bool is_empty(void) { return empty; }
+    inline bool is_dirty(void) { return dirty; }
+    void set_dirty(bool d);
 	
     static int xmin, ymin, xmax, ymax;
     static int cr_up, cr_do, cr_le, cr_ri;
     void scale(float sfx, float sfy);
     void xchange_tiles(MyArea &s, MyArea &d);
+    void sync_tile(void);
     bool update_minmax(void);
-
+    void commit_changes(void);
   protected:
     //Override default signal handler:
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;

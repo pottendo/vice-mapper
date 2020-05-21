@@ -16,6 +16,7 @@
 #include <giomm/resource.h>
 #include <gdkmm/general.h> // set_source_pixbuf()
 #include <gdkmm/pixbuf.h>
+#include <giomm/file.h>
 #include <glibmm/fileutils.h>
 #include <iostream>
 #include <string>
@@ -33,7 +34,8 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
     : mw(m)
 {
     if (fn) {
-	file_name = fn;
+	Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(fn);
+	file_name = f->get_path();
 	try
 	{
 	    // The fractal image has been created by the XaoS program.
@@ -50,7 +52,7 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 	}
 	std::string s(fn);
 	std::string::size_type t;
-	t = s.find("vice-screen-");
+	t = s.find(def_basename);
 	if (t != std::string::npos) {
 	    xk = std::stod(s.substr(t+12, 2));
 	    yk = std::stod(s.substr(t+12+3, 2));
@@ -70,7 +72,7 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 	    all_tiles.push_back(this);
 	}
 	else {
-	    std::cerr << "filename not following convention (vice-screen-XX:YY.png): "
+	    std::cerr << "filename not following convention " << def_basename << "XX:YY.png): "
 		      << s << std::endl;
 	}
     }
@@ -115,7 +117,8 @@ MyArea::~MyArea()
 void
 MyArea::print(void) 
 {
-    std::cout << "'" << file_name << "'@" << xk << "," << yk << std::endl;
+    cout << "'" << file_name << "'@" << xk << "," << yk
+	 << (is_dirty() ? ",is-dirty" : ",is-clean") << endl;
 }
 
 bool
@@ -200,6 +203,17 @@ void MyArea::on_label_drop_drag_data_received(
 }
 
 void
+MyArea::set_dirty(bool d) 
+{
+    if (is_empty()) {
+	dirty = FALSE; // empty is never dirty
+	return;
+    }
+    dirty = d;
+    mw.set_dirty(d);
+}
+
+void
 MyArea::scale(float sfx, float sfy) 
 {
     set_size_request(m_image->get_width()/sfx, m_image->get_height()/sfy);
@@ -214,6 +228,21 @@ MyArea::xchange_tiles(MyArea &s, MyArea &d)
     d.set_dirty(true);
     s.set_dirty(true);
     mw.xchange_tiles(&s, this);
+    s.sync_tile();
+    d.sync_tile();
+}
+
+void
+MyArea::sync_tile(void)
+{
+    Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(get_fname());
+    int x, y;
+    getXY(x, y);
+    string p = f->get_parent()->get_path() + '/' + def_basename + to_string(x) + "x" + to_string(y) +
+	".png";
+    cout << __FUNCTION__ << ": *** fix number formatting in fn for koord < 10!" << endl;
+    if (p == get_fname())
+	set_dirty(FALSE);
 }
 
 bool
@@ -242,4 +271,82 @@ MyArea::refresh_minmax(void)
     std::for_each(all_tiles.begin(), all_tiles.end(),
 		  [](MyArea *t)->void { (void) t->update_minmax(); } );
     //cout << "New dimension: " << xmin << "," << ymin << "x" << xmax << "," << ymax << endl;
+}
+
+MyArea *
+MyArea::lookup_by_name(std::string name) 
+{
+    /*
+    std::vector<MyArea *>::iterator it =
+	std::find_if(all_tiles.begin(), all_tiles.end(),
+		     [name](MyArea *t) {
+			 if (t->get_fname() == name) return true;
+			 return false;
+		     });
+    */
+    std::vector<MyArea *>::iterator it;
+    MyArea *ret = NULL;
+    
+    for (auto it = begin(all_tiles); it != end(all_tiles); ++it) {
+	if ((*it)->get_fname() == name) {
+	    if (!ret) {
+		ret = *it;
+	    }
+	    else {
+		cout << __FUNCTION__ << "***found more: "; (*it)->print();
+	    }
+	}
+    }
+    if (!ret)
+	cout << __FUNCTION__ << "*** not found: " << name << endl;
+    
+    return ret;
+}
+
+void
+MyArea::park_tile_file(void) 
+{
+    cout << __FUNCTION__ << ": "; print();
+    Glib::RefPtr<Gio::File> fn = Gio::File::create_for_path(get_fname());
+    string tmpnam = fn->get_parent()->get_path() + "/_X_" + fn->get_basename();
+    cout << "generated tmpnam: " << tmpnam << endl;
+    Glib::RefPtr<Gio::File> tfile = Gio::File::create_for_path(tmpnam);
+    if (tfile->query_exists())
+    {
+	cout << __FUNCTION__ << ": ***File exists!" << tmpnam << endl;
+	return;
+    }
+    fn->copy(tfile);
+    set_fname(tmpnam);
+    fn->remove();
+}
+
+void
+MyArea::commit_changes(void) 
+{
+    string new_fn;
+    if (!is_dirty()) {
+	//print();
+	return;
+    }
+    cout << __FUNCTION__ << ": ";
+
+    Glib::RefPtr<Gio::File> file = Gio::File::create_for_path(file_name);
+
+    new_fn = file->get_parent()->get_path() + '/' + def_basename +
+	to_string(xk) + "x" + to_string(yk) + ".png";
+    Glib::RefPtr<Gio::File> new_file = Gio::File::create_for_path(new_fn);
+    if (new_file->query_exists()) {
+	/* lookup which tile references conflicting name */
+	MyArea *conflicting_tile = lookup_by_name(new_fn);
+	cout << "conflict of: "; print();
+	cout << "with: "; conflicting_tile->print();
+	conflicting_tile->park_tile_file();
+    }
+    cout << "rename: " << file_name << "->" << new_fn << endl;
+    file->copy(new_file);
+    file->remove();
+    set_fname(new_fn);
+    set_dirty(FALSE);
+    get_window()->invalidate(TRUE);
 }

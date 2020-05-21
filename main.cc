@@ -27,7 +27,7 @@ int main(int argc, char** argv)
     auto app = Gtk::Application::create(argc1, argv, "org.gtkmm.example");
 
     if (argc <= 1) {
-	cerr << "usage: " << argv[0] << " vice-screen-XX:XX.png ..." << endl;
+	cerr << "usage: " << argv[0] << def_basename << "-XX:XX.png ..." << endl;
 	exit(1);
     }
 

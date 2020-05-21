@@ -24,8 +24,8 @@
 
 class map_controls : public Gtk::Frame
 {
-    Gtk::Button button_quit;
-    bool on_button_quit_press_event(GdkEventButton *);
+    Gtk::Button button_commit;
+    bool on_commit_press_event(GdkEventButton *);
     void on_scale_event1();
     void on_scale_event2();
     void on_scale_crop();
@@ -53,6 +53,7 @@ class map_controls : public Gtk::Frame
     void set_zoom(double x, double y);
     void add_tile(MyArea *tile);
     void remove_tile(MyArea *t);
+    void set_dirty(bool d);
 };
 
 #endif /* __map_controls_h__ */
