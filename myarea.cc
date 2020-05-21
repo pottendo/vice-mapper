@@ -63,11 +63,7 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 		mw.add_unplaced_tile(this);
 	    }
 	    else {
-	      print();
-	      cout << "A-xm:" << xmin << ",ym:" << ymin << endl;
 	      (void) update_minmax();
-	      cout << "B-xm:" << xmin << ",ym:" << ymin << endl;
-		
 	      mw.add_tile(this);
 	    }
 	    empty = false;

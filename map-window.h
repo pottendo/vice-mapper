@@ -38,12 +38,15 @@ class map_window : public Gtk::Window
 	bool on_motion_notify_event(GdkEventMotion* motion_event) override;
 	bool on_key_press_event(GdkEventKey *key_event) override;
 	bool on_key_release_event(GdkEventKey *key_event) override;
+	bool on_enter_notify_event(GdkEventCrossing* crossing_event) override;
+	/*
 	bool on_button_press_event(GdkEventButton *button_event) override;
 	bool on_button_release_event(GdkEventButton *button_event) override;
-	
+	*/
       public:
-	MyScw() { add_events(Gdk::SCROLL_MASK); };
+	MyScw();
 	map_controls *mc;
+	Glib::RefPtr<Gdk::Cursor> move_cursor;
     };
     // Child widgets:
     Gtk::Grid map_grid;

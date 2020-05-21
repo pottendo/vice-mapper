@@ -66,6 +66,10 @@ map_window::map_window()
     memset(tiles, 0, 100*100*sizeof(MyArea*));
 }
 
+map_window::MyScw::MyScw()
+{
+}
+
 /*
  * this only gets GDK_SCROLL_SMOOTH events in ScrolledWindow
  */
@@ -111,49 +115,62 @@ map_window::MyScw::on_motion_notify_event(GdkEventMotion* motion_event)
 {
     static gdouble xp, yp;
     
-    if (space_modifier && button_press) {
-	gdouble dx, dy;
+    if (space_modifier /* && button_press*/) {
+	gdouble dx, dy, xa, ya;
 	
 	dx = (motion_event->x - xp);
 	dy = (motion_event->y - yp);
+	/*
 	cout << __FUNCTION__ << ": space+mouse-move: hadj = " << get_hadjustment()->get_value()
-	     << "- dx: " << dx << ",dy: " << dy << endl;
-	xp = motion_event->x;
-	yp = motion_event->y;
-	get_hadjustment()->set_value(get_hadjustment()->get_value() - dx);
-	get_vadjustment()->set_value(get_vadjustment()->get_value() - dy);
-	
-	return FALSE;
+	     << "- dx: " << dx << ",dy: " << dy << ", xp: " << xp << ",yp: " << yp << endle;
+	*/
+	xa = get_hadjustment()->get_value() - dx;
+	ya = get_vadjustment()->get_value() - dy;
+	get_hadjustment()->set_value(xa);
+	get_vadjustment()->set_value(ya);
     }
-    
-    return TRUE;
+    xp = motion_event->x;	// track last location even if not panning
+    yp = motion_event->y;
+    return Gtk::ScrolledWindow::on_motion_notify_event(motion_event);
+}
+
+bool
+map_window::MyScw::on_enter_notify_event(GdkEventCrossing* crossing_event) 
+{
+    grab_focus();		// needed if e.g. controls took the focus
+    space_modifier = false;
+    return Gtk::ScrolledWindow::on_enter_notify_event(crossing_event);
 }
 
 bool
 map_window::MyScw::on_key_press_event(GdkEventKey *key_event) 
 {
-    if (key_event->keyval == GDK_KEY_Alt_L) {
+    if (key_event->keyval == GDK_KEY_space) {
 	space_modifier = true;
-	cout << "press Alt_L" << endl;
+	if (!move_cursor)	// cannot initialize in constructor, as window is not realized at the time
+	    move_cursor = Gdk::Cursor::create(this->get_window()->get_display(),Gdk::CROSSHAIR);
+	this->get_window()->set_cursor(move_cursor);
     }
-    return TRUE;
+    return Gtk::ScrolledWindow::on_key_press_event(key_event);
 }
 
 bool
 map_window::MyScw::on_key_release_event(GdkEventKey *key_event) 
 {
-    if (key_event->keyval == GDK_KEY_Alt_L) {
+    if (key_event->keyval == GDK_KEY_space) {
 	space_modifier = false;
-	cout << "release Alt_L" << endl;
+	this->get_window()->set_cursor();
     }
-    return TRUE;
+    return Gtk::ScrolledWindow::on_key_release_event(key_event);
 }
 
+/*
 bool
 map_window::MyScw::on_button_press_event(GdkEventButton* button_event) 
 {
     button_press = TRUE;
     cout << "button press" << endl;
+    Gtk::ScrolledWindow::on_button_press_event(button_event);
     return TRUE;
 }
 
@@ -162,9 +179,10 @@ map_window::MyScw::on_button_release_event(GdkEventButton* button_event)
 {
     button_press = FALSE;
     cout << "button rel" << endl;
+    Gtk::ScrolledWindow::on_button_release_event(button_event);
     return TRUE;
 }
-
+*/
 
 void
 map_window::add_tile(MyArea *a) 
