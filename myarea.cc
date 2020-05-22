@@ -238,7 +238,8 @@ MyArea::sync_tile(void)
     Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(get_fname());
     int x, y;
     getXY(x, y);
-    string p = f->get_parent()->get_path() + '/' + def_basename + to_string(x) + "x" + to_string(y) +
+    string p = f->get_parent()->get_path() + G_DIR_SEPARATOR_S +
+	def_basename + to_string(x) + "x" + to_string(y) +
 	".png";
     cout << __FUNCTION__ << ": *** fix number formatting in fn for koord < 10!" << endl;
     if (p == get_fname())
@@ -308,7 +309,7 @@ MyArea::park_tile_file(void)
 {
     cout << __FUNCTION__ << ": "; print();
     Glib::RefPtr<Gio::File> fn = Gio::File::create_for_path(get_fname());
-    string tmpnam = fn->get_parent()->get_path() + "/_X_" + fn->get_basename();
+    string tmpnam = fn->get_parent()->get_path() + G_DIR_SEPARATOR_S+ "_X_" + fn->get_basename();
     cout << "generated tmpnam: " << tmpnam << endl;
     Glib::RefPtr<Gio::File> tfile = Gio::File::create_for_path(tmpnam);
     if (tfile->query_exists())
@@ -333,7 +334,7 @@ MyArea::commit_changes(void)
 
     Glib::RefPtr<Gio::File> file = Gio::File::create_for_path(file_name);
 
-    new_fn = file->get_parent()->get_path() + '/' + def_basename +
+    new_fn = file->get_parent()->get_path() + G_DIR_SEPARATOR_S + def_basename +
 	to_string(xk) + "x" + to_string(yk) + ".png";
     Glib::RefPtr<Gio::File> new_file = Gio::File::create_for_path(new_fn);
     if (new_file->query_exists()) {
