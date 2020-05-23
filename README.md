@@ -28,12 +28,21 @@ within the current code.
 # Integration with Vice & Usage
 
 So far a tiny patch is needed to enable vice to feature a
-'one-keystroke' screenshot. For now this is key is `Pause' on normal
+'one-keystroke' screenshot. For now this is key is *Pause* on normal
 keyboards. If this key is pressed, vice generated a screenshot of the
 actual screen in the working directory of Vice. A specific name
-convention is used (for now): vice-scree--1xYY.png
+convention is used: *vice-scree--1xYY.png*
 where YY is a running number for 00.
 `-1' is the hint for the mapper that this tile is not placed yet.
+Numbering starts from 00 every time, vice starts.
+
+Here the patch: [vice-mapper patch for hotkey 'Pause'](https://github.com/pottendo/vice-mapper/blob/master/vice-mapper.patch)
+to be applied in <vice-src>/src/arch/gtk3
+$ patch -p0 < vice-mapper.patch
+
+Vice features a screenshot hotkey by default `Alt-Shift-F12' already,
+but I found it to be a bit unhandy during gaming. And the mapper
+naming convention is not (yet) followed.
 
 Usage:
 $ mapper my-game-map/*.png
@@ -53,17 +62,14 @@ $ make
 For windows builds (msys2) make sure to set your PATH: 
 e.g. $ export PATH=/mingw32/bin:$PATH
 
-#
-
-
 # build vice for Windoze
 
 This is just a brief reminder how to build Vice/Gtk+ on windoze using
 the msys2 packages (https://www.msys2.org/)
 
-../vice-emu-code/vice/configure -C --enable-native-tools --enable-native-gtk3ui --host=mingw32-gtk3 --enable-x64 2>&1 |tee mycfg-64.log
-export MINGW_PREFIX=/mingw32
-make -j12 2>&1 | tee make-32.log
-make bindist
+$ ../vice-emu-code/vice/configure -C --enable-native-tools --enable-native-gtk3ui --host=mingw32-gtk3 --enable-x64 2>&1 |tee mycfg-64.log
+$ export MINGW_PREFIX=/mingw32
+$ make -j12 2>&1 | tee make-32.log
+$ make bindist
 
-copy .DLLs for mapper - check with ntldd mapper.exe
+copy .DLLs for mapper - check with ntldd -R mapper.exe
