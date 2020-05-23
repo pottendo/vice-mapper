@@ -41,7 +41,7 @@ to be applied in <vice-src>/src/arch/gtk3
 $ patch -p0 < vice-mapper.patch
 
 Vice features a screenshot hotkey by default `Alt-Shift-F12' already,
-but I found it to be a bit unhandy during gaming. And the mapper
+but I found it to be a bit unhandy during gaming; and the mapper
 naming convention is not (yet) followed.
 
 Usage:
@@ -67,7 +67,9 @@ e.g. $ export PATH=/mingw32/bin:$PATH
 This is just a brief reminder how to build Vice/Gtk+ on windoze using
 the msys2 packages (https://www.msys2.org/)
 
-$ ../vice-emu-code/vice/configure -C --enable-native-tools --enable-native-gtk3ui --host=mingw32-gtk3 --enable-x64 2>&1 |tee mycfg-64.log
+$ ../vice-emu-code/vice/configure -C --enable-native-tools
+--enable-native-gtk3ui --host=mingw32-gtk3 --enable-x64 2>&1 |tee
+mycfg-64.log 
 $ export MINGW_PREFIX=/mingw32
 $ make -j12 2>&1 | tee make-32.log
 $ make bindist
