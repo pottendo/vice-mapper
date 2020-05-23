@@ -1,0 +1,47 @@
+Index: kbd.c
+===================================================================
+--- kbd.c	(revision 37857)
++++ kbd.c	(working copy)
+@@ -41,11 +41,13 @@
+ #include "keyboard.h"
+ #include "kbd.h"
+ #include "uimenu.h"
++#include "screenshot.h"
+ 
+ /*
+  * Forward declarations
+  */
+ static gboolean kbd_hotkey_handle(GdkEvent *report);
++static void ui_push_screenshot(void);
+ 
+ 
+ /** \brief  Initial size of the hotkeys array
+@@ -310,7 +312,11 @@
+                 return TRUE;
+             }
+ #endif
+-
++	    if (key == GDK_KEY_Pause) {
++		ui_push_screenshot();
++		return TRUE;
++	    }
++	    
+             keyboard_key_pressed((signed long)key, kbd_get_modifier(report));
+             return TRUE;
+         case GDK_KEY_RELEASE:
+@@ -537,3 +543,15 @@
+     }
+     return TRUE;
+ }
++
++void ui_push_screenshot(void) 
++{
++    static int ss_num = 0;
++    static char filename[1024];
++    sprintf(filename, "vice-screen--1x%02d", ss_num++);
++    printf("SS: %s\n", filename);
++    
++    if (screenshot_save("PNG", filename, ui_get_active_canvas()) < 0) {
++        debug_gtk3("OOPS");
++    }
++}
