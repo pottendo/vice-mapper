@@ -22,7 +22,6 @@ using namespace::std;
 Glib::RefPtr<Gdk::Pixbuf> map_window::empty_image;
 double map_window::scale_factor_x = 3.0;
 double map_window::scale_factor_y = 3.0;
-//map_window *map_window::mw;
 
 map_window::map_window()
 {

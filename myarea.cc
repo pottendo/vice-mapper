@@ -29,6 +29,7 @@ MyArea *MyArea::dnd_tile;
 int MyArea::xmin = map_max+1, MyArea::ymin = map_max + 1, MyArea::xmax = -1, MyArea::ymax = -1;
 int MyArea::cr_up=36, MyArea::cr_do=36, MyArea::cr_le=32, MyArea::cr_ri=32;
 vector<MyArea *> MyArea::all_tiles;
+std::string MyArea::current_path="";
 
 MyArea::MyArea(map_window &m, const char *fn, int x, int y)
     : mw(m)
@@ -36,6 +37,8 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
     if (fn) {
 	Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(fn);
 	file_name = f->get_path();
+	if (current_path == "")
+	    current_path = f->get_parent()->get_path();
 	try
 	{
 	    // The fractal image has been created by the XaoS program.
@@ -273,6 +276,14 @@ MyArea::refresh_minmax(void)
 		  [](MyArea *t)->void { (void) t->update_minmax(); } );
     //cout << "New dimension: " << xmin << "," << ymin << "x" << xmax << "," << ymax << endl;
 }
+
+void
+MyArea::delete_all_tiles(void) 
+{
+    // TODO cleanup on map change
+    current_path = "";
+}
+
 
 MyArea *
 MyArea::lookup_by_name(std::string name) 

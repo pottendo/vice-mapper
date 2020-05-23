@@ -25,6 +25,7 @@ using namespace::std;
 map_controls::map_controls(map_window &m, const Glib::ustring &name)
     : Gtk::Frame(name),
       button_commit("commit"),
+      button_reload("reload"),
       mw(m),
       unpl_tilesbox(Gtk::VBox())
 {
@@ -105,8 +106,12 @@ map_controls::map_controls(map_window &m, const Glib::ustring &name)
     
     m_ScrolledWindow.set_size_request(200, -1);
     vb->pack_start(*tiles_frame, TRUE, TRUE, 0);
-
-    button_commit.add_events(Gdk::BUTTON_PRESS_MASK);
+    
+    button_reload.signal_button_press_event()
+	.connect(sigc::mem_fun(*this, &map_controls::on_reload_press_event), false);
+    vb->pack_start(button_reload, FALSE, FALSE, 0);
+    
+// button_commit.add_events(Gdk::BUTTON_PRESS_MASK);
     button_commit.signal_button_press_event()
 	.connect(sigc::mem_fun(*this, &map_controls::on_commit_press_event), false);
     button_commit.set_sensitive(FALSE);
@@ -124,6 +129,13 @@ map_controls::on_commit_press_event(GdkEventButton *)
     for_each(MyArea::all_tiles.begin(), MyArea::all_tiles.end(),
 	     [](MyArea *t)->void { t->commit_changes(); } );
     set_dirty(FALSE);
+    return TRUE;
+}
+
+
+bool
+map_controls::on_reload_press_event(GdkEventButton *) {
+    cout << __FUNCTION__ << ": called." << endl;
     return TRUE;
 }
 

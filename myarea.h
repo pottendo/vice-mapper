@@ -34,7 +34,9 @@ class MyArea : public Gtk::DrawingArea
 
     static std::vector<MyArea *> all_tiles;
     static std::vector<Gtk::TargetEntry> listTargets;
+    static std::string current_path;
     static void refresh_minmax(void);
+    static void delete_all_tiles(void);
 
     map_window &mw;
 

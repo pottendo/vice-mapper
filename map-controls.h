@@ -25,7 +25,10 @@
 class map_controls : public Gtk::Frame
 {
     Gtk::Button button_commit;
+    Gtk::Button button_reload;
+    
     bool on_commit_press_event(GdkEventButton *);
+    bool on_reload_press_event(GdkEventButton *);
     void on_scale_event1();
     void on_scale_event2();
     void on_scale_crop();
