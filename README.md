@@ -31,7 +31,7 @@ So far a tiny patch is needed to enable vice to feature a
 'one-keystroke' screenshot. For now this is key is *Pause* on normal
 keyboards. If this key is pressed, vice generated a screenshot of the
 actual screen in the working directory of Vice. A specific name
-convention is used: *vice-scree--1xYY.png*
+convention is used: *vice-screen--1xYY.png*
 where YY is a running number for 00.
 `-1' is the hint for the mapper that this tile is not placed yet.
 Numbering starts from 00 every time, vice starts.
@@ -56,7 +56,7 @@ Use drag&drop to move tiles around.
 Make sure you have the respective gtk+* and the gtkmm* development
 packages installed.
 
-$ cmake .
+$ cmake .<br>
 $ make
 
 For windows builds (msys2) make sure to set your PATH: 
@@ -69,9 +69,9 @@ the msys2 packages (https://www.msys2.org/)
 
 $ ../vice-emu-code/vice/configure -C --enable-native-tools
 --enable-native-gtk3ui --host=mingw32-gtk3 --enable-x64 2>&1 |tee
-mycfg-64.log 
-$ export MINGW_PREFIX=/mingw32
-$ make -j12 2>&1 | tee make-32.log
-$ make bindist
+mycfg-64.log<br>
+$ export MINGW_PREFIX=/mingw32<br>
+$ make -j12 2>&1 | tee make-32.log<br>
+$ make bindist<br>
 
 copy .DLLs for mapper - check with ntldd -R mapper.exe
