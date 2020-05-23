@@ -24,6 +24,9 @@ e.g.
   
 PNG file-format is preferred for now as some elements are hardcoded
 within the current code.
+When saving a map tiles (ie. screenshot) are renamed according to
+their coordinates otherwise are kept unmodified, so a the map finally
+consists of a set of properly named screenshots in one directory. 
 
 ![Cybernoid map](https://github.com/pottendo/vice-mapper/blob/master/doc/Demo2-Cybernoid.png)
 
@@ -49,11 +52,13 @@ naming convention is not (yet) followed.
 Usage:
 $ mapper my-game-map/*.png
 
-[Demo - Blinkey's Scary School Map](https://github.com/pottendo/vice-mapper/blob/master/doc/Demo1-BlinkeyMap.png)
-[Cybernoid](https://github.com/pottendo/vice-mapper/blob/master/doc/Demo3-Cybernoid.png)
+[Demo - Blinkey's Scary School
+Map](https://github.com/pottendo/vice-mapper/blob/master/doc/Demo1-BlinkeyMap.png)<br>
 
-Use drag&drop to move tiles around.
-Use SPACE+Mousemove within the map to pan around the map.
+[Cybernoid](https://github.com/pottendo/vice-mapper/blob/master/doc/Demo3-Cybernoid.png)<br>
+
+Use drag&drop to move tiles around. <br>
+Use SPACE+Mousemove within the map to pan around the map. 
 
 # Build
 
