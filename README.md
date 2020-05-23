@@ -25,6 +25,8 @@ e.g.
 PNG file-format is preferred for now as some elements are hardcoded
 within the current code.
 
+![Cybernoid map](https://github.com/pottendo/vice-mapper/blob/master/doc/Demo2-Cybernoid.png)
+
 # Integration with Vice & Usage
 
 So far a tiny patch is needed to enable vice to feature a
