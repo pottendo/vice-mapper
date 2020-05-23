@@ -50,8 +50,10 @@ Usage:
 $ mapper my-game-map/*.png
 
 [Demo - Blinkey's Scary School Map](https://github.com/pottendo/vice-mapper/blob/master/doc/Demo1-BlinkeyMap.png)
+[Cybernoid](https://github.com/pottendo/vice-mapper/blob/master/doc/Demo3-Cybernoid.png)
 
 Use drag&drop to move tiles around.
+Use SPACE+Mousemove within the map to pan around the map.
 
 # Build
 
@@ -64,7 +66,20 @@ $ make
 For windows builds (msys2) make sure to set your PATH: 
 e.g. $ export PATH=/mingw32/bin:$PATH
 
-# build vice for Windoze
+# TODOs
+
+- Add a refresh for unplaced tiles to add on-the-fly
+- delete tile
+- insert row/columns more easily
+- make code more robust against failed compliance to file-name
+  convention
+- check map boundaries
+- maybe allow individual crop vals for tiles
+- save settings (crop vals, etc.) next to map directory
+- add menu for choosing maps
+- allow other name than def_basename (i.e. vice-screen-)
+
+# Build vice for Windoze
 
 This is just a brief reminder how to build Vice/Gtk+ on windoze using
 the msys2 packages (https://www.msys2.org/)
