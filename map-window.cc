@@ -25,6 +25,7 @@ double map_window::scale_factor_x = 3.0;
 double map_window::scale_factor_y = 3.0;
 
 map_window::map_window()
+    : nr_tiles(0)
 {
     set_title("Map");
 
@@ -190,6 +191,7 @@ map_window::add_tile(MyArea *a)
     map_grid.attach(*a, a->getX(), a->getY());
     tiles[a->getX()][a->getY()] = a;
     a->scale(scale_factor_x, scale_factor_y); // make sure tile adjusts to current scaling
+    nr_tiles++;
     show_all_children();
 }
 

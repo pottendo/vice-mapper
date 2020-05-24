@@ -81,8 +81,8 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 		mw.add_unplaced_tile(this);
 	    }
 	    else {
-	      (void) update_minmax();
-	      mw.add_tile(this);
+		(void) update_minmax();
+		mw.add_tile(this);
 	    }
 	    empty = false;
 	    all_tiles.push_back(this);

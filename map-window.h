@@ -55,6 +55,7 @@ class map_window : public Gtk::Window
     Gtk::HBox hbox;		/* main layout box */
     Glib::RefPtr<Gdk::Pixbuf> m_empty;
     MyArea *tiles[map_max][map_max];
+    int nr_tiles;
     map_controls *ctrls;
 
   public:
@@ -69,6 +70,8 @@ class map_window : public Gtk::Window
     void fill_empties();
     void scale_all(void);
     void xchange_tiles(MyArea *s, MyArea *d);
+    inline MyArea *get_tile(int x, int y) { return tiles[x][y]; }
+    inline int get_nrtiles(void) { return nr_tiles; }
     static Glib::RefPtr<Gdk::Pixbuf> empty_image;
     static double scale_factor_x;
     static double scale_factor_y;
