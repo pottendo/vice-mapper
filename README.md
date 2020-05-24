@@ -73,7 +73,7 @@ e.g. $ export PATH=/mingw32/bin:$PATH
 
 # TODOs
 
-- Add a refresh for unplaced tiles to add on-the-fly
+~~- Add a refresh for unplaced tiles to add on-the-fly~~
 - delete tile
 - insert row/columns more easily
 - make code more robust against failed compliance to file-name

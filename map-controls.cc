@@ -19,6 +19,7 @@
 #include <experimental/filesystem>
 #include "map-controls.h"
 #include "map-window.h"
+#include "dialogs.h"
 
 using namespace::std;
 
@@ -126,9 +127,13 @@ bool
 map_controls::on_commit_press_event(GdkEventButton *) 
 {
     cout << "Quit button pressed." << endl;
-    for_each(MyArea::all_tiles.begin(), MyArea::all_tiles.end(),
-	     [](MyArea *t)->void { t->commit_changes(); } );
-    set_dirty(FALSE);
+
+    MyMsg m("Save?", "bla");
+    if (m.run() == Gtk::RESPONSE_OK) {
+	for_each(MyArea::all_tiles.begin(), MyArea::all_tiles.end(),
+		 [](MyArea *t)->void { t->commit_changes(); } );
+	set_dirty(FALSE);
+    }
     return TRUE;
 }
 
