@@ -64,6 +64,7 @@ class map_window : public Gtk::Window
     inline void set_dirty(bool d) { ctrls->set_dirty(d); }
     void add_tile(MyArea *);
     void add_unplaced_tile(MyArea *t) { ctrls->add_tile(t); }
+    void reload_unplaced_tiles(void);
 	
     void fill_empties();
     void scale_all(void);

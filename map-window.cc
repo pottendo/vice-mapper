@@ -14,6 +14,7 @@
 #include <gtkmm/button.h>
 #include <gtkmm/widget.h>
 #include <gtkmm/frame.h>
+#include <glibmm/fileutils.h>
 #include "map-window.h"
 #include "map-controls.h"
 #include <iostream>
@@ -193,6 +194,29 @@ map_window::add_tile(MyArea *a)
 }
 
 void
+map_window::reload_unplaced_tiles(void)
+{
+    string &cp = MyArea::current_path;
+    
+    if (cp == "") return;
+    Glib::Dir dir(MyArea::current_path);
+    std::list<std::string> entries (dir.begin(), dir.end());
+
+    for (auto e = entries.begin(); e != entries.end(); ++e) {
+	string fp = cp + G_DIR_SEPARATOR_S + *e;
+	MyArea *t = MyArea::lookup_by_name(fp);
+	if (t) continue;
+	cout << __FUNCTION__ << ": new tile: " << fp << endl;
+	try {
+	    t = new MyArea(*this, fp.c_str());
+	}
+	catch (...) {
+	    continue;		// ignore non-tiles
+	}
+    }
+}
+
+void
 map_window::fill_empties() 
 {
     int x, y;
@@ -235,7 +259,7 @@ map_window::get_empty_area(int from_x, int from_y, int to_x, int to_y)
 	    if (tiles[x][y]) {
 		if (!(t = tiles[x][y])->is_empty()) {
 		    break;
-		    }
+		}
 		scratch.push_back(t);
 		do_scratch++;
 	    }

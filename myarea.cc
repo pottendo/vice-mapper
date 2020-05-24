@@ -48,10 +48,12 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 	catch(const Gio::ResourceError& ex)
 	{
 	    std::cerr << "ResourceError: " << ex.what() << std::endl;
+	    throw -1;
 	}
 	catch(const Gdk::PixbufError& ex)
 	{
 	    std::cerr << "PixbufError: " << ex.what() << std::endl;
+	    throw -1;
 	}
 	std::string s(fn);
 	std::string::size_type t;
@@ -77,6 +79,7 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 	else {
 	    std::cerr << "filename not following convention " << def_basename << "XX:YY.png): "
 		      << s << std::endl;
+	    throw -1;
 	}
     }
     else {

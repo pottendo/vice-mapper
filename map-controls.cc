@@ -136,6 +136,7 @@ map_controls::on_commit_press_event(GdkEventButton *)
 bool
 map_controls::on_reload_press_event(GdkEventButton *) {
     cout << __FUNCTION__ << ": called." << endl;
+    mw.reload_unplaced_tiles();
     return TRUE;
 }
 
@@ -177,8 +178,8 @@ map_controls::set_zoom(double x, double y)
 void
 map_controls::add_tile(MyArea *tile) 
 {
-    //std::experimental::filesystem::path p(tile->get_fname());
     unpl_tilesbox.pack_end(*tile, FALSE, FALSE, 4);
+    unpl_tilesbox.show_all();
 }
 
 void

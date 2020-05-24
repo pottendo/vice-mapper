@@ -25,7 +25,6 @@ class MyArea : public Gtk::DrawingArea
     bool dirty, empty;
     int xk, yk;
     static MyArea *dnd_tile;
-    MyArea *lookup_by_name(std::string name);
     void park_tile_file(void);
   
   public:
@@ -37,6 +36,7 @@ class MyArea : public Gtk::DrawingArea
     static std::string current_path;
     static void refresh_minmax(void);
     static void delete_all_tiles(void);
+    static MyArea *lookup_by_name(std::string name);
 
     map_window &mw;
 
