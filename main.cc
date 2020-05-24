@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 	}
 	catch (...) { continue;	} // ignore non-tiles
     }
-    tile = new MyArea(mw, NULL, 49, 49);
+    tile = new MyArea(mw, NULL, 0, 0); // force segfault
     mw.add_tile(tile);
     mw.fill_empties();
     

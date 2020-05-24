@@ -287,12 +287,12 @@ map_window::xchange_tiles(MyArea *s, MyArea *d)
     s->getXY(tsx, tsy);		// get x,y
     d->getXY(tdx, tdy);
 
-    if ((tsx == -1) && (tsy == -1)) {
+    if ((tsx < 0) && (tsy < 0)) {
 	cout << "*** shoud not happen !!! - placed from/to unplaced tiles." << endl;
 	return;
     }
     
-    if (tsx == -1) {
+    if (tsx < 0) {
 	//cout << "remove from unplaced tiles";
 	s->print();
 	ctrls->remove_tile(s);
@@ -302,7 +302,7 @@ map_window::xchange_tiles(MyArea *s, MyArea *d)
 	t->print();
 	map_grid.remove(*t);
     }
-    if (tdx == -1) {
+    if (tdx < 0) {
 	cout << "*** should not happen !!! - move to unplaced tiles";
 	//special case - add to list of unplace tiles
 	return;
@@ -317,7 +317,7 @@ map_window::xchange_tiles(MyArea *s, MyArea *d)
     s->setXY(tdx, tdy);
     add_tile(s);
     d->setXY(tsx, tsy);
-    if (tsx != -1) add_tile(d);
+    if (tsx > 0) add_tile(d);
     else {
 	if (!d->is_empty())	// pushback if we placed on occupied tile
 	    ctrls->add_tile(d);

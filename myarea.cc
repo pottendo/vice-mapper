@@ -20,13 +20,14 @@
 #include <glibmm/fileutils.h>
 #include <iostream>
 #include <string>
+#include <regex>
 #include "myarea.h"
 #include "map-window.h"
 
 using namespace::std;
 std::vector<Gtk::TargetEntry> MyArea::listTargets;
 MyArea *MyArea::dnd_tile;
-int MyArea::xmin = map_max+1, MyArea::ymin = map_max + 1, MyArea::xmax = -1, MyArea::ymax = -1;
+int MyArea::xmin = map_max+1, MyArea::ymin = map_max + 1, MyArea::xmax = 5, MyArea::ymax = 5;
 int MyArea::cr_up=36, MyArea::cr_do=36, MyArea::cr_le=32, MyArea::cr_ri=32;
 vector<MyArea *> MyArea::all_tiles;
 std::string MyArea::current_path="";
@@ -55,13 +56,23 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 	    std::cerr << "PixbufError: " << ex.what() << std::endl;
 	    throw -1;
 	}
-	std::string s(fn);
-	std::string::size_type t;
-	t = s.find(def_basename);
-	if (t != std::string::npos) {
-	    xk = std::stod(s.substr(t+12, 2));
-	    yk = std::stod(s.substr(t+12+3, 2));
-	    if (xk == -1) {	// identify unplaced tiles
+	std::string regstr("(.*)" + std::string(def_basename) +
+			   "([-0-9][0-9])x([0-9][0-9])\\.(png|PNG|gif|GIF)");
+	std::regex re(regstr); 
+	std::cmatch cm;
+	std::regex_match(fn, cm, re, std::regex_constants::match_default);
+	/*
+	std::cout << cm.size() << " matches for " << fn << " were: " << endl;
+	for (unsigned i=0; i<cm.size(); ++i) {
+	    std::cout << "[" << cm[i] << "] ";
+	}
+	cout << endl;
+	*/
+	
+	if (cm.size() > 0) {
+	    xk = std::stod(cm[cm.size()-3]); // -1 would be extension
+	    yk = std::stod(cm[cm.size()-2]);
+	    if (xk < 0) {	// identify unplaced tiles
 		if (m_image) {
 		    m_image_icon = m_image->scale_simple(m_image->get_width()/4,
 							 m_image->get_height()/4,
@@ -78,7 +89,7 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 	}
 	else {
 	    std::cerr << "filename not following convention " << def_basename << "XX:YY.png): "
-		      << s << std::endl;
+		      << fn << std::endl;
 	    throw -1;
 	}
     }
@@ -203,7 +214,11 @@ void MyArea::on_label_drop_drag_data_received(
     cout << "Drag stop at " << file_name << endl;
     */
     if (dnd_tile == this) return; // Don't do anything if we drag over ourselves
-    if (this->getX() == -1) return; // we don't drag back to unplaced tiles
+    if (this->getX() < 0) return; // we don't drag back to unplaced tiles
+    /* don't place on boundaries */
+    if ((this->getX() < 1) || (this->getX() > map_max-1)) return;
+    if ((this->getY() < 1) || (this->getY() > map_max-1)) return;
+    
     xchange_tiles(*dnd_tile, *this);
     context->drag_finish(false, false, time);
 }
@@ -243,11 +258,13 @@ MyArea::sync_tile(void)
 {
     Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(get_fname());
     int x, y;
+    char xl[3], yl[3];
     getXY(x, y);
+    sprintf(xl, "%02d", x);
+    sprintf(yl, "%02d", y);
+    
     string p = f->get_parent()->get_path() + G_DIR_SEPARATOR_S +
-	def_basename + to_string(x) + "x" + to_string(y) +
-	".png";
-    cout << __FUNCTION__ << ": *** fix number formatting in fn for koord < 10!" << endl;
+	def_basename + xl + "x" + yl + ".png";
     if (p == get_fname())
 	set_dirty(FALSE);
 }
@@ -274,7 +291,7 @@ void
 MyArea::refresh_minmax(void)
 {
     xmin = ymin = map_max + 1;
-    xmax = ymax = -1;
+    xmax = ymax = 5;
     std::for_each(all_tiles.begin(), all_tiles.end(),
 		  [](MyArea *t)->void { (void) t->update_minmax(); } );
     //cout << "New dimension: " << xmin << "," << ymin << "x" << xmax << "," << ymax << endl;
@@ -312,9 +329,10 @@ MyArea::lookup_by_name(std::string name)
 	    }
 	}
     }
+    /*
     if (!ret)
 	cout << __FUNCTION__ << "*** not found: " << name << endl;
-    
+    */
     return ret;
 }
 
@@ -347,9 +365,12 @@ MyArea::commit_changes(void)
     cout << __FUNCTION__ << ": ";
 
     Glib::RefPtr<Gio::File> file = Gio::File::create_for_path(file_name);
+    char xl[3], yl[3];
+    sprintf(xl, "%02d", xk);
+    sprintf(yl, "%02d", yk);
 
     new_fn = file->get_parent()->get_path() + G_DIR_SEPARATOR_S + def_basename +
-	to_string(xk) + "x" + to_string(yk) + ".png";
+	xl + "x" + yl + ".png";
     Glib::RefPtr<Gio::File> new_file = Gio::File::create_for_path(new_fn);
     if (new_file->query_exists()) {
 	/* lookup which tile references conflicting name */
