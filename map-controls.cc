@@ -126,8 +126,7 @@ map_controls::map_controls(map_window &m, const Glib::ustring &name)
 bool
 map_controls::on_commit_press_event(GdkEventButton *) 
 {
-    cout << "Quit button pressed." << endl;
-
+    //cout << "Save button pressed." << endl;
     MyMsg m("Save?", "bla");
     if (m.run() == Gtk::RESPONSE_OK) {
 	for_each(MyArea::all_tiles.begin(), MyArea::all_tiles.end(),
@@ -140,7 +139,7 @@ map_controls::on_commit_press_event(GdkEventButton *)
 
 bool
 map_controls::on_reload_press_event(GdkEventButton *) {
-    cout << __FUNCTION__ << ": called." << endl;
+    //cout << __FUNCTION__ << ": called." << endl;
     mw.reload_unplaced_tiles();
     return TRUE;
 }

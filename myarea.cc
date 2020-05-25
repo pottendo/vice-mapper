@@ -123,6 +123,7 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 						 &MyArea::on_button_drag_data_get));
     signal_drag_data_received().connect(sigc::mem_fun(*this,
 						      &MyArea::on_label_drop_drag_data_received));
+
 }
 
 MyArea::~MyArea()
@@ -163,7 +164,31 @@ MyArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
     if (is_dirty()) {
 	m_image_scaled->saturate_and_pixelate(m_image_scaled, 0.7, TRUE);
     }
-    
+    if (is_empty()) {
+	if ((xk == 0) || (yk == 0)) {
+	    /* draw a border box */
+	    cr->set_source_rgb(0.6, 0.6, 0.6);
+	    cr->rectangle(0, 0, get_allocated_width(), get_allocated_height());
+	    cr->fill();
+	}
+	else {
+	    /* draw a light box */
+	    cr->set_source_rgb(0.9, 0.9, 0.9);
+	    cr->move_to(0, 0);
+	    cr->line_to(get_allocated_width(), 0);
+	    cr->line_to(get_allocated_width(), get_allocated_height());
+	    cr->line_to(0, get_allocated_height());
+	    cr->line_to(0, 0);
+	    cr->stroke();
+	    /* show coordinates */
+	    cr->set_source_rgb(0.8, 0.8, 0.9);
+	    char t[6];
+	    sprintf(t, "%02dx%02d", xk, yk);
+	    auto layout = create_pango_layout(t);
+	    cr->move_to(1,1);
+	    layout->show_in_cairo_context(cr);
+	}
+    }
     Gtk::Allocation allocation = get_allocation();
     const int width = allocation.get_width();
     const int height = allocation.get_height();

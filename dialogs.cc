@@ -23,7 +23,7 @@ MyDialog::MyDialog(void)
 }
 
 MyMsg::MyMsg(std::string s1, std::string s2)
-    : Gtk::MessageDialog(*this, s1, false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL)
+    : Gtk::MessageDialog(s1, false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL)
 {
     set_secondary_text(s2);
 }

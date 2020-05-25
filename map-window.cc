@@ -327,15 +327,13 @@ map_window::xchange_tiles(MyArea *s, MyArea *d)
     
     // check if we need to grow/shrink
     if (s->update_minmax()) fill_empties(); // already placed therefore s(ource)!
-    else {
-	int do_scratch = 0;
-	MyArea::refresh_minmax();
-	do_scratch += get_empty_area(0, 0, map_max, MyArea::ymin);
-	do_scratch += get_empty_area(0, MyArea::ymax+1, map_max, map_max);
-	do_scratch += get_empty_area(0, 0, MyArea::xmin, map_max);
-	do_scratch += get_empty_area(MyArea::xmax+1, 0, map_max, map_max);
-	if (do_scratch) {
-	    cout << "found " << do_scratch << " empty tiles to remove." << endl;
-	}
+    int do_scratch = 0;
+    MyArea::refresh_minmax();
+    do_scratch += get_empty_area(0, 0, map_max, MyArea::ymin);
+    do_scratch += get_empty_area(0, MyArea::ymax+1, map_max, map_max);
+    do_scratch += get_empty_area(0, 0, MyArea::xmin, map_max);
+    do_scratch += get_empty_area(MyArea::xmax+1, 0, map_max, map_max);
+    if (do_scratch) {
+	cout << "found " << do_scratch << " empty tiles to remove." << endl;
     }
 }
