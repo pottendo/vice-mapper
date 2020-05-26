@@ -27,7 +27,7 @@ double map_window::scale_factor_y = 3.0;
 map_window::map_window()
     : nr_tiles(0)
 {
-    set_title("Map");
+    //set_title("Map");
 
     //map_grid.attach_next_to(ma, m_button_quit, Gtk::POS_BOTTOM, 1, 1);
     empty_image = Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, TRUE, 8, resX, resY);
@@ -64,7 +64,7 @@ map_window::map_window()
 
     //add_events(Gdk::SCROLL_MASK);
     show_all_children();
-    memset(tiles, 0, 100*100*sizeof(MyArea*));
+    memset(tiles, 0, 101*101*sizeof(MyArea*));
 }
 
 map_window::MyScw::MyScw()
@@ -329,10 +329,10 @@ map_window::xchange_tiles(MyArea *s, MyArea *d)
     if (s->update_minmax()) fill_empties(); // already placed therefore s(ource)!
     int do_scratch = 0;
     MyArea::refresh_minmax();
-    do_scratch += get_empty_area(0, 0, map_max, MyArea::ymin);
-    do_scratch += get_empty_area(0, MyArea::ymax+1, map_max, map_max);
-    do_scratch += get_empty_area(0, 0, MyArea::xmin, map_max);
-    do_scratch += get_empty_area(MyArea::xmax+1, 0, map_max, map_max);
+    do_scratch += get_empty_area(0, 0, map_max+1, MyArea::ymin);
+    do_scratch += get_empty_area(0, MyArea::ymax+1, map_max+1, map_max+1);
+    do_scratch += get_empty_area(0, 0, MyArea::xmin, map_max+1);
+    do_scratch += get_empty_area(MyArea::xmax+1, 0, map_max+1, map_max+1);
     if (do_scratch) {
 	cout << "found " << do_scratch << " empty tiles to remove." << endl;
     }

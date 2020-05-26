@@ -12,14 +12,20 @@
 // 	$Log$
 //
 
+#include <iostream>
 #include <dialogs.h>
 #include <string>
 #include <gtkmm/messagedialog.h>
+#include <gtkmm/builder.h>
 #include "dialogs.h"
 
-MyDialog::MyDialog(void)
-    : dlg_ret(Gtk::RESPONSE_CANCEL)
+using namespace::std;
+
+MyStatus::MyStatus(void)
+    : my_status(nullptr)
 {
+    builder->get_widget("VMStatus", my_status);
+    my_status->set_label("vice-mapper status bar... ");
 }
 
 MyMsg::MyMsg(std::string s1, std::string s2)
@@ -29,3 +35,16 @@ MyMsg::MyMsg(std::string s1, std::string s2)
 }
 
 
+MyAbout::MyAbout() 
+{
+    Gtk::Dialog* pDialog = nullptr;
+    builder->get_widget("VMAbout", pDialog);
+    pDialog->run();
+}
+
+extern "C"
+void
+on_MenuAbout_activate(Gtk::MenuItem *m) 
+{
+    MyAbout about;
+}

@@ -19,13 +19,14 @@
 #include <gtkmm/hvbox.h>
 #include "myarea.h"
 #include "map-controls.h"
+#include "dialogs.h"
 
 const int map_max = 100;	/* 100x100 tiles should be enough */
 const int resX = 384;		/* typical C64 screen resolution */
 const int resY = 272;
 const std::string def_basename = "vice-screen-";
 
-class map_window : public Gtk::Window
+class map_window : public Gtk::ScrolledWindow
 {
     int get_empty_area(int from_x, int from_y, int to_x, int to_y);
   protected:
@@ -54,7 +55,7 @@ class map_window : public Gtk::Window
     MyScw scw;
     Gtk::HBox hbox;		/* main layout box */
     Glib::RefPtr<Gdk::Pixbuf> m_empty;
-    MyArea *tiles[map_max][map_max];
+    MyArea *tiles[map_max+1][map_max+1];
     int nr_tiles;
     map_controls *ctrls;
 

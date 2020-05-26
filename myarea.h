@@ -14,6 +14,7 @@
 #define __myarea_h__
 
 #include <gtkmm/drawingarea.h>
+#include <gtkmm/menu.h>
 #include <gdkmm/pixbuf.h>
 #include <vector>
 
@@ -26,7 +27,11 @@ class MyArea : public Gtk::DrawingArea
     int xk, yk;
     static MyArea *dnd_tile;
     void park_tile_file(void);
-  
+    Gtk::Menu *m_pMenuPopup;	/* TODO delete in derstructor */
+    void setup_popup(void);
+    void on_menu_delete_tile(void);
+    void on_menu_popup(void);
+    
   public:
     MyArea(map_window &m, const char *fn, int xk = -1, int yk = -1);
     virtual ~MyArea();
@@ -70,7 +75,8 @@ class MyArea : public Gtk::DrawingArea
     void on_label_drop_drag_data_received(
 	const Glib::RefPtr<Gdk::DragContext>& context, int x, int y,
 	const Gtk::SelectionData& selection_data, guint info, guint time);
-
+    bool on_button_press_event(GdkEventButton *e);
+    
     Glib::RefPtr<Gdk::Pixbuf> m_image;
     Glib::RefPtr<Gdk::Pixbuf> m_image_scaled;
     Glib::RefPtr<Gdk::Pixbuf> m_image_icon;

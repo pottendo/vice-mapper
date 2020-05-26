@@ -17,6 +17,7 @@
 #include <gdkmm/general.h> // set_source_pixbuf()
 #include <gdkmm/pixbuf.h>
 #include <giomm/file.h>
+#include <giomm/simpleactiongroup.h>
 #include <glibmm/fileutils.h>
 #include <iostream>
 #include <string>
@@ -24,14 +25,16 @@
 #include "myarea.h"
 #include "map-window.h"
 
+/* MyArea statics */
 using namespace::std;
 std::vector<Gtk::TargetEntry> MyArea::listTargets;
 MyArea *MyArea::dnd_tile;
-int MyArea::xmin = map_max+1, MyArea::ymin = map_max + 1, MyArea::xmax = 5, MyArea::ymax = 5;
+int MyArea::xmin = map_max - 4, MyArea::ymin = map_max - 4 , MyArea::xmax = 5, MyArea::ymax = 5;
 int MyArea::cr_up=36, MyArea::cr_do=36, MyArea::cr_le=32, MyArea::cr_ri=32;
 vector<MyArea *> MyArea::all_tiles;
 std::string MyArea::current_path="";
 
+/* MyArea members */
 MyArea::MyArea(map_window &m, const char *fn, int x, int y)
     : mw(m)
 {
@@ -72,6 +75,7 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 	if (cm.size() > 0) {
 	    xk = std::stod(cm[cm.size()-3]); // -1 would be extension
 	    yk = std::stod(cm[cm.size()-2]);
+	    if ((xk == 0) || (yk == 0)) throw -1; // maps start at 01x01
 	    if (xk < 0) {	// identify unplaced tiles
 		if (m_image) {
 		    m_image_icon = m_image->scale_simple(m_image->get_width()/4,
@@ -100,7 +104,8 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 	empty = true;
     }
     set_dirty(FALSE);		// initially we're in sync with files.
-    
+    m_pMenuPopup = nullptr;	// setup popup only if needed.
+
     // Show at least a quarter of the image.
     if (m_image) {
 	set_size_request(m_image->get_width()/3, m_image->get_height()/3);
@@ -124,12 +129,16 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
     signal_drag_data_received().connect(sigc::mem_fun(*this,
 						      &MyArea::on_label_drop_drag_data_received));
 
+    signal_button_press_event().connect(sigc::mem_fun(*this, &MyArea::on_button_press_event), false);
+    print();
 }
 
 MyArea::~MyArea()
 {
     cout << "*** Destructor called for ";
     print();
+    if (m_pMenuPopup)
+	delete m_pMenuPopup;
 }
 
 void
@@ -137,6 +146,69 @@ MyArea::print(void)
 {
     cout << "'" << file_name << "'@" << xk << "," << yk
 	 << (is_dirty() ? ",is-dirty" : ",is-clean") << endl;
+}
+
+void
+MyArea::setup_popup(void)
+{
+    static bool is_initialized = false;
+    
+    if (is_initialized) return;
+
+    auto refActionGroup = Gio::SimpleActionGroup::create();
+    if (!is_empty()) {
+	refActionGroup->add_action("delete",
+				   sigc::mem_fun(*this, &MyArea::on_menu_delete_tile));
+    }
+    
+    refActionGroup->add_action("process", //TODO: How to specify "<control>P" as an accelerator.
+			       sigc::mem_fun(*this, &MyArea::on_menu_popup));
+    
+    refActionGroup->add_action("remove",
+			       sigc::mem_fun(*this, &MyArea::on_menu_popup));
+
+    insert_action_group("MApopup", refActionGroup);
+
+    Glib::RefPtr<Gtk::Builder> m_refBuilder;
+    m_refBuilder = Gtk::Builder::create();
+	
+    Glib::ustring ui_info =
+	"<interface>"
+	"  <menu id='menu-MApopup'>"
+	"    <section>"
+	"      <item>"
+	"        <attribute name='label' translatable='yes'>delete Tile</attribute>"
+	"        <attribute name='action'>MApopup.delete</attribute>"
+	"      </item>"
+	"      <item>"
+	"        <attribute name='label' translatable='yes'>Process</attribute>"
+	"        <attribute name='action'>MApopup.process</attribute>"
+	"      </item>"
+	"      <item>"
+	"        <attribute name='label' translatable='yes'>Remove</attribute>"
+	"        <attribute name='action'>MApopup.remove</attribute>"
+	"      </item>"
+	"    </section>"
+	"  </menu>"
+	"</interface>";
+
+    m_refBuilder->add_from_string(ui_info);
+
+    Glib::RefPtr<Glib::Object> object = m_refBuilder->get_object("menu-MApopup");
+    Glib::RefPtr<Gio::Menu> gmenu = Glib::RefPtr<Gio::Menu>::cast_dynamic(object);
+    m_pMenuPopup = new Gtk::Menu(gmenu);
+}
+
+void
+MyArea::on_menu_delete_tile(void) 
+{
+    cout << __FUNCTION__ << ": called." << endl;
+}
+
+void
+MyArea::on_menu_popup(void) 
+{
+    cout << __FUNCTION__ << ": called." << endl;
 }
 
 bool
@@ -165,7 +237,7 @@ MyArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 	m_image_scaled->saturate_and_pixelate(m_image_scaled, 0.7, TRUE);
     }
     if (is_empty()) {
-	if ((xk == 0) || (yk == 0)) {
+	if ((xk == 0) || (yk == 0) || (xk == map_max) || (yk == map_max)) {
 	    /* draw a border box */
 	    cr->set_source_rgb(0.6, 0.6, 0.6);
 	    cr->rectangle(0, 0, get_allocated_width(), get_allocated_height());
@@ -248,6 +320,22 @@ void MyArea::on_label_drop_drag_data_received(
     context->drag_finish(false, false, time);
 }
 
+bool
+MyArea::on_button_press_event(GdkEventButton *e) 
+{
+    if( (e->type == GDK_BUTTON_PRESS) && (e->button == 3) )
+    {
+	if (!m_pMenuPopup) setup_popup();
+
+	if(!m_pMenuPopup->get_attach_widget())
+	    m_pMenuPopup->attach_to_widget(*this);
+	
+	m_pMenuPopup->popup_at_pointer((GdkEvent*)e);
+	return true; //It has been handled.
+    }
+    return FALSE;
+}
+
 void
 MyArea::set_dirty(bool d) 
 {
@@ -309,13 +397,17 @@ MyArea::update_minmax(void)
     if (ymin == yk) { ymin--; changed = true; }
     if (xmax == xk) { xmax++; changed = true; }
     if (ymax == yk) { ymax++; changed = true; }
+    string s = string("xmin=") + to_string(xmin) + ",ymin=" + to_string(ymin) + ",xmax=" + to_string(xmax) + ",ymax=" + to_string(ymax);
+    
+    mw_status->show(s);
+    
     return changed;
 }
 
 void
 MyArea::refresh_minmax(void)
 {
-    xmin = ymin = map_max + 1;
+    xmin = ymin = map_max - 4;
     xmax = ymax = 5;
     std::for_each(all_tiles.begin(), all_tiles.end(),
 		  [](MyArea *t)->void { (void) t->update_minmax(); } );

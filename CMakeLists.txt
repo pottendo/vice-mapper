@@ -13,7 +13,7 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(GTK3 REQUIRED gtk+-3.0 gtkmm-3.0)
 link_directories(${GTK3_LIBRARY_DIRS})
 include_directories (${GTK3_INCLUDE_DIRS})
-add_compile_options(${GTK3_CFLAGS_OTHER} -g -Wall -Wno-deprecated-declarations -I.)
+add_compile_options(${GTK3_CFLAGS_OTHER} -g -Wall -Wno-deprecated-declarations -I. -rdynamic)
 link_directories (${GTK3_LIBRARY_DIRS})
 
 #set(LIBRARIES ${LIBRARIES} ${GTK3_LIBRARIES})

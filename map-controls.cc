@@ -119,6 +119,7 @@ map_controls::map_controls(map_window &m, const Glib::ustring &name)
     button_commit.set_label("all saved");
     
     vb->pack_start(button_commit, FALSE, FALSE, 0);
+
     add(*vb);
     show_all_children();
 }

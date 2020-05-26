@@ -17,19 +17,42 @@
 
 #include <string>
 #include <gtkmm/messagedialog.h>
+#include <gtkmm/dialog.h>
+#include <gtkmm/menu.h>
+#include <gtkmm/builder.h>
+#include <iostream>
+#include "dialogs.h"
 
-class MyDialog 			/* let's see if this makes sense for common stuff */
+using namespace::std;
+
+class MyStatus
 {
-    int dlg_ret;
+    Gtk::Label *my_status;
   public:
-    MyDialog();
-    ~MyDialog() {};
+    MyStatus();
+    ~MyStatus() {};
+
+    inline void show(std::string s) { my_status->set_label(s); }
 };
 
-class MyMsg : public MyDialog, public Gtk::MessageDialog {
+class MyMsg : public Gtk::MessageDialog {
   public:
     MyMsg(std::string s1, std::string s2);
     virtual ~MyMsg() {};
 };
+
+class MyAbout 
+{
+    Gtk::Dialog* pDialog = nullptr;
+    
+    static void on_exit_press(Gtk::Dialog &d) { d.hide(); }
+    
+  public:
+    MyAbout(void);
+    ~MyAbout() {} ;
+};
+
+extern Glib::RefPtr<Gtk::Builder> builder;
+extern MyStatus *mw_status;
 
 #endif /* __dialogs_h__ */

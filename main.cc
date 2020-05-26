@@ -20,18 +20,22 @@
 #include "map-window.h"
 
 using namespace::std;
+Glib::RefPtr<Gtk::Builder> builder; // global used by all GUI elements
+MyStatus *mw_status;
 
 int main(int argc, char** argv)
 {
     int argc1 = 1;
     auto app = Gtk::Application::create(argc1, argv, "org.gtkmm.example");
-
     if (argc <= 1) {
 	cerr << "usage: " << argv[0] << def_basename << "-XX:XX.png ..." << endl;
 	exit(1);
     }
-
+    builder = Gtk::Builder::create_from_file("./gui.glade");
+    gtk_builder_connect_signals(builder->gobj(), NULL);
+    mw_status = new MyStatus();
     map_window mw;
+
     MyArea *tile;
     for (int i = 1; i < argc; i++) {
 	try {
@@ -44,6 +48,19 @@ int main(int argc, char** argv)
 	mw.add_tile(tile);
     }
     mw.fill_empties();
+
+    Gtk::Window* mainWindow = nullptr;
+    builder->get_widget("ViceMapper", mainWindow);
+
+    Gtk::Box *mw_box = nullptr;
+    builder->get_widget("MWBox", mw_box);
+    mw_box->add(mw);
+    mw_box->reorder_child(mw, 1);
+
     
-    return app->run(mw);
+    mw_box->show_all();
+    
+    return app->run(*mainWindow);    
+
+    //return app->run(mw);
 }
