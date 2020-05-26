@@ -130,7 +130,6 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 						      &MyArea::on_label_drop_drag_data_received));
 
     signal_button_press_event().connect(sigc::mem_fun(*this, &MyArea::on_button_press_event), false);
-    print();
 }
 
 MyArea::~MyArea()
