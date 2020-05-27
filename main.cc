@@ -22,6 +22,7 @@
 using namespace::std;
 Glib::RefPtr<Gtk::Builder> builder; // global used by all GUI elements
 MyStatus *mw_status;
+map_window *mw_map;
 
 int main(int argc, char** argv)
 {
@@ -35,7 +36,6 @@ int main(int argc, char** argv)
     gtk_builder_connect_signals(builder->gobj(), NULL);
     mw_status = new MyStatus();
     map_window mw;
-
     MyArea *tile;
     for (int i = 1; i < argc; i++) {
 	try {
@@ -48,7 +48,8 @@ int main(int argc, char** argv)
 	mw.add_tile(tile);
     }
     mw.fill_empties();
-
+    mw_map = &mw;
+    
     Gtk::Window* mainWindow = nullptr;
     builder->get_widget("ViceMapper", mainWindow);
 

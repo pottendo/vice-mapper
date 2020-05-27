@@ -46,6 +46,9 @@ inspired by Overdoc</property>
   <object class="GtkWindow" id="ViceMapper">
     <property name="can_focus">False</property>
     <child>
+      <placeholder/>
+    </child>
+    <child>
       <object class="GtkBox" id="MWBox">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
@@ -65,12 +68,13 @@ inspired by Overdoc</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkImageMenuItem">
+                      <object class="GtkImageMenuItem" id="MenuOpen">
                         <property name="label">gtk-open</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_MenuOpen_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>

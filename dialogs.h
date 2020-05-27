@@ -21,7 +21,7 @@
 #include <gtkmm/menu.h>
 #include <gtkmm/builder.h>
 #include <iostream>
-#include "dialogs.h"
+#include "map-window.h"
 
 using namespace::std;
 
@@ -54,5 +54,6 @@ class MyAbout
 
 extern Glib::RefPtr<Gtk::Builder> builder;
 extern MyStatus *mw_status;
+extern map_window *mw_map;
 
 #endif /* __dialogs_h__ */

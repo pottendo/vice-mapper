@@ -65,10 +65,11 @@ class map_window : public Gtk::ScrolledWindow
 
     inline void set_dirty(bool d) { ctrls->set_dirty(d); }
     void add_tile(MyArea *);
-    void remove_tile(MyArea *);
+    void remove_tile(MyArea *, bool map_remove = false);
     void add_unplaced_tile(MyArea *t) { ctrls->add_tile(t); }
     void reload_unplaced_tiles(void);
     void resize_map(void);
+    void remove_map(void);
 	
     void fill_empties();
     void scale_all(void);

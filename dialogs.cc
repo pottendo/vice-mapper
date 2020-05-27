@@ -42,9 +42,20 @@ MyAbout::MyAbout()
     pDialog->run();
 }
 
-extern "C"
+/* callbacks from Main Menubar */
+extern "C"  {
 void
 on_MenuAbout_activate(Gtk::MenuItem *m) 
 {
     MyAbout about;
 }
+
+void
+on_MenuOpen_activate(Gtk::MenuItem *m) 
+{
+    if (MyMsg("Open new map?", "unsaved changes will be lost").run() == Gtk::RESPONSE_OK) {
+	mw_map->remove_map();
+    }
+}
+    
+} /* extern "C" */

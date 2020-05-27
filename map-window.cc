@@ -196,18 +196,22 @@ map_window::add_tile(MyArea *a)
 }
 
 void
-map_window::remove_tile(MyArea *a)
+map_window::remove_tile(MyArea *a, bool map_remove)
 {
     if (a->getX() > 0) {
-	// placed tile
-	MyArea *new_empty = new MyArea(*this, NULL, a->getX(), a->getY());
 	map_grid.remove(*a);
-	map_grid.attach(*new_empty, a->getX(), a->getY());
-	tiles[a->getX()][a->getY()] = new_empty;
-	if (auto e = MyArea::all_tiles.erase(a) != 1) {
+	if (!map_remove) {
+	    // placed tile
+	    MyArea *new_empty = new MyArea(*this, NULL, a->getX(), a->getY());
+	    map_grid.attach(*new_empty, a->getX(), a->getY());
+	    resize_map();
+	}
+	else
+	    tiles[a->getX()][a->getY()] = nullptr;
+	auto e = MyArea::all_tiles.erase(a);
+	if (e != 1) {
 	    cerr << __FUNCTION__ << ": erased " << e << " tiles." << endl;
 	}
-	resize_map();
     }
     else {
 	ctrls->remove_tile(a);
@@ -237,6 +241,8 @@ map_window::reload_unplaced_tiles(void)
 	    continue;		// ignore non-tiles
 	}
     }
+    MyArea::refresh_minmax();
+    fill_empties();
 }
 
 void
@@ -314,6 +320,27 @@ map_window::resize_map(void)
     if (do_scratch) {
 	cout << "found " << do_scratch << " empty tiles to remove." << endl;
     }
+}
+
+void
+map_window::remove_map(void) 
+{
+    cout << __FUNCTION__ << ": called." << endl;
+    std::vector<Gtk::Widget *> to_scratch = map_grid.get_children();
+    std::for_each(to_scratch.begin(), to_scratch.end(),
+		  [this](Gtk::Widget *t)->void {
+		      remove_tile(static_cast<MyArea*>(t), true);
+		      delete static_cast<MyArea*>(t);
+		  });
+    
+    for (auto t : MyArea::all_tiles) {
+	delete t;
+	MyArea::all_tiles.erase(t);
+    }
+    nr_tiles = MyArea::all_tiles.size();
+    cout << __FUNCTION__ << ": pending tiles = " << nr_tiles << endl;
+    //add_tile(new MyArea(*this, NULL, 50, 50));
+    show_all_children();
 }
 
 void
