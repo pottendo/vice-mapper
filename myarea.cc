@@ -31,7 +31,8 @@ std::vector<Gtk::TargetEntry> MyArea::listTargets;
 MyArea *MyArea::dnd_tile;
 int MyArea::xmin = map_max - 4, MyArea::ymin = map_max - 4 , MyArea::xmax = 5, MyArea::ymax = 5;
 int MyArea::cr_up=36, MyArea::cr_do=36, MyArea::cr_le=32, MyArea::cr_ri=32;
-vector<MyArea *> MyArea::all_tiles;
+//vector<MyArea *> MyArea::all_tiles;
+set<MyArea *> MyArea::all_tiles;
 std::string MyArea::current_path="";
 
 /* MyArea members */
@@ -89,7 +90,8 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 		mw.add_tile(this);
 	    }
 	    empty = false;
-	    all_tiles.push_back(this);
+	    //all_tiles.push_back(this);
+	    all_tiles.insert(this);
 	}
 	else {
 	    std::cerr << "filename not following convention " << def_basename << "XX:YY.png): "
@@ -159,13 +161,13 @@ MyArea::setup_popup(void)
 	refActionGroup->add_action("delete",
 				   sigc::mem_fun(*this, &MyArea::on_menu_delete_tile));
     }
-    
-    refActionGroup->add_action("process", //TODO: How to specify "<control>P" as an accelerator.
+/* not yet implemented    
+    refActionGroup->add_action("icolumn", //TODO: How to specify "<control>P" as an accelerator.
 			       sigc::mem_fun(*this, &MyArea::on_menu_popup));
     
-    refActionGroup->add_action("remove",
+    refActionGroup->add_action("irow",
 			       sigc::mem_fun(*this, &MyArea::on_menu_popup));
-
+*/
     insert_action_group("MApopup", refActionGroup);
 
     Glib::RefPtr<Gtk::Builder> m_refBuilder;
@@ -180,12 +182,12 @@ MyArea::setup_popup(void)
 	"        <attribute name='action'>MApopup.delete</attribute>"
 	"      </item>"
 	"      <item>"
-	"        <attribute name='label' translatable='yes'>Process</attribute>"
-	"        <attribute name='action'>MApopup.process</attribute>"
+	"        <attribute name='label' translatable='yes'>insert Row</attribute>"
+	"        <attribute name='action'>MApopup.icolumn</attribute>"
 	"      </item>"
 	"      <item>"
-	"        <attribute name='label' translatable='yes'>Remove</attribute>"
-	"        <attribute name='action'>MApopup.remove</attribute>"
+	"        <attribute name='label' translatable='yes'>insert Column</attribute>"
+	"        <attribute name='action'>MApopup.irow</attribute>"
 	"      </item>"
 	"    </section>"
 	"  </menu>"
@@ -201,7 +203,20 @@ MyArea::setup_popup(void)
 void
 MyArea::on_menu_delete_tile(void) 
 {
-    cout << __FUNCTION__ << ": called." << endl;
+    if (MyMsg("delete Tile", "Are you sure?").run() == Gtk::RESPONSE_OK) {
+        cout << __FUNCTION__ << ": delete confirmed for "; print();
+	mw.remove_tile(this);
+	Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(get_fname());
+	try {
+	    f->trash();		// park tiles in trash
+	}
+	catch (Glib::Error &e) {
+	    cout << __FUNCTION__ << ": move to trash failed for "; print();
+	    cerr << e.what() << endl;
+	    f->remove();	// plain remove
+	}
+	delete this;
+    }
 }
 
 void

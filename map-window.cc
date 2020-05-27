@@ -196,6 +196,27 @@ map_window::add_tile(MyArea *a)
 }
 
 void
+map_window::remove_tile(MyArea *a)
+{
+    if (a->getX() > 0) {
+	// placed tile
+	MyArea *new_empty = new MyArea(*this, NULL, a->getX(), a->getY());
+	map_grid.remove(*a);
+	map_grid.attach(*new_empty, a->getX(), a->getY());
+	tiles[a->getX()][a->getY()] = new_empty;
+	if (auto e = MyArea::all_tiles.erase(a) != 1) {
+	    cerr << __FUNCTION__ << ": erased " << e << " tiles." << endl;
+	}
+	resize_map();
+    }
+    else {
+	ctrls->remove_tile(a);
+    }
+    nr_tiles = MyArea::all_tiles.size();
+    show_all_children();
+}
+
+void
 map_window::reload_unplaced_tiles(void)
 {
     string &cp = MyArea::current_path;
@@ -282,6 +303,20 @@ map_window::get_empty_area(int from_x, int from_y, int to_x, int to_y)
 }
 
 void
+map_window::resize_map(void)
+{
+    int do_scratch = 0;
+    MyArea::refresh_minmax();
+    do_scratch += get_empty_area(0, 0, map_max+1, MyArea::ymin);
+    do_scratch += get_empty_area(0, MyArea::ymax+1, map_max+1, map_max+1);
+    do_scratch += get_empty_area(0, 0, MyArea::xmin, map_max+1);
+    do_scratch += get_empty_area(MyArea::xmax+1, 0, map_max+1, map_max+1);
+    if (do_scratch) {
+	cout << "found " << do_scratch << " empty tiles to remove." << endl;
+    }
+}
+
+void
 map_window::xchange_tiles(MyArea *s, MyArea *d)
 {
     int tsx, tsy, tdx, tdy;
@@ -324,16 +359,8 @@ map_window::xchange_tiles(MyArea *s, MyArea *d)
 	if (!d->is_empty())	// pushback if we placed on occupied tile
 	    ctrls->add_tile(d);
     }
-    
     // check if we need to grow/shrink
-    if (s->update_minmax()) fill_empties(); // already placed therefore s(ource)!
-    int do_scratch = 0;
-    MyArea::refresh_minmax();
-    do_scratch += get_empty_area(0, 0, map_max+1, MyArea::ymin);
-    do_scratch += get_empty_area(0, MyArea::ymax+1, map_max+1, map_max+1);
-    do_scratch += get_empty_area(0, 0, MyArea::xmin, map_max+1);
-    do_scratch += get_empty_area(MyArea::xmax+1, 0, map_max+1, map_max+1);
-    if (do_scratch) {
-	cout << "found " << do_scratch << " empty tiles to remove." << endl;
-    }
+    if (s->update_minmax())
+	fill_empties(); // already placed therefore s(ource)!
+    resize_map();
 }

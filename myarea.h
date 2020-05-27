@@ -17,6 +17,7 @@
 #include <gtkmm/menu.h>
 #include <gdkmm/pixbuf.h>
 #include <vector>
+#include <set>
 
 class map_window;
 
@@ -36,7 +37,8 @@ class MyArea : public Gtk::DrawingArea
     MyArea(map_window &m, const char *fn, int xk = -1, int yk = -1);
     virtual ~MyArea();
 
-    static std::vector<MyArea *> all_tiles;
+//    static std::vector<MyArea *> all_tiles;
+    static std::set<MyArea *> all_tiles;
     static std::vector<Gtk::TargetEntry> listTargets;
     static std::string current_path;
     static void refresh_minmax(void);
