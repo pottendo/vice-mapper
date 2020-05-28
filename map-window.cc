@@ -27,7 +27,8 @@ double map_window::scale_factor_x = 3.0;
 double map_window::scale_factor_y = 3.0;
 
 map_window::map_window()
-    : nr_tiles(0)
+    : dirty(false),
+      nr_tiles(0)
 {
     //set_title("Map");
 

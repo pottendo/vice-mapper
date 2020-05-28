@@ -29,6 +29,7 @@ const std::string def_basename = "vice-screen-";
 class map_window : public Gtk::ScrolledWindow
 {
     int get_empty_area(int from_x, int from_y, int to_x, int to_y);
+    bool dirty;
   protected:
     class MyScw : public Gtk::ScrolledWindow
     {
@@ -63,7 +64,9 @@ class map_window : public Gtk::ScrolledWindow
     map_window();
     virtual ~map_window() {};
 
-    inline void set_dirty(bool d) { ctrls->set_dirty(d); }
+    inline void set_dirty(bool d) { dirty=d; ctrls->set_dirty(d); }
+    inline bool is_dirty(void) { return dirty; }
+	
     void add_tile(MyArea *);
     void remove_tile(MyArea *, bool map_remove = false);
     void add_unplaced_tile(MyArea *t) { ctrls->add_tile(t); }
@@ -81,6 +84,7 @@ class map_window : public Gtk::ScrolledWindow
     void resize_map(void);
     void remove_map(void);
     void open_map(void);
+    void commit_changes(void) { if (dirty) ctrls->commit_changes(); }
 };
 
 #endif /* __map_window_h__ */

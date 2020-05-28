@@ -73,16 +73,17 @@ e.g. $ export PATH=/mingw32/bin:$PATH
 
 # TODOs
 
-~~- Add a refresh for unplaced tiles to add on-the-fly~~
-- delete tile
+UI-stuff<br>
 - insert row/columns more easily
-~~- make code more robust against failed compliance to file-name~~
-~~  convention~~
-~~- check map boundaries~~
 - maybe allow individual crop vals for tiles
 - save settings (crop vals, etc.) next to map directory
-- add menu for choosing maps
 - allow other name than def_basename (i.e. vice-screen-)
+- support multiple maps in parallel (notpads?), encapsule some globals
+
+Internals:
+- log-window
+- refactor code to follow consistent conventions
+- put in GPL license
 
 # Build vice for Windoze
 

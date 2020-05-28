@@ -57,6 +57,7 @@ class map_controls : public Gtk::Frame
     void add_tile(MyArea *tile);
     void remove_tile(MyArea *t);
     void set_dirty(bool d);
+    void commit_changes(void);
 };
 
 #endif /* __map_controls_h__ */

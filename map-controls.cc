@@ -124,16 +124,22 @@ map_controls::map_controls(map_window &m, const Glib::ustring &name)
     show_all_children();
 }
 
-bool
-map_controls::on_commit_press_event(GdkEventButton *) 
+void
+map_controls::commit_changes(void)
 {
-    //cout << "Save button pressed." << endl;
     MyMsg m("Save?", "bla");
     if (m.run() == Gtk::RESPONSE_OK) {
 	for_each(MyArea::all_tiles.begin(), MyArea::all_tiles.end(),
 		 [](MyArea *t)->void { t->commit_changes(); } );
 	set_dirty(FALSE);
     }
+}
+
+bool
+map_controls::on_commit_press_event(GdkEventButton *) 
+{
+    //cout << "Save button pressed." << endl;
+    commit_changes();
     return TRUE;
 }
 

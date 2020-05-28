@@ -19,6 +19,7 @@
 #include "myarea.h"
 #include "map-window.h"
 
+
 using namespace::std;
 Glib::RefPtr<Gtk::Builder> builder; // global used by all GUI elements
 Glib::RefPtr<Gtk::Application> app;
@@ -26,12 +27,23 @@ MyStatus *mw_status = nullptr;
 map_window *mw_map = nullptr;
 Gtk::Window *mainWindow = nullptr;
 
+static gboolean on_delete_event (GtkWidget *window,
+                                 GdkEvent  *event,
+                                 gpointer   data)
+{
+    cout << "quit called." << endl;
+    mw_map->commit_changes();
+    return false;
+}
+
+    
 int main(int argc, char** argv)
 {
     int argc1 = 1;
     app = Gtk::Application::create(argc1, argv, "org.gtkmm.example");
     builder = Gtk::Builder::create_from_file("./gui.glade");
     gtk_builder_connect_signals(builder->gobj(), NULL);
+    
     mw_status = new MyStatus();
     map_window mw;
     MyArea *tile;
@@ -49,6 +61,7 @@ int main(int argc, char** argv)
     mw_map = &mw;
 
     builder->get_widget("ViceMapper", mainWindow);
+    g_signal_connect(mainWindow->gobj(), "delete-event", G_CALLBACK(on_delete_event), NULL);
 
     Gtk::Box *mw_box = nullptr;
     builder->get_widget("MWBox", mw_box);
