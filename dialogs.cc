@@ -62,7 +62,9 @@ on_MenuAbout_activate(Gtk::MenuItem *m)
 void
 on_MenuOpen_activate(Gtk::MenuItem *m) 
 {
-    if (MyMsg("Open new map?", "unsaved changes will be lost").run() != Gtk::RESPONSE_OK) {
+    
+    if (mw_map->is_dirty() &&
+	MyMsg("Open new map?", "unsaved changes will be lost").run() != Gtk::RESPONSE_OK) {
 	return;
     }
     mw_map->open_map();
