@@ -27,12 +27,14 @@ using namespace::std;
 
 class MyStatus
 {
-    Gtk::Label *my_status;
+    Gtk::Label *my_status[3];
   public:
     MyStatus();
     ~MyStatus() {};
 
-    inline void show(std::string s) { my_status->set_label(s); }
+    typedef enum { STATL, STATM, STATR } MyStatusPos;
+    void show(MyStatusPos w, std::string s) { my_status[w]->set_label(s); }
+    void clear(void);
 };
 
 class MyMsg : public Gtk::MessageDialog {
@@ -55,5 +57,6 @@ class MyAbout
 extern Glib::RefPtr<Gtk::Builder> builder;
 extern MyStatus *mw_status;
 extern map_window *mw_map;
-
+extern Glib::RefPtr<Gtk::Application> app;
+extern Gtk::Window *mainWindow;
 #endif /* __dialogs_h__ */

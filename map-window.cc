@@ -14,10 +14,12 @@
 #include <gtkmm/button.h>
 #include <gtkmm/widget.h>
 #include <gtkmm/frame.h>
+#include <gtkmm/filechooserdialog.h>
 #include <glibmm/fileutils.h>
+#include <iostream>
 #include "map-window.h"
 #include "map-controls.h"
-#include <iostream>
+#include "dialogs.h"
 
 using namespace::std;
 Glib::RefPtr<Gdk::Pixbuf> map_window::empty_image;
@@ -198,7 +200,10 @@ map_window::add_tile(MyArea *a)
 void
 map_window::remove_tile(MyArea *a, bool map_remove)
 {
-    if (a->getX() > 0) {
+    if (a->getX() < 0) {
+	ctrls->remove_tile(a);
+    }
+    else {
 	map_grid.remove(*a);
 	if (!map_remove) {
 	    // placed tile
@@ -209,12 +214,9 @@ map_window::remove_tile(MyArea *a, bool map_remove)
 	else
 	    tiles[a->getX()][a->getY()] = nullptr;
 	auto e = MyArea::all_tiles.erase(a);
-	if (e != 1) {
+	if (e > 1) {
 	    cerr << __FUNCTION__ << ": erased " << e << " tiles." << endl;
 	}
-    }
-    else {
-	ctrls->remove_tile(a);
     }
     nr_tiles = MyArea::all_tiles.size();
     show_all_children();
@@ -243,16 +245,17 @@ map_window::reload_unplaced_tiles(void)
     }
     MyArea::refresh_minmax();
     fill_empties();
+    mw_status->show(MyStatus::STATM, MyArea::current_path);
 }
 
 void
 map_window::fill_empties() 
 {
     int x, y;
-    /*
+/*
     cout << "X:" << MyArea::xmin << "-" << MyArea::xmax
 	 << "Y:" << MyArea::ymin << "-" << MyArea::ymax << endl;
-    */
+*/
     for (x = MyArea::xmin; x <= MyArea::xmax; x++) {
 	for (y = MyArea::ymin; y <= MyArea::ymax; y++) {
 	    if (tiles[x][y] == NULL) {
@@ -309,41 +312,6 @@ map_window::get_empty_area(int from_x, int from_y, int to_x, int to_y)
 }
 
 void
-map_window::resize_map(void)
-{
-    int do_scratch = 0;
-    MyArea::refresh_minmax();
-    do_scratch += get_empty_area(0, 0, map_max+1, MyArea::ymin);
-    do_scratch += get_empty_area(0, MyArea::ymax+1, map_max+1, map_max+1);
-    do_scratch += get_empty_area(0, 0, MyArea::xmin, map_max+1);
-    do_scratch += get_empty_area(MyArea::xmax+1, 0, map_max+1, map_max+1);
-    if (do_scratch) {
-	cout << "found " << do_scratch << " empty tiles to remove." << endl;
-    }
-}
-
-void
-map_window::remove_map(void) 
-{
-    cout << __FUNCTION__ << ": called." << endl;
-    std::vector<Gtk::Widget *> to_scratch = map_grid.get_children();
-    std::for_each(to_scratch.begin(), to_scratch.end(),
-		  [this](Gtk::Widget *t)->void {
-		      remove_tile(static_cast<MyArea*>(t), true);
-		      delete static_cast<MyArea*>(t);
-		  });
-    
-    for (auto t : MyArea::all_tiles) {
-	delete t;
-	MyArea::all_tiles.erase(t);
-    }
-    nr_tiles = MyArea::all_tiles.size();
-    cout << __FUNCTION__ << ": pending tiles = " << nr_tiles << endl;
-    //add_tile(new MyArea(*this, NULL, 50, 50));
-    show_all_children();
-}
-
-void
 map_window::xchange_tiles(MyArea *s, MyArea *d)
 {
     int tsx, tsy, tdx, tdy;
@@ -390,4 +358,61 @@ map_window::xchange_tiles(MyArea *s, MyArea *d)
     if (s->update_minmax())
 	fill_empties(); // already placed therefore s(ource)!
     resize_map();
+}
+
+/*
+ * map functions
+ */
+void
+map_window::resize_map(void)
+{
+    int do_scratch = 0;
+    MyArea::refresh_minmax();
+    do_scratch += get_empty_area(0, 0, map_max+1, MyArea::ymin);
+    do_scratch += get_empty_area(0, MyArea::ymax+1, map_max+1, map_max+1);
+    do_scratch += get_empty_area(0, 0, MyArea::xmin, map_max+1);
+    do_scratch += get_empty_area(MyArea::xmax+1, 0, map_max+1, map_max+1);
+    if (do_scratch) {
+	cout << "found " << do_scratch << " empty tiles to remove." << endl;
+    }
+}
+
+void
+map_window::remove_map(void) 
+{
+    cout << __FUNCTION__ << ": called." << endl;
+    std::vector<Gtk::Widget *> to_scratch = map_grid.get_children();
+    std::for_each(to_scratch.begin(), to_scratch.end(),
+		  [this](Gtk::Widget *t)->void {
+		      remove_tile(static_cast<MyArea*>(t), true);
+		      delete static_cast<MyArea*>(t);
+		  });
+    
+    for (auto t : MyArea::all_tiles) {
+	delete t;
+	MyArea::all_tiles.erase(t);
+    }
+    nr_tiles = MyArea::all_tiles.size();
+    cout << __FUNCTION__ << ": pending tiles = " << nr_tiles
+	 << ", alloc_count = " << MyArea::alloc_count << endl;
+    //add_tile(new MyArea(*this, NULL, 50, 50));
+    mw_status->clear();
+    show_all_children();
+}
+
+void
+map_window::open_map(void) 
+{ 
+    Gtk::FileChooserDialog d("Select map from folder", Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
+    d.set_transient_for(*mainWindow);
+
+    d.add_button("_Cancel", Gtk::RESPONSE_CANCEL);
+    d.add_button("Select", Gtk::RESPONSE_OK);
+    if (d.run() != Gtk::RESPONSE_OK)
+	return;
+    
+    cout << __FUNCTION__ << ": load map from '" <<  d.get_filename() << "'." << endl;
+    remove_map();
+    MyArea::current_path = d.get_filename();
+    reload_unplaced_tiles();
 }

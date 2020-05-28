@@ -29,6 +29,7 @@
 using namespace::std;
 std::vector<Gtk::TargetEntry> MyArea::listTargets;
 MyArea *MyArea::dnd_tile;
+int MyArea::alloc_count;
 int MyArea::xmin = map_max - 4, MyArea::ymin = map_max - 4 , MyArea::xmax = 5, MyArea::ymax = 5;
 int MyArea::cr_up=36, MyArea::cr_do=36, MyArea::cr_le=32, MyArea::cr_ri=32;
 //vector<MyArea *> MyArea::all_tiles;
@@ -41,9 +42,12 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 {
     if (fn) {
 	Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(fn);
-	file_name = f->get_path();
-	if (current_path == "")
+	set_fname(f->get_path(), f->get_basename());
+	if (current_path == "") {
 	    current_path = f->get_parent()->get_path();
+	    mw_status->show(MyStatus::STATM, current_path);
+	}
+	
 	try
 	{
 	    // The fractal image has been created by the XaoS program.
@@ -101,12 +105,13 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
     }
     else {
 	xk = x; yk = y;
-	file_name = "empty";
+	file_name = file_basename = "<empty>";
 	m_image = map_window::empty_image;
 	empty = true;
     }
     set_dirty(FALSE);		// initially we're in sync with files.
     m_pMenuPopup = nullptr;	// setup popup only if needed.
+    alloc_count++;		// recored number of allocated tiles
 
     // Show at least a quarter of the image.
     if (m_image) {
@@ -140,6 +145,7 @@ MyArea::~MyArea()
     print();
     if (m_pMenuPopup)
 	delete m_pMenuPopup;
+    alloc_count--;
 }
 
 void
@@ -337,6 +343,7 @@ void MyArea::on_label_drop_drag_data_received(
 bool
 MyArea::on_button_press_event(GdkEventButton *e) 
 {
+    mw_status->show(MyStatus::STATL, to_string(xk) + "x" + to_string(yk) + "|" + file_basename);
     if( (e->type == GDK_BUTTON_PRESS) && (e->button == 3) )
     {
 	if (!m_pMenuPopup) setup_popup();
@@ -413,7 +420,7 @@ MyArea::update_minmax(void)
     if (ymax == yk) { ymax++; changed = true; }
     string s = string("xmin=") + to_string(xmin) + ",ymin=" + to_string(ymin) + ",xmax=" + to_string(xmax) + ",ymax=" + to_string(ymax);
     
-    mw_status->show(s);
+    mw_status->show(MyStatus::STATR, s);
     
     return changed;
 }
@@ -427,14 +434,6 @@ MyArea::refresh_minmax(void)
 		  [](MyArea *t)->void { (void) t->update_minmax(); } );
     //cout << "New dimension: " << xmin << "," << ymin << "x" << xmax << "," << ymax << endl;
 }
-
-void
-MyArea::delete_all_tiles(void) 
-{
-    // TODO cleanup on map change
-    current_path = "";
-}
-
 
 MyArea *
 MyArea::lookup_by_name(std::string name) 
@@ -481,7 +480,7 @@ MyArea::park_tile_file(void)
 	return;
     }
     fn->copy(tfile);
-    set_fname(tmpnam);
+    set_fname(tmpnam, tfile->get_basename());
     fn->remove();
 }
 
@@ -513,7 +512,7 @@ MyArea::commit_changes(void)
     cout << "rename: " << file_name << "->" << new_fn << endl;
     file->copy(new_file);
     file->remove();
-    set_fname(new_fn);
+    set_fname(new_fn, new_file->get_basename());
     set_dirty(FALSE);
     get_window()->invalidate(TRUE);
 }

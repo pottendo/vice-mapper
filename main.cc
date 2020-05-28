@@ -21,17 +21,15 @@
 
 using namespace::std;
 Glib::RefPtr<Gtk::Builder> builder; // global used by all GUI elements
-MyStatus *mw_status;
-map_window *mw_map;
+Glib::RefPtr<Gtk::Application> app;
+MyStatus *mw_status = nullptr;
+map_window *mw_map = nullptr;
+Gtk::Window *mainWindow = nullptr;
 
 int main(int argc, char** argv)
 {
     int argc1 = 1;
-    auto app = Gtk::Application::create(argc1, argv, "org.gtkmm.example");
-    if (argc <= 1) {
-	cerr << "usage: " << argv[0] << def_basename << "-XX:XX.png ..." << endl;
-	exit(1);
-    }
+    app = Gtk::Application::create(argc1, argv, "org.gtkmm.example");
     builder = Gtk::Builder::create_from_file("./gui.glade");
     gtk_builder_connect_signals(builder->gobj(), NULL);
     mw_status = new MyStatus();
@@ -49,8 +47,7 @@ int main(int argc, char** argv)
     }
     mw.fill_empties();
     mw_map = &mw;
-    
-    Gtk::Window* mainWindow = nullptr;
+
     builder->get_widget("ViceMapper", mainWindow);
 
     Gtk::Box *mw_box = nullptr;

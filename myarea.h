@@ -23,10 +23,11 @@ class map_window;
 
 class MyArea : public Gtk::DrawingArea
 {
-    std::string file_name;
+    std::string file_name, file_basename;
     bool dirty, empty;
     int xk, yk;
     static MyArea *dnd_tile;
+    
     void park_tile_file(void);
     Gtk::Menu *m_pMenuPopup;	/* TODO delete in derstructor */
     void setup_popup(void);
@@ -39,17 +40,17 @@ class MyArea : public Gtk::DrawingArea
 
 //    static std::vector<MyArea *> all_tiles;
     static std::set<MyArea *> all_tiles;
+    static int alloc_count;
     static std::vector<Gtk::TargetEntry> listTargets;
     static std::string current_path;
     static void refresh_minmax(void);
-    static void delete_all_tiles(void);
     static MyArea *lookup_by_name(std::string name);
 
     map_window &mw;
 
     void print(void);
     inline std::string get_fname() { return file_name; }
-    inline void set_fname(std::string f) { file_name = f; }
+    inline void set_fname(std::string f, std::string bn) { file_name = f; file_basename = bn; }
     inline const Glib::RefPtr<Gdk::Pixbuf> get_pixmap_icon() { return m_image_icon; }
     inline int getX(void) { return xk; }
     inline int getY(void) { return yk; }

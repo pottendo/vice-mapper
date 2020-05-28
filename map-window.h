@@ -68,9 +68,7 @@ class map_window : public Gtk::ScrolledWindow
     void remove_tile(MyArea *, bool map_remove = false);
     void add_unplaced_tile(MyArea *t) { ctrls->add_tile(t); }
     void reload_unplaced_tiles(void);
-    void resize_map(void);
-    void remove_map(void);
-	
+
     void fill_empties();
     void scale_all(void);
     void xchange_tiles(MyArea *s, MyArea *d);
@@ -79,6 +77,10 @@ class map_window : public Gtk::ScrolledWindow
     static Glib::RefPtr<Gdk::Pixbuf> empty_image;
     static double scale_factor_x;
     static double scale_factor_y;
+
+    void resize_map(void);
+    void remove_map(void);
+    void open_map(void);
 };
 
 #endif /* __map_window_h__ */
