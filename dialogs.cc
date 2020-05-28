@@ -53,13 +53,13 @@ MyAbout::MyAbout()
 
 /* callbacks from Main Menubar */
 extern "C"  {
-void
+G_MODULE_EXPORT void
 on_MenuAbout_activate(Gtk::MenuItem *m) 
 {
     MyAbout about;
 }
 
-void
+G_MODULE_EXPORT void
 on_MenuOpen_activate(Gtk::MenuItem *m) 
 {
     
@@ -70,7 +70,7 @@ on_MenuOpen_activate(Gtk::MenuItem *m)
     mw_map->open_map();
 }
 
-void
+G_MODULE_EXPORT void
 on_MenuClose_activate(Gtk::MenuItem *m) 
 {
     if (MyMsg("Close map?", "unsaved changes will be lost").run() == Gtk::RESPONSE_OK) {
@@ -78,13 +78,13 @@ on_MenuClose_activate(Gtk::MenuItem *m)
     }
 }
 
-void
+G_MODULE_EXPORT void
 on_MenuPrint_activate(Gtk::MenuItem *m) 
 {
     MyMsg("Print not yet implemented!", ":-(").run();
 }
 
-void
+G_MODULE_EXPORT void
 on_MenuQuit_activate(Gtk::MenuItem *m) 
 {
     if (MyMsg("Really Quit?", "unsaved changes will be lost").run() == Gtk::RESPONSE_OK) {
@@ -92,7 +92,7 @@ on_MenuQuit_activate(Gtk::MenuItem *m)
     }
 }
 
-void
+G_MODULE_EXPORT void
 on_MenuSettings_activate(Gtk::MenuItem *m) 
 {
     MyMsg("Settings", "lost").run();
