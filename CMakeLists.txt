@@ -39,6 +39,7 @@ target_link_libraries(mapper ${GTK_LIBRARIES})
 # Bindist
 add_custom_target (bindist 
 COMMAND ./make-bindist-win32.sh vice-mapper-${MAPPER_VERSION}
+COMMAND zip -r vice-mapper-${MAPPER_VERSION}.zip vice-mapper-${MAPPER_VERSION}
 DEPENDS mapper.exe gui.glade
 )	
 
