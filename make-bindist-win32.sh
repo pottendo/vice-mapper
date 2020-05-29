@@ -19,6 +19,7 @@ rm -r $BUILDPATH/share/icons/Adwaita/scalable/emotes
 cp --parents share/icons/hicolor/index.theme $BUILDPATH
 cp --parents share/glib-2.0/schemas/gschemas.compiled $BUILDPATH
 cp bin/gspawn-win??-helper*.exe $BUILDPATH
+cp bin/gdbus.exe $BUILDPATH
 cd - >/dev/null
 
 exit 0
