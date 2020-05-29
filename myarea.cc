@@ -17,6 +17,7 @@
 #include <gdkmm/general.h> // set_source_pixbuf()
 #include <gdkmm/pixbuf.h>
 #include <giomm/file.h>
+#include <giomm/error.h>
 #include <giomm/simpleactiongroup.h>
 #include <glibmm/fileutils.h>
 #include <iostream>
@@ -206,18 +207,26 @@ MyArea::setup_popup(void)
 void
 MyArea::on_menu_delete_tile(void) 
 {
-    if (MyMsg("delete Tile", "Are you sure?").run() == Gtk::RESPONSE_OK) {
+#ifdef WIN32
+    bool running_on_win32 = true;
+#else
+    bool running_on_win32 = false;
+#endif
+    
+    if (running_on_win32 ||	// f->trash below opens the std dialog on win32
+	MyMsg("delete Tile", "Are you sure?").run() == Gtk::RESPONSE_OK) {
         cout << __FUNCTION__ << ": delete confirmed for "; print();
-	mw.remove_tile(this);
 	Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(get_fname());
 	try {
 	    f->trash();		// park tiles in trash
 	}
 	catch (Glib::Error &e) {
-	    cout << __FUNCTION__ << ": move to trash failed for "; print();
-	    cerr << e.what() << endl;
-	    f->remove();	// plain remove
+	    //cout << __FUNCTION__ << ": move to trash failed for "; print();
+	    cerr << e.what() << endl; // user has cancelled
+	    //f->remove();	// plain remove only if NOT_SUPPORTED comes back TODO
+	    return;
 	}
+	mw.remove_tile(this);
 	delete this;
     }
 }
