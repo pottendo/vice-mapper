@@ -38,14 +38,14 @@ class MyArea : public Gtk::DrawingArea
     MyArea(map_window &m, const char *fn, int xk = -1, int yk = -1);
     virtual ~MyArea();
 
-//    static std::vector<MyArea *> all_tiles;
     static std::set<MyArea *> all_tiles;
     static int alloc_count;
     static std::vector<Gtk::TargetEntry> listTargets;
     static std::string current_path;
     static void refresh_minmax(void);
     static MyArea *lookup_by_name(std::string name);
-
+    static bool tiles_placed;
+    
     map_window &mw;
 
     void print(void);

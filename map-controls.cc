@@ -16,7 +16,6 @@
 #include <gtkmm/hvbox.h>
 #include <gtkmm/adjustment.h>
 #include <gtkmm/scale.h>
-#include <experimental/filesystem>
 #include "map-controls.h"
 #include "map-window.h"
 #include "dialogs.h"

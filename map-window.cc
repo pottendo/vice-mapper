@@ -247,6 +247,8 @@ map_window::reload_unplaced_tiles(void)
     MyArea::refresh_minmax();
     fill_empties();
     mw_status->show(MyStatus::STATM, MyArea::current_path);
+    if (!MyArea::tiles_placed)
+	add_tile(new MyArea(*this, NULL, 50, 50));
 }
 
 void

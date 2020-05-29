@@ -35,6 +35,7 @@ int MyArea::cr_up=36, MyArea::cr_do=36, MyArea::cr_le=32, MyArea::cr_ri=32;
 //vector<MyArea *> MyArea::all_tiles;
 set<MyArea *> MyArea::all_tiles;
 std::string MyArea::current_path="";
+bool MyArea::tiles_placed = false;
 
 /* MyArea members */
 MyArea::MyArea(map_window &m, const char *fn, int x, int y)
@@ -48,19 +49,14 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 	    mw_status->show(MyStatus::STATM, current_path);
 	}
 	
-	try
-	{
-	    // The fractal image has been created by the XaoS program.
-	    // http://xaos.sourceforge.net
+	try {
 	    m_image_scaled = m_image = Gdk::Pixbuf::create_from_file(fn, resX, resY);
 	}
-	catch(const Gio::ResourceError& ex)
-	{
+	catch(const Gio::ResourceError& ex) {
 	    std::cerr << "ResourceError: " << ex.what() << std::endl;
 	    throw -1;
 	}
-	catch(const Gdk::PixbufError& ex)
-	{
+	catch(const Gdk::PixbufError& ex) {
 	    std::cerr << "PixbufError: " << ex.what() << std::endl;
 	    throw -1;
 	}
@@ -92,6 +88,7 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 	    else {
 		(void) update_minmax();
 		mw.add_tile(this);
+		tiles_placed=true;
 	    }
 	    empty = false;
 	    //all_tiles.push_back(this);

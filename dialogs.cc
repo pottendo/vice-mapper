@@ -73,9 +73,11 @@ on_MenuOpen_activate(Gtk::MenuItem *m)
 G_MODULE_EXPORT void
 on_MenuClose_activate(Gtk::MenuItem *m) 
 {
-    if (MyMsg("Close map?", "unsaved changes will be lost").run() == Gtk::RESPONSE_OK) {
-	mw_map->remove_map();
+    if (mw_map->is_dirty() &&
+	MyMsg("Close map?", "unsaved changes will be lost").run() != Gtk::RESPONSE_OK) {
+	return;
     }
+    mw_map->remove_map();
 }
 
 G_MODULE_EXPORT void
@@ -87,9 +89,11 @@ on_MenuPrint_activate(Gtk::MenuItem *m)
 G_MODULE_EXPORT void
 on_MenuQuit_activate(Gtk::MenuItem *m) 
 {
-    if (MyMsg("Really Quit?", "unsaved changes will be lost").run() == Gtk::RESPONSE_OK) {
-	app->quit();
+    if (mw_map->is_dirty() &&
+	MyMsg("Really Quit?", "unsaved changes will be lost").run() != Gtk::RESPONSE_OK) {
+	return;
     }
+    app->quit();
 }
 
 G_MODULE_EXPORT void

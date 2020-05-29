@@ -31,7 +31,6 @@ static gboolean on_delete_event (GtkWidget *window,
                                  GdkEvent  *event,
                                  gpointer   data)
 {
-    cout << "quit called." << endl;
     mw_map->commit_changes();
     return false;
 }
@@ -46,32 +45,26 @@ int main(int argc, char** argv)
     
     mw_status = new MyStatus();
     map_window mw;
-    MyArea *tile;
     for (int i = 1; i < argc; i++) {
 	try {
-	    tile = new MyArea(mw, argv[i]);
+	    new MyArea(mw, argv[i]);
 	}
 	catch (...) { continue;	} // ignore non-tiles
     }
-    if (mw.get_nrtiles() == 0) {
-	tile = new MyArea(mw, NULL, 50, 50);
-	mw.add_tile(tile);
-    }
+    if (!MyArea::tiles_placed)
+	mw.add_tile(new MyArea(mw, NULL, 50, 50));
     mw.fill_empties();
     mw_map = &mw;
 
     builder->get_widget("ViceMapper", mainWindow);
-    g_signal_connect(mainWindow->gobj(), "delete-event", G_CALLBACK(on_delete_event), NULL);
+    g_signal_connect(mainWindow->gobj(), "delete-event",
+		     G_CALLBACK(on_delete_event), NULL);
 
     Gtk::Box *mw_box = nullptr;
     builder->get_widget("MWBox", mw_box);
     mw_box->add(mw);
     mw_box->reorder_child(mw, 1);
-
-    
     mw_box->show_all();
     
     return app->run(*mainWindow);    
-
-    //return app->run(mw);
 }

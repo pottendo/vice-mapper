@@ -1,5 +1,5 @@
 # Set project
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.10)
 project(mapper)
 
 # Configure project paths
@@ -8,17 +8,24 @@ project(mapper)
 #set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 #set(CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
+set (MAPPER_VERSION 1.0)
+
 # Find dependencies
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(GTK3 REQUIRED gtk+-3.0 gtkmm-3.0)
-link_directories(${GTK3_LIBRARY_DIRS})
-include_directories (${GTK3_INCLUDE_DIRS})
-add_compile_options(${GTK3_CFLAGS_OTHER} -g -Wall -Wno-deprecated-declarations -I.)
-link_directories (${GTK3_LIBRARY_DIRS})
+pkg_check_modules(GTK REQUIRED gtk+-3.0 gtkmm-3.0)
+link_directories(${GTK_LIBRARY_DIRS})
+link_directories(${GTK_LIBRARY_DIRS})
+if(NOT DEFINED ENV{MINGW_PREFIX})
+#include_directories (${GTK_INCLUDE_DIRS})
+else()
+set (CXX_INCLUDES -ID:/Programme/msys64/mingw32/include/gtkmm-3.0 -ID:/Programme/msys64/mingw32/lib/gtkmm-3.0/include -ID:/Programme/msys64/mingw32/include/atkmm-1.6 -ID:/Programme/msys64/mingw32/include/gdkmm-3.0 -ID:/Programme/msys64/mingw32/lib/gdkmm-3.0/include -ID:/Programme/msys64/mingw32/include/giomm-2.4 -ID:/Programme/msys64/mingw32/lib/giomm-2.4/include -ID:/Programme/msys64/mingw32/include/pangomm-1.4 -ID:/Programme/msys64/mingw32/lib/pangomm-1.4/include -ID:/Programme/msys64/mingw32/include/glibmm-2.4 -ID:/Programme/msys64/mingw32/lib/glibmm-2.4/include -ID:/Programme/msys64/mingw32/include/gtk-3.0 -ID:/Programme/msys64/mingw32/include/cairo -ID:/Programme/msys64/mingw32/include -ID:/Programme/msys64/mingw32/include/pango-1.0 -ID:/Programme/msys64/mingw32/include/fribidi -ID:/Programme/msys64/mingw32/include/atk-1.0 -ID:/Programme/msys64/mingw32/include/cairomm-1.0 -ID:/Programme/msys64/mingw32/lib/cairomm-1.0/include -ID:/Programme/msys64/mingw32/include/pixman-1 -ID:/Programme/msys64/mingw32/include/freetype2 -ID:/Programme/msys64/mingw32/include/harfbuzz -ID:/Programme/msys64/mingw32/include/libpng16 -ID:/Programme/msys64/mingw32/include/sigc++-2.0 -ID:/Programme/msys64/mingw32/lib/sigc++-2.0/include -ID:/Programme/msys64/mingw32/include/gdk-pixbuf-2.0 -ID:/Programme/msys64/mingw32/include/glib-2.0 -ID:/Programme/msys64/mingw32/lib/glib-2.0/include )
+endif()
 
+add_compile_options(${CXX_INCLUDES} ${GTK_CFLAGS_OTHER} -g -Wall -Wno-deprecated-declarations -I.)
+link_directories (${GTK_LIBRARY_DIRS})
 #set(LIBRARIES ${LIBRARIES} ${GTK3_LIBRARIES})
 #set(FLAGS "-I${GTK3_INCLUDE_DIRS}")
-message(STATUS "Flags: ${GTK3_INCLUDE_DIRS} ${GTK3_CFLAGS_OTHER}")
+#message(STATUS "Flags: ${GTK_INCLUDE_DIRS} ${GTK_CFLAGS_OTHER}")
 #string(REPLACE ";" " -I" FLAGS "${FLAGS}")
 #set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${GTK3_FLAGS})
 
@@ -27,4 +34,11 @@ set(SRC main.cc myarea.cc map-window.cc map-controls.cc dialogs.cc)
 
 # Compile
 add_executable(mapper ${SRC})
-target_link_libraries(mapper ${GTK3_LIBRARIES} -lstdc++fs)
+target_link_libraries(mapper ${GTK_LIBRARIES})
+
+# Bindist
+add_custom_target (bindist 
+COMMAND ./make-bindist-win32.sh vice-mapper-${MAPPER_VERSION}
+DEPENDS mapper.exe gui.glade
+)	
+
