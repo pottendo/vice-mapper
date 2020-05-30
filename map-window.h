@@ -76,6 +76,7 @@ class map_window : public Gtk::ScrolledWindow
     void scale_all(void);
     void xchange_tiles(MyArea *s, MyArea *d);
     inline MyArea *get_tile(int x, int y) { return tiles[x][y]; }
+    inline void set_tile(int x, int y, MyArea *t = nullptr) { tiles[x][y] = t; }
     inline int get_nrtiles(void) { return nr_tiles; }
     static Glib::RefPtr<Gdk::Pixbuf> empty_image;
     static double scale_factor_x;

@@ -88,6 +88,18 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 	    }
 	    else {
 		(void) update_minmax();
+		MyArea *t;
+		if ((t = mw.get_tile(xk, yk)) != nullptr) {
+		    if (t->is_empty()) {
+			delete t;
+			mw.set_tile(xk,yk, nullptr);
+		    }
+		    else {
+			cout << __FUNCTION__ << ": refusing to overload tile with ";
+			print();
+			throw -1;
+		    }
+		}
 		mw.add_tile(this);
 		tiles_placed=true;
 	    }
@@ -135,6 +147,7 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 						      &MyArea::on_label_drop_drag_data_received));
 
     signal_button_press_event().connect(sigc::mem_fun(*this, &MyArea::on_button_press_event), false);
+    print();
 }
 
 MyArea::~MyArea()
@@ -207,13 +220,15 @@ MyArea::setup_popup(void)
 void
 MyArea::on_menu_delete_tile(void) 
 {
+/*    
 #ifdef WIN32
     bool running_on_win32 = true;
 #else
     bool running_on_win32 = false;
 #endif
+*/
     
-    if (running_on_win32 ||	// f->trash below opens the std dialog on win32
+    if (/* running_on_win32 ||*/	// f->trash below sometimes(!) opens the std dialog on win32
 	MyMsg("delete Tile", "Are you sure?").run() == Gtk::RESPONSE_OK) {
         cout << __FUNCTION__ << ": delete confirmed for "; print();
 	Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(get_fname());

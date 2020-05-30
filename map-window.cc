@@ -192,6 +192,11 @@ void
 map_window::add_tile(MyArea *a) 
 {
     map_grid.attach(*a, a->getX(), a->getY());
+    if (tiles[a->getX()][a->getY()]  != nullptr) {
+	cout << __FUNCTION__ << ": place not empty ***"; tiles[a->getX()][a->getY()]->print();
+	cout << __FUNCTION__ << ": should place: "; a->print();
+    }
+    
     tiles[a->getX()][a->getY()] = a;
     a->scale(scale_factor_x, scale_factor_y); // make sure tile adjusts to current scaling
     nr_tiles++;
@@ -209,8 +214,10 @@ map_window::remove_tile(MyArea *a, bool map_remove)
 	if (!map_remove) {
 	    // placed tile
 	    MyArea *new_empty = new MyArea(*this, NULL, a->getX(), a->getY());
-	    map_grid.attach(*new_empty, a->getX(), a->getY());
-	    resize_map();
+	    //map_grid.attach(*new_empty, a->getX(), a->getY());
+	    add_tile(new_empty);
+	    cout << __FUNCTION__ << ": attached new ";
+	    new_empty->print();
 	}
 	else
 	    tiles[a->getX()][a->getY()] = nullptr;
@@ -218,6 +225,7 @@ map_window::remove_tile(MyArea *a, bool map_remove)
 	if (e > 1) {
 	    cerr << __FUNCTION__ << ": erased " << e << " tiles." << endl;
 	}
+	resize_map();
     }
     nr_tiles = MyArea::all_tiles.size();
     show_all_children();
@@ -259,12 +267,18 @@ map_window::fill_empties()
     cout << "X:" << MyArea::xmin << "-" << MyArea::xmax
 	 << "Y:" << MyArea::ymin << "-" << MyArea::ymax << endl;
 */
-    for (x = MyArea::xmin; x <= MyArea::xmax; x++) {
-	for (y = MyArea::ymin; y <= MyArea::ymax; y++) {
-	    if (tiles[x][y] == NULL) {
-		add_tile(new MyArea(*this, NULL, x, y));
+    try {
+	for (x = MyArea::xmin; x <= MyArea::xmax; x++) {
+	    for (y = MyArea::ymin; y <= MyArea::ymax; y++) {
+		if (tiles[x][y] == NULL) {
+		    add_tile(new MyArea(*this, NULL, x, y));
+		}
 	    }
 	}
+    }
+    catch (std::exception &e) {
+	cout << __FUNCTION__ << ": failed with exception " << e.what() << endl;
+	return;
     }
 }
 
@@ -352,11 +366,18 @@ map_window::xchange_tiles(MyArea *s, MyArea *d)
     s->setXY(tdx, tdy);
     add_tile(s);
     d->setXY(tsx, tsy);
-    if (tsx > 0) add_tile(d);
-    else {
-	if (!d->is_empty())	// pushback if we placed on occupied tile
-	    ctrls->add_tile(d);
+    if (tsx > 0) {
+	add_tile(d);
     }
+    else {
+	if (!d->is_empty()) {	// pushback if we placed on occupied tile
+	    ctrls->add_tile(d);
+	}
+	else {
+	    delete d;		// dispose unused empty tile
+	}
+    }
+    
     // check if we need to grow/shrink
     if (s->update_minmax())
 	fill_empties(); // already placed therefore s(ource)!
@@ -400,6 +421,7 @@ map_window::remove_map(void)
 	 << ", alloc_count = " << MyArea::alloc_count << endl;
     //add_tile(new MyArea(*this, NULL, 50, 50));
     mw_status->clear();
+    set_dirty(false);
     show_all_children();
 }
 

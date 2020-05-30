@@ -42,7 +42,7 @@ int main(int argc, char** argv)
     app = Gtk::Application::create(argc1, argv, "org.gtkmm.example");
     builder = Gtk::Builder::create_from_file("./gui.glade");
     gtk_builder_connect_signals(builder->gobj(), NULL);
-    
+    cout << __FUNCTION__ << ": sizeof size_t = " << sizeof(size_t) << endl;
     mw_status = new MyStatus();
     map_window mw;
     for (int i = 1; i < argc; i++) {
