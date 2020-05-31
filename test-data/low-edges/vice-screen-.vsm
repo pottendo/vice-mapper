@@ -1,0 +1,9 @@
+# vice-mapper settings for for 'vice-screen-'
+MAPV=1_0
+CRUP=36
+CRDO=36
+CRLE=32
+CRRI=32
+ZOOMX=1.900000
+ZOOMY=1.900000
+#END - DONT_REMOVE_THIS_LINE
