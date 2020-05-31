@@ -85,7 +85,6 @@ UI-stuff<br>
 - insert row/columns more easily
 - support moving around tiles on map to make space in case a border is reached 
 - maybe allow individual crop vals for tiles
-- save settings (crop vals, etc.) next to map directory
 - allow other name than def_basename (i.e. vice-screen-)
 - support multiple maps in parallel (notpads?), encapsule some globals
 
