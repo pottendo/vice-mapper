@@ -28,7 +28,7 @@ When saving a map tiles (ie. screenshot) are renamed according to
 their coordinates otherwise are kept unmodified, so a the map finally
 consists of a set of properly named screenshots in one directory. 
 
-![Cybernoid map](https://github.com/pottendo/vice-mapper/blob/master/doc/Demo2-Cybernoid.png)
+![Cybernoid](https://github.com/pottendo/vice-mapper/blob/master/doc/Demo4-Cybernoid.png)
 
 # Integration with Vice & Usage
 
