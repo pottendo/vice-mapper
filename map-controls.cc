@@ -43,14 +43,14 @@ map_controls::map_controls(map_window &m, const Glib::ustring &name)
     zvb->set_halign(Gtk::ALIGN_END);
     zoom_frame->add(*zvb);
     
-    adjx = Gtk::Adjustment::create(3.0, 0.1, 6.0, 0.05, 0.1, 0);
+    adjx = Gtk::Adjustment::create(def_zoom, 0.1, def_zoom*2, 0.05, 0.1, 0);
     Gtk::Scale *scalex = new Gtk::Scale(adjx);
     // signal handler
     adjx->signal_value_changed()
 	.connect(sigc::mem_fun(*this, &map_controls::on_scale_event1));
     zvb->pack_start(*scalex, FALSE, FALSE, 0);
     
-    adjy = Gtk::Adjustment::create(3.0, 0.1, 6.0, 0.05, 0.1, 0);
+    adjy = Gtk::Adjustment::create(def_zoom, 0.1, def_zoom*2, 0.05, 0.1, 0);
     Gtk::Scale *scaley = new Gtk::Scale(adjy);
     // signal handler
     adjy->signal_value_changed()
@@ -67,29 +67,33 @@ map_controls::map_controls(map_window &m, const Glib::ustring &name)
     
     crop_frame->add(*cvb);
     
-    adj_crup = Gtk::Adjustment::create(36.0, 0, resY/2, 1.0, 10.0, 0);
+    adj_crup = Gtk::Adjustment::create(def_cry, 0, resY/2, 1.0, 10.0, 0);
     Gtk::Scale *scale_crup = new Gtk::Scale(adj_crup);
+    scale_crup->set_digits(0);
     // signal handler
     adj_crup->signal_value_changed()
 	.connect(sigc::mem_fun(*this, &map_controls::on_scale_crop));
     cvb->pack_start(*scale_crup, FALSE, FALSE, 0);
     
-    adj_crdo = Gtk::Adjustment::create(36.0, 0, resY/2-1, 1.0, 10.0, 0);
+    adj_crdo = Gtk::Adjustment::create(def_cry, 0, resY/2-1, 1.0, 10.0, 0);
     Gtk::Scale *scale_crdo = new Gtk::Scale(adj_crdo);
+    scale_crdo->set_digits(0);
     // signal handler
     adj_crdo->signal_value_changed()
 	.connect(sigc::mem_fun(*this, &map_controls::on_scale_crop));
     cvb->pack_start(*scale_crdo, FALSE, FALSE, 0);
 
-    adj_crle = Gtk::Adjustment::create(32.0, 0, resX/2, 1.0, 10.0, 0);
+    adj_crle = Gtk::Adjustment::create(def_crx, 0, resX/2, 1.0, 10.0, 0);
     Gtk::Scale *scale_crle = new Gtk::Scale(adj_crle);
+    scale_crle->set_digits(0);
     // signal handler
     adj_crle->signal_value_changed()
 	.connect(sigc::mem_fun(*this, &map_controls::on_scale_crop));
     cvb->pack_start(*scale_crle, FALSE, FALSE, 0);
 
-    adj_crri = Gtk::Adjustment::create(32.0, 0, resX/2-1, 1.0, 10.0, 0);
+    adj_crri = Gtk::Adjustment::create(def_crx, 0, resX/2-1, 1.0, 10.0, 0);
     Gtk::Scale *scale_crri = new Gtk::Scale(adj_crri);
+    scale_crri->set_digits(0);
     // signal handler
     adj_crri->signal_value_changed()
 	.connect(sigc::mem_fun(*this, &map_controls::on_scale_crop));
@@ -131,6 +135,7 @@ map_controls::commit_changes(void)
 	for_each(MyArea::all_tiles.begin(), MyArea::all_tiles.end(),
 		 [](MyArea *t)->void { t->commit_changes(); } );
 	set_dirty(FALSE);
+	mw.save_settings();
     }
 }
 
@@ -156,6 +161,7 @@ map_controls::on_scale_event1()
     //cout << "Scale 1: " << adjx->get_value() << endl;
     map_window::scale_factor_x = adjx->get_value();
     mw.scale_all();
+    mw.set_dirty(true);
 }
 
 void
@@ -164,6 +170,7 @@ map_controls::on_scale_event2()
     //cout << "Scale 2: " << adjy->get_value() << endl;
     map_window::scale_factor_y = adjy->get_value();
     mw.scale_all();
+    mw.set_dirty(true);
 }
 
 void
@@ -175,14 +182,26 @@ map_controls::on_scale_crop()
     MyArea::cr_le = adj_crle->get_value();
     MyArea::cr_ri = adj_crri->get_value();
     std::for_each(MyArea::all_tiles.begin(), MyArea::all_tiles.end(),
-		  [](MyArea *t)->void {t->get_window()->invalidate(TRUE);} );
+		  [](MyArea *t)->void {if (t->get_window()) t->get_window()->invalidate(TRUE);} );
+    mw.set_dirty(true);
 }
 
 void
-map_controls::set_zoom(double x, double y) 
+map_controls::set_zoom(double x, double y, bool dirty) 
 {
     adjx->set_value(x);
     adjy->set_value(y);
+    mw.set_dirty(dirty);
+}
+
+void
+map_controls::set_crop(int u, int d, int l, int r, bool dirty) 
+{
+    adj_crup->set_value(u);
+    adj_crdo->set_value(d);
+    adj_crle->set_value(l);
+    adj_crri->set_value(r);
+    mw.set_dirty(dirty);
 }
 
 void

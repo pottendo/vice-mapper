@@ -65,6 +65,8 @@ int main(int argc, char** argv)
     mw_box->add(mw);
     mw_box->reorder_child(mw, 1);
     mw_box->show_all();
-    
+
+    (void) mw.load_settings();
+	
     return app->run(*mainWindow);    
 }

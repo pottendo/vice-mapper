@@ -23,8 +23,8 @@
 
 using namespace::std;
 Glib::RefPtr<Gdk::Pixbuf> map_window::empty_image;
-double map_window::scale_factor_x = 3.0;
-double map_window::scale_factor_y = 3.0;
+double map_window::scale_factor_x = def_zoom;
+double map_window::scale_factor_y = def_zoom;
 
 map_window::map_window()
     : dirty(false),
@@ -192,11 +192,6 @@ void
 map_window::add_tile(MyArea *a) 
 {
     map_grid.attach(*a, a->getX(), a->getY());
-    if (tiles[a->getX()][a->getY()]  != nullptr) {
-	cout << __FUNCTION__ << ": place not empty ***"; tiles[a->getX()][a->getY()]->print();
-	cout << __FUNCTION__ << ": should place: "; a->print();
-    }
-    
     tiles[a->getX()][a->getY()] = a;
     a->scale(scale_factor_x, scale_factor_y); // make sure tile adjusts to current scaling
     nr_tiles++;
@@ -257,6 +252,116 @@ map_window::reload_unplaced_tiles(void)
     mw_status->show(MyStatus::STATM, MyArea::current_path);
     if (!MyArea::tiles_placed)
 	add_tile(new MyArea(*this, NULL, 50, 50));
+}
+
+void
+map_window::save_settings(void) 
+{
+    string &cp = MyArea::current_path;
+    if (cp == "") return;
+    size_t ext_pos = def_basename.find_last_of(".");
+    string cfg_fname = cp + G_DIR_SEPARATOR_S + def_basename.substr(0, ext_pos) + def_cfg_ext;
+    
+    cout << __FUNCTION__ << ": cfg file = " << cfg_fname << endl;
+     
+    Glib::RefPtr<Gio::File> cfg_file = Gio::File::create_for_path(cfg_fname);
+    try {
+	cfg_file->remove();
+    }
+    catch (...) {};		// ignore if not exists
+
+    Glib::RefPtr<Gio::FileOutputStream> cfg_stream;
+    
+    try {
+	cfg_stream = cfg_file->create_file();
+    }
+    catch (Gio::Error &e) {
+	cerr << __FUNCTION__ << ": *** cfg file not written: " << e.what() << endl;
+	return;
+    }
+
+    string head = string("# vice-mapper settings for for '" + def_basename + "'\n" +
+			 "MAPV=" + mapper_version + "\n");
+    cfg_stream->write(head.c_str(), head.size());
+    string lines=
+	string("CRUP=" + to_string(MyArea::cr_up) + "\n"
+	       "CRDO=" + to_string(MyArea::cr_do) + "\n"
+	       "CRLE=" + to_string(MyArea::cr_le) + "\n"
+	       "CRRI=" + to_string(MyArea::cr_ri) + "\n" 
+	       "ZOOMX=" + to_string(scale_factor_x) + "\n"
+	       "ZOOMY=" + to_string(scale_factor_y) + "\n"
+	       "#END - DONT_REMOVE_THIS_LINE\n"
+	    );
+    
+    cfg_stream->write(lines.c_str(), lines.size());
+    cfg_stream->flush();
+}
+
+bool
+map_window::process_line(string l) 
+{
+    //cout << __FUNCTION__ << ": processing line '" << l << "'" << endl;
+    if (l.find("#END") < l.size())
+	return false;
+
+    try {
+	if (l.find("CRUP") < l.size()) MyArea::cr_up = stoi(l.substr(5));
+	if (l.find("CRDO") < l.size()) MyArea::cr_do = stoi(l.substr(5));
+	if (l.find("CRLE") < l.size()) MyArea::cr_le = stoi(l.substr(5));
+	if (l.find("CRRI") < l.size()) MyArea::cr_ri = stoi(l.substr(5));
+	if (l.find("ZOOMX") < l.size()) { scale_factor_x = stod(l.substr(6)); }
+	if (l.find("ZOOMY") < l.size()) { scale_factor_y = stod(l.substr(6)); }
+    }
+    catch (std::invalid_argument &e) {
+	cerr << e.what() << endl;
+    }
+    
+    return true;
+}
+
+bool
+map_window::load_settings(void) 
+{
+    string &cp = MyArea::current_path;
+    if (cp == "") return false;
+    size_t ext_pos = def_basename.find_last_of(".");
+    string cfg_fname = cp + G_DIR_SEPARATOR_S + def_basename.substr(0, ext_pos) + def_cfg_ext;
+    
+    cout << __FUNCTION__ << ": cfg file = " << cfg_fname << endl;
+     
+    Glib::RefPtr<Gio::File> cfg_file = Gio::File::create_for_path(cfg_fname);
+    if (!cfg_file) {
+	cout << __FUNCTION__ << ": can't open cfg file for map." << endl;
+	return false;
+    }
+    
+    Glib::RefPtr<Gio::FileInputStream> cfg_stream;
+    try {
+	cfg_stream = cfg_file->read();
+	char cfg_buffer[1024];
+	gsize bytes_read;
+	if (cfg_stream->read_all(cfg_buffer, 1024, bytes_read) == false) {
+	    cerr << __FUNCTION__ << ": read error." << endl;
+	    return false;
+	}
+	string cfg(cfg_buffer);
+	int lstart = 0;
+	int lend;
+	
+	do {
+	    lend = cfg.substr(lstart).find_first_of("\n");
+	    if (!process_line(cfg.substr(lstart, lend)))
+		break;
+	    lstart = lstart + lend + 1;
+	} while(true);
+	ctrls->set_zoom(scale_factor_x, scale_factor_y, false);
+	ctrls->set_crop(MyArea::cr_up, MyArea::cr_do, MyArea::cr_le, MyArea::cr_ri, false);
+    }
+    catch (Gio::Error &e) {
+	cerr << __FUNCTION__ << ": *** cfg file not read: " << e.what() << endl;
+	return false;
+    }
+    return true;
 }
 
 void
@@ -440,4 +545,8 @@ map_window::open_map(void)
     remove_map();
     MyArea::current_path = d.get_filename();
     reload_unplaced_tiles();
+    if (!load_settings()) {
+	ctrls->set_crop(def_cry, def_cry, def_crx, def_crx);
+	ctrls->set_zoom(def_zoom, def_zoom);
+    }
 }

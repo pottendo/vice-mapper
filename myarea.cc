@@ -32,7 +32,7 @@ std::vector<Gtk::TargetEntry> MyArea::listTargets;
 MyArea *MyArea::dnd_tile;
 int MyArea::alloc_count;
 int MyArea::xmin = map_max - 4, MyArea::ymin = map_max - 4 , MyArea::xmax = 5, MyArea::ymax = 5;
-int MyArea::cr_up=36, MyArea::cr_do=36, MyArea::cr_le=32, MyArea::cr_ri=32;
+int MyArea::cr_up=def_cry, MyArea::cr_do=def_cry, MyArea::cr_le=def_crx, MyArea::cr_ri=def_crx;
 //vector<MyArea *> MyArea::all_tiles;
 set<MyArea *> MyArea::all_tiles;
 std::string MyArea::current_path="";
@@ -147,7 +147,6 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 						      &MyArea::on_label_drop_drag_data_received));
 
     signal_button_press_event().connect(sigc::mem_fun(*this, &MyArea::on_button_press_event), false);
-    print();
 }
 
 MyArea::~MyArea()

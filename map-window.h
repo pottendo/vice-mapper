@@ -24,11 +24,18 @@
 const int map_max = 100;	/* 100x100 tiles should be enough */
 const int resX = 384;		/* typical C64 screen resolution */
 const int resY = 272;
+const int def_crx = 32;
+const int def_cry = 36;
+const double def_zoom = 3.0;
+
 const std::string def_basename = "vice-screen-";
+const std::string def_cfg_ext = ".vsm";
+const std::string mapper_version = MAPPER_VERSION;
 
 class map_window : public Gtk::ScrolledWindow
 {
     int get_empty_area(int from_x, int from_y, int to_x, int to_y);
+    bool process_line(std::string);
     bool dirty;
   protected:
     class MyScw : public Gtk::ScrolledWindow
@@ -85,7 +92,9 @@ class map_window : public Gtk::ScrolledWindow
     void resize_map(void);
     void remove_map(void);
     void open_map(void);
-    void commit_changes(void) { if (dirty) ctrls->commit_changes(); }
+    void commit_changes(void) { if (dirty) { ctrls->commit_changes(); } }
+    void save_settings(void);
+    bool load_settings(void);
 };
 
 #endif /* __map_window_h__ */

@@ -53,7 +53,8 @@ class map_controls : public Gtk::Frame
     map_controls(map_window &m, const Glib::ustring &);
     virtual ~map_controls() {};
     
-    void set_zoom(double x, double y);
+    void set_zoom(double x, double y, bool dirty = true);
+    void set_crop(int u, int d, int l, int r, bool dirty = true);
     void add_tile(MyArea *tile);
     void remove_tile(MyArea *t);
     void set_dirty(bool d);
