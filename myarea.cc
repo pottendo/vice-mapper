@@ -62,7 +62,7 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 	    throw -1;
 	}
 	std::string regstr("(.*)" + std::string(def_basename) +
-			   "([-0-9][0-9])x([0-9][0-9][0-9]?)\\.(png|PNG|gif|GIF)");
+			   "([-0-9][0-9])x([0-9][0-9][0-9]*)\\.(png|PNG|gif|GIF)");
 	std::regex re(regstr); 
 	std::cmatch cm;
 	std::regex_match(fn, cm, re, std::regex_constants::match_default);
@@ -100,6 +100,7 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 			throw -1;
 		    }
 		}
+		if (yk >= map_max) throw -1; // y can be larger to allow 100+ unplaced tiles.
 		mw.add_tile(this);
 		tiles_placed=true;
 	    }

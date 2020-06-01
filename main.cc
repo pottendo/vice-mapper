@@ -42,19 +42,17 @@ int main(int argc, char** argv)
     app = Gtk::Application::create(argc1, argv, "org.gtkmm.example");
     builder = Gtk::Builder::create_from_file("./gui.glade");
     gtk_builder_connect_signals(builder->gobj(), NULL);
-    cout << __FUNCTION__ << ": sizeof size_t = " << sizeof(size_t) << endl;
+    //cout << __FUNCTION__ << ": sizeof size_t = " << sizeof(size_t) << endl;
     mw_status = new MyStatus();
     map_window mw;
-    for (int i = 1; i < argc; i++) {
-	try {
-	    new MyArea(mw, argv[i]);
-	}
-	catch (...) { continue;	} // ignore non-tiles
-    }
-    if (!MyArea::tiles_placed)
-	mw.add_tile(new MyArea(mw, NULL, 50, 50));
-    mw.fill_empties();
     mw_map = &mw;
+
+    if (argc > 2) {
+	cerr << "Usage: " << argv[0] << " [map-directory]" << endl;
+	return 1;
+    }
+    if (argc == 2)
+	mw.reload_unplaced_tiles(argv[1]);
 
     builder->get_widget("ViceMapper", mainWindow);
     g_signal_connect(mainWindow->gobj(), "delete-event",

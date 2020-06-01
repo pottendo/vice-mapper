@@ -230,12 +230,12 @@ map_window::remove_tile(MyArea *a, bool map_remove)
 }
 
 void
-map_window::reload_unplaced_tiles(void)
+map_window::reload_unplaced_tiles(char *path)
 {
-    string &cp = MyArea::current_path;
+    string cp = (path != NULL) ? string(path) : MyArea::current_path;
     
     if (cp == "") return;
-    Glib::Dir dir(MyArea::current_path);
+    Glib::Dir dir(cp);
     std::list<std::string> entries (dir.begin(), dir.end());
 
     for (auto e = entries.begin(); e != entries.end(); ++e) {
@@ -253,8 +253,8 @@ map_window::reload_unplaced_tiles(void)
     MyArea::refresh_minmax();
     fill_empties();
     mw_status->show(MyStatus::STATM, MyArea::current_path);
-    if (!MyArea::tiles_placed)
-	add_tile(new MyArea(*this, NULL, 50, 50));
+    if (!MyArea::tiles_placed && tiles[map_max / 2][map_max / 2] == nullptr)
+	add_tile(new MyArea(*this, NULL, map_max / 2, map_max / 2));
 }
 
 void
@@ -527,7 +527,6 @@ map_window::remove_map(void)
     nr_tiles = MyArea::all_tiles.size();
     cout << __FUNCTION__ << ": pending tiles = " << nr_tiles
 	 << ", alloc_count = " << MyArea::alloc_count << endl;
-    //add_tile(new MyArea(*this, NULL, 50, 50));
     mw_status->clear();
     set_dirty(false);
     show_all_children();

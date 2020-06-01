@@ -36,10 +36,10 @@ So far a tiny patch is needed to enable vice to feature a
 'one-keystroke' screenshot. For now this is key is *Pause* on normal
 keyboards. If this key is pressed, vice generated a screenshot of the
 actual screen in the working directory of Vice. A specific name
-convention is used: *vice-screen--1xYY.png*
-where YY is a running number for 00.
+convention is used: *vice-screen--1xYYY.png*
+where YY is a running number starting from 01.
 `-1' is the hint for the mapper that this tile is not placed yet.
-Numbering starts from 00 every time, vice starts.
+Numbering starts from 01 every time, vice starts.
 
 Here the patch: [vice-mapper patch for hotkey 'Pause'](https://github.com/pottendo/vice-mapper/blob/master/vice-mapper.patch)
 to be applied in <vice-src>/src/arch/gtk3
@@ -50,7 +50,7 @@ but I found it to be a bit unhandy during gaming; and the mapper
 naming convention is not (yet) followed.
 
 Usage:
-$ mapper my-game-map/*.png
+$ mapper [game-map directory]
 
 [Demo - Blinkey's Scary School
 Map](https://github.com/pottendo/vice-mapper/blob/master/doc/Demo1-BlinkeyMap.png)<br>
@@ -87,9 +87,11 @@ UI-stuff<br>
 - maybe allow individual crop vals for tiles
 - allow other name than def_basename (i.e. vice-screen-)
 - support multiple maps in parallel (notpads?), encapsule some globals
+- highlight tiles when cursor is hovering over.
 
 Internals:
 - log-window
+- adjust maximum map dynamically depending on 32/64 bit
 - refactor code to follow consistent conventions
 - put in GPL license
 
@@ -105,4 +107,4 @@ $ export MINGW_PREFIX=/mingw32<br>
 $ make -j12 2>&1 | tee make-32.log<br>
 $ make bindist<br>
 
-copy .DLLs for mapper - check with ntldd -R mapper.exe
+

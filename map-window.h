@@ -77,7 +77,7 @@ class map_window : public Gtk::ScrolledWindow
     void add_tile(MyArea *);
     void remove_tile(MyArea *, bool map_remove = false);
     void add_unplaced_tile(MyArea *t) { ctrls->add_tile(t); }
-    void reload_unplaced_tiles(void);
+    void reload_unplaced_tiles(char *path = NULL);
 
     void fill_empties();
     void scale_all(void);
