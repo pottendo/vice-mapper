@@ -62,7 +62,7 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 	    throw -1;
 	}
 	std::string regstr("(.*)" + std::string(def_basename) +
-			   "([-0-9][0-9])x([0-9][0-9])\\.(png|PNG|gif|GIF)");
+			   "([-0-9][0-9])x([0-9][0-9][0-9]?)\\.(png|PNG|gif|GIF)");
 	std::regex re(regstr); 
 	std::cmatch cm;
 	std::regex_match(fn, cm, re, std::regex_constants::match_default);
@@ -147,6 +147,9 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 						      &MyArea::on_label_drop_drag_data_received));
 
     signal_button_press_event().connect(sigc::mem_fun(*this, &MyArea::on_button_press_event), false);
+
+    cout << __FUNCTION__ << ": new tile ";
+    print();
 }
 
 MyArea::~MyArea()

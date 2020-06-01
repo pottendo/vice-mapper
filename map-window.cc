@@ -201,6 +201,9 @@ map_window::add_tile(MyArea *a)
 void
 map_window::remove_tile(MyArea *a, bool map_remove)
 {
+    cout << __FUNCTION__ << ": " << map_remove << " called for ";
+    a->print();
+    
     if (a->getX() < 0) {
 	ctrls->remove_tile(a);
     }
@@ -213,14 +216,14 @@ map_window::remove_tile(MyArea *a, bool map_remove)
 	    add_tile(new_empty);
 	    cout << __FUNCTION__ << ": attached new ";
 	    new_empty->print();
+	    resize_map();
 	}
 	else
 	    tiles[a->getX()][a->getY()] = nullptr;
-	auto e = MyArea::all_tiles.erase(a);
-	if (e > 1) {
-	    cerr << __FUNCTION__ << ": erased " << e << " tiles." << endl;
-	}
-	resize_map();
+    }
+    auto e = MyArea::all_tiles.erase(a);
+    if (e > 1) {
+	cerr << __FUNCTION__ << ": erased " << e << " tiles." << endl;
     }
     nr_tiles = MyArea::all_tiles.size();
     show_all_children();
