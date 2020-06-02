@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with vice-mapper.  If not, see <https://www.gnu.org/licenses/>.
  *
- * File:		myarea.h
+ * File:		VmTile.h
  * Date:		Tue May  5 21:22:45 2020
  * Author:		pottendo (pottendo)
  *  
@@ -25,8 +25,8 @@
  * $Log$
  */
 
-#ifndef __myarea_h__
-#define __myarea_h__
+#ifndef __VmTile_h__
+#define __VmTile_h__
 
 #include <gtkmm/drawingarea.h>
 #include <gtkmm/menu.h>
@@ -34,14 +34,14 @@
 #include <vector>
 #include <set>
 
-class map_window;
+class VmMap;
 
-class MyArea : public Gtk::DrawingArea
+class VmTile : public Gtk::DrawingArea
 {
     std::string file_name, file_basename;
     bool dirty, empty;
     int xk, yk;
-    static MyArea *dnd_tile;
+    static VmTile *dnd_tile;
     
     void park_tile_file(void);
     Gtk::Menu *m_pMenuPopup;	/* TODO delete in derstructor */
@@ -50,18 +50,18 @@ class MyArea : public Gtk::DrawingArea
     void on_menu_popup(void);
     
   public:
-    MyArea(map_window &m, const char *fn, int xk = -1, int yk = -1);
-    virtual ~MyArea();
+    VmTile(VmMap &m, const char *fn, int xk = -1, int yk = -1);
+    virtual ~VmTile();
 
-    static std::set<MyArea *> all_tiles;
+    static std::set<VmTile *> all_tiles;
     static int alloc_count;
     static std::vector<Gtk::TargetEntry> listTargets;
     static std::string current_path;
     static void refresh_minmax(void);
-    static MyArea *lookup_by_name(std::string name);
+    static VmTile *lookup_by_name(std::string name);
     static bool tiles_placed;
     
-    map_window &mw;
+    VmMap &mw;
 
     void print(void);
     inline std::string get_fname() { return file_name; }
@@ -78,7 +78,7 @@ class MyArea : public Gtk::DrawingArea
     static int xmin, ymin, xmax, ymax;
     static int cr_up, cr_do, cr_le, cr_ri;
     void scale(float sfx, float sfy);
-    void xchange_tiles(MyArea &s, MyArea &d);
+    void xchange_tiles(VmTile &s, VmTile &d);
     void sync_tile(void);
     bool update_minmax(void);
     void commit_changes(void);
@@ -101,4 +101,4 @@ class MyArea : public Gtk::DrawingArea
 };
 
 
-#endif /* __myarea_h__ */
+#endif /* __VmTile_h__ */

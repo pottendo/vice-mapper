@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with vice-mapper.  If not, see <https://www.gnu.org/licenses/>.
  *
- * File:		map-window.h
+ * File:		VmMap.h
  * Date:		Tue May  5 22:44:11 2020
  * Author:		pottendo (pottendo)
  *  
@@ -32,8 +32,8 @@
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/grid.h>
 #include <gtkmm/hvbox.h>
-#include "myarea.h"
-#include "map-controls.h"
+#include "VmTile.h"
+#include "VmMapControls.h"
 #include "dialogs.h"
 
 const int map_max = 100;	/* 100x100 tiles should be enough */
@@ -47,7 +47,7 @@ const std::string def_basename = "vice-screen-";
 const std::string def_cfg_ext = ".vsm";
 const std::string mapper_version = MAPPER_VERSION;
 
-class map_window : public Gtk::ScrolledWindow
+class VmMap : public Gtk::ScrolledWindow
 {
     int get_empty_area(int from_x, int from_y, int to_x, int to_y);
     bool process_line(std::string);
@@ -70,7 +70,7 @@ class map_window : public Gtk::ScrolledWindow
 	*/
       public:
 	MyScw();
-	map_controls *mc;
+	VmMapControls *mc;
 	Glib::RefPtr<Gdk::Cursor> move_cursor;
     };
     // Child widgets:
@@ -78,27 +78,27 @@ class map_window : public Gtk::ScrolledWindow
     MyScw scw;
     Gtk::HBox hbox;		/* main layout box */
     Glib::RefPtr<Gdk::Pixbuf> m_empty;
-    MyArea *tiles[map_max+1][map_max+1];
+    VmTile *tiles[map_max+1][map_max+1];
     int nr_tiles;
-    map_controls *ctrls;
+    VmMapControls *ctrls;
 
   public:
-    map_window();
-    virtual ~map_window() {};
+    VmMap();
+    virtual ~VmMap() {};
 
     inline void set_dirty(bool d) { dirty=d; ctrls->set_dirty(d); }
     inline bool is_dirty(void) { return dirty; }
 	
-    void add_tile(MyArea *);
-    void remove_tile(MyArea *, bool map_remove = false);
-    void add_unplaced_tile(MyArea *t) { ctrls->add_tile(t); }
+    void add_tile(VmTile *);
+    void remove_tile(VmTile *, bool map_remove = false);
+    void add_unplaced_tile(VmTile *t) { ctrls->add_tile(t); }
     void reload_unplaced_tiles(char *path = NULL);
 
     void fill_empties();
     void scale_all(void);
-    void xchange_tiles(MyArea *s, MyArea *d);
-    inline MyArea *get_tile(int x, int y) { return tiles[x][y]; }
-    inline void set_tile(int x, int y, MyArea *t = nullptr) { tiles[x][y] = t; }
+    void xchange_tiles(VmTile *s, VmTile *d);
+    inline VmTile *get_tile(int x, int y) { return tiles[x][y]; }
+    inline void set_tile(int x, int y, VmTile *t = nullptr) { tiles[x][y] = t; }
     inline int get_nrtiles(void) { return nr_tiles; }
     static Glib::RefPtr<Gdk::Pixbuf> empty_image;
     static double scale_factor_x;

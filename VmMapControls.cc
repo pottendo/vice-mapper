@@ -30,13 +30,13 @@
 #include <gtkmm/hvbox.h>
 #include <gtkmm/adjustment.h>
 #include <gtkmm/scale.h>
-#include "map-controls.h"
-#include "map-window.h"
+#include "VmMapControls.h"
+#include "VmMap.h"
 #include "dialogs.h"
 
 using namespace::std;
 
-map_controls::map_controls(map_window &m, const Glib::ustring &name)
+VmMapControls::VmMapControls(VmMap &m, const Glib::ustring &name)
     : Gtk::Frame(name),
       button_commit("commit"),
       button_reload("reload"),
@@ -61,14 +61,14 @@ map_controls::map_controls(map_window &m, const Glib::ustring &name)
     Gtk::Scale *scalex = new Gtk::Scale(adjx);
     // signal handler
     adjx->signal_value_changed()
-	.connect(sigc::mem_fun(*this, &map_controls::on_scale_event1));
+	.connect(sigc::mem_fun(*this, &VmMapControls::on_scale_event1));
     zvb->pack_start(*scalex, FALSE, FALSE, 0);
     
     adjy = Gtk::Adjustment::create(def_zoom, 0.1, def_zoom*2, 0.05, 0.1, 0);
     Gtk::Scale *scaley = new Gtk::Scale(adjy);
     // signal handler
     adjy->signal_value_changed()
-	.connect(sigc::mem_fun(*this, &map_controls::on_scale_event2));
+	.connect(sigc::mem_fun(*this, &VmMapControls::on_scale_event2));
     zvb->pack_start(*scaley, FALSE, FALSE, 0);
 
     vb->pack_start(*zoom_frame, FALSE, FALSE, 0);
@@ -86,7 +86,7 @@ map_controls::map_controls(map_window &m, const Glib::ustring &name)
     scale_crup->set_digits(0);
     // signal handler
     adj_crup->signal_value_changed()
-	.connect(sigc::mem_fun(*this, &map_controls::on_scale_crop));
+	.connect(sigc::mem_fun(*this, &VmMapControls::on_scale_crop));
     cvb->pack_start(*scale_crup, FALSE, FALSE, 0);
     
     adj_crdo = Gtk::Adjustment::create(def_cry, 0, resY/2-1, 1.0, 10.0, 0);
@@ -94,7 +94,7 @@ map_controls::map_controls(map_window &m, const Glib::ustring &name)
     scale_crdo->set_digits(0);
     // signal handler
     adj_crdo->signal_value_changed()
-	.connect(sigc::mem_fun(*this, &map_controls::on_scale_crop));
+	.connect(sigc::mem_fun(*this, &VmMapControls::on_scale_crop));
     cvb->pack_start(*scale_crdo, FALSE, FALSE, 0);
 
     adj_crle = Gtk::Adjustment::create(def_crx, 0, resX/2, 1.0, 10.0, 0);
@@ -102,7 +102,7 @@ map_controls::map_controls(map_window &m, const Glib::ustring &name)
     scale_crle->set_digits(0);
     // signal handler
     adj_crle->signal_value_changed()
-	.connect(sigc::mem_fun(*this, &map_controls::on_scale_crop));
+	.connect(sigc::mem_fun(*this, &VmMapControls::on_scale_crop));
     cvb->pack_start(*scale_crle, FALSE, FALSE, 0);
 
     adj_crri = Gtk::Adjustment::create(def_crx, 0, resX/2-1, 1.0, 10.0, 0);
@@ -110,7 +110,7 @@ map_controls::map_controls(map_window &m, const Glib::ustring &name)
     scale_crri->set_digits(0);
     // signal handler
     adj_crri->signal_value_changed()
-	.connect(sigc::mem_fun(*this, &map_controls::on_scale_crop));
+	.connect(sigc::mem_fun(*this, &VmMapControls::on_scale_crop));
     cvb->pack_start(*scale_crri, FALSE, FALSE, 0);
 
     
@@ -126,12 +126,12 @@ map_controls::map_controls(map_window &m, const Glib::ustring &name)
     vb->pack_start(*tiles_frame, TRUE, TRUE, 0);
     
     button_reload.signal_button_press_event()
-	.connect(sigc::mem_fun(*this, &map_controls::on_reload_press_event), false);
+	.connect(sigc::mem_fun(*this, &VmMapControls::on_reload_press_event), false);
     vb->pack_start(button_reload, FALSE, FALSE, 0);
     
 // button_commit.add_events(Gdk::BUTTON_PRESS_MASK);
     button_commit.signal_button_press_event()
-	.connect(sigc::mem_fun(*this, &map_controls::on_commit_press_event), false);
+	.connect(sigc::mem_fun(*this, &VmMapControls::on_commit_press_event), false);
     button_commit.set_sensitive(FALSE);
     button_commit.set_label("all saved");
     
@@ -142,19 +142,19 @@ map_controls::map_controls(map_window &m, const Glib::ustring &name)
 }
 
 void
-map_controls::commit_changes(void)
+VmMapControls::commit_changes(void)
 {
-    MyMsg m("Save?", "bla");
+    VmMsg m("Save?", "bla");
     if (m.run() == Gtk::RESPONSE_OK) {
-	for_each(MyArea::all_tiles.begin(), MyArea::all_tiles.end(),
-		 [](MyArea *t)->void { t->commit_changes(); } );
+	for_each(VmTile::all_tiles.begin(), VmTile::all_tiles.end(),
+		 [](VmTile *t)->void { t->commit_changes(); } );
 	set_dirty(FALSE);
 	mw.save_settings();
     }
 }
 
 bool
-map_controls::on_commit_press_event(GdkEventButton *) 
+VmMapControls::on_commit_press_event(GdkEventButton *) 
 {
     //cout << "Save button pressed." << endl;
     commit_changes();
@@ -163,45 +163,45 @@ map_controls::on_commit_press_event(GdkEventButton *)
 
 
 bool
-map_controls::on_reload_press_event(GdkEventButton *) {
+VmMapControls::on_reload_press_event(GdkEventButton *) {
     //cout << __FUNCTION__ << ": called." << endl;
     mw.reload_unplaced_tiles();
     return TRUE;
 }
 
 void
-map_controls::on_scale_event1() 
+VmMapControls::on_scale_event1() 
 {
     //cout << "Scale 1: " << adjx->get_value() << endl;
-    map_window::scale_factor_x = adjx->get_value();
+    VmMap::scale_factor_x = adjx->get_value();
     mw.scale_all();
     mw.set_dirty(true);
 }
 
 void
-map_controls::on_scale_event2() 
+VmMapControls::on_scale_event2() 
 {
     //cout << "Scale 2: " << adjy->get_value() << endl;
-    map_window::scale_factor_y = adjy->get_value();
+    VmMap::scale_factor_y = adjy->get_value();
     mw.scale_all();
     mw.set_dirty(true);
 }
 
 void
-map_controls::on_scale_crop() 
+VmMapControls::on_scale_crop() 
 {
     //cout << "Scale 2: " << adjy->get_value() << endl;
-    MyArea::cr_up = adj_crup->get_value();
-    MyArea::cr_do = adj_crdo->get_value();
-    MyArea::cr_le = adj_crle->get_value();
-    MyArea::cr_ri = adj_crri->get_value();
-    std::for_each(MyArea::all_tiles.begin(), MyArea::all_tiles.end(),
-		  [](MyArea *t)->void {if (t->get_window()) t->get_window()->invalidate(TRUE);} );
+    VmTile::cr_up = adj_crup->get_value();
+    VmTile::cr_do = adj_crdo->get_value();
+    VmTile::cr_le = adj_crle->get_value();
+    VmTile::cr_ri = adj_crri->get_value();
+    std::for_each(VmTile::all_tiles.begin(), VmTile::all_tiles.end(),
+		  [](VmTile *t)->void {if (t->get_window()) t->get_window()->invalidate(TRUE);} );
     mw.set_dirty(true);
 }
 
 void
-map_controls::set_zoom(double x, double y, bool dirty) 
+VmMapControls::set_zoom(double x, double y, bool dirty) 
 {
     adjx->set_value(x);
     adjy->set_value(y);
@@ -209,7 +209,7 @@ map_controls::set_zoom(double x, double y, bool dirty)
 }
 
 void
-map_controls::set_crop(int u, int d, int l, int r, bool dirty) 
+VmMapControls::set_crop(int u, int d, int l, int r, bool dirty) 
 {
     adj_crup->set_value(u);
     adj_crdo->set_value(d);
@@ -219,20 +219,20 @@ map_controls::set_crop(int u, int d, int l, int r, bool dirty)
 }
 
 void
-map_controls::add_tile(MyArea *tile) 
+VmMapControls::add_tile(VmTile *tile) 
 {
     unpl_tilesbox.pack_end(*tile, FALSE, FALSE, 4);
     unpl_tilesbox.show_all();
 }
 
 void
-map_controls::remove_tile(MyArea *tile) 
+VmMapControls::remove_tile(VmTile *tile) 
 {
     unpl_tilesbox.remove(*tile);
 }
 
 void
-map_controls::set_dirty(bool d) 
+VmMapControls::set_dirty(bool d) 
 {
     if (d) {
 	button_commit.set_label("SAVE");

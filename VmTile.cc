@@ -36,23 +36,23 @@
 #include <iostream>
 #include <string>
 #include <regex>
-#include "myarea.h"
-#include "map-window.h"
+#include "VmTile.h"
+#include "VmMap.h"
 
 /* MyArea statics */
 using namespace::std;
-std::vector<Gtk::TargetEntry> MyArea::listTargets;
-MyArea *MyArea::dnd_tile;
-int MyArea::alloc_count;
-int MyArea::xmin = map_max - 4, MyArea::ymin = map_max - 4 , MyArea::xmax = 5, MyArea::ymax = 5;
-int MyArea::cr_up=def_cry, MyArea::cr_do=def_cry, MyArea::cr_le=def_crx, MyArea::cr_ri=def_crx;
+std::vector<Gtk::TargetEntry> VmTile::listTargets;
+VmTile *VmTile::dnd_tile;
+int VmTile::alloc_count;
+int VmTile::xmin = map_max - 4, VmTile::ymin = map_max - 4 , VmTile::xmax = 5, VmTile::ymax = 5;
+int VmTile::cr_up=def_cry, VmTile::cr_do=def_cry, VmTile::cr_le=def_crx, VmTile::cr_ri=def_crx;
 //vector<MyArea *> MyArea::all_tiles;
-set<MyArea *> MyArea::all_tiles;
-std::string MyArea::current_path="";
-bool MyArea::tiles_placed = false;
+set<VmTile *> VmTile::all_tiles;
+std::string VmTile::current_path="";
+bool VmTile::tiles_placed = false;
 
 /* MyArea members */
-MyArea::MyArea(map_window &m, const char *fn, int x, int y)
+VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
     : mw(m)
 {
     if (fn) {
@@ -60,7 +60,7 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 	set_fname(f->get_path(), f->get_basename());
 	if (current_path == "") {
 	    current_path = f->get_parent()->get_path();
-	    mw_status->show(MyStatus::STATM, current_path);
+	    mw_status->show(VmStatus::STATM, current_path);
 	}
 	
 	try {
@@ -101,7 +101,7 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 	    }
 	    else {
 		(void) update_minmax();
-		MyArea *t;
+		VmTile *t;
 		if ((t = mw.get_tile(xk, yk)) != nullptr) {
 		    if (t->is_empty()) {
 			delete t;
@@ -129,7 +129,7 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
     else {
 	xk = x; yk = y;
 	file_name = file_basename = "<empty>";
-	m_image = map_window::empty_image;
+	m_image = VmMap::empty_image;
 	empty = true;
     }
     set_dirty(FALSE);		// initially we're in sync with files.
@@ -153,19 +153,19 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 					       Gdk::INTERP_BILINEAR));
     
     // connect signals
-    signal_configure_event().connect(sigc::mem_fun(*this, &MyArea::on_configure_event), false);
+    signal_configure_event().connect(sigc::mem_fun(*this, &VmTile::on_configure_event), false);
     signal_drag_data_get().connect(sigc::mem_fun(*this,
-						 &MyArea::on_button_drag_data_get));
+						 &VmTile::on_button_drag_data_get));
     signal_drag_data_received().connect(sigc::mem_fun(*this,
-						      &MyArea::on_label_drop_drag_data_received));
+						      &VmTile::on_label_drop_drag_data_received));
 
-    signal_button_press_event().connect(sigc::mem_fun(*this, &MyArea::on_button_press_event), false);
+    signal_button_press_event().connect(sigc::mem_fun(*this, &VmTile::on_button_press_event), false);
 
     cout << __FUNCTION__ << ": new tile ";
     print();
 }
 
-MyArea::~MyArea()
+VmTile::~VmTile()
 {
     cout << "*** Destructor called for ";
     print();
@@ -175,14 +175,14 @@ MyArea::~MyArea()
 }
 
 void
-MyArea::print(void) 
+VmTile::print(void) 
 {
     cout << "'" << file_name << "'@" << xk << "," << yk
 	 << (is_dirty() ? ",is-dirty" : ",is-clean") << endl;
 }
 
 void
-MyArea::setup_popup(void)
+VmTile::setup_popup(void)
 {
     static bool is_initialized = false;
     
@@ -191,14 +191,14 @@ MyArea::setup_popup(void)
     auto refActionGroup = Gio::SimpleActionGroup::create();
     if (!is_empty()) {
 	refActionGroup->add_action("delete",
-				   sigc::mem_fun(*this, &MyArea::on_menu_delete_tile));
+				   sigc::mem_fun(*this, &VmTile::on_menu_delete_tile));
     }
 /* not yet implemented    
     refActionGroup->add_action("icolumn", //TODO: How to specify "<control>P" as an accelerator.
-			       sigc::mem_fun(*this, &MyArea::on_menu_popup));
+			       sigc::mem_fun(*this, &VmTile::on_menu_popup));
     
     refActionGroup->add_action("irow",
-			       sigc::mem_fun(*this, &MyArea::on_menu_popup));
+			       sigc::mem_fun(*this, &VmTile::on_menu_popup));
 */
     insert_action_group("MApopup", refActionGroup);
 
@@ -233,7 +233,7 @@ MyArea::setup_popup(void)
 }
 
 void
-MyArea::on_menu_delete_tile(void) 
+VmTile::on_menu_delete_tile(void) 
 {
 /*    
 #ifdef WIN32
@@ -244,7 +244,7 @@ MyArea::on_menu_delete_tile(void)
 */
     
     if (/* running_on_win32 ||*/	// f->trash below sometimes(!) opens the std dialog on win32
-	MyMsg("delete Tile", "Are you sure?").run() == Gtk::RESPONSE_OK) {
+	VmMsg("delete Tile", "Are you sure?").run() == Gtk::RESPONSE_OK) {
         cout << __FUNCTION__ << ": delete confirmed for "; print();
 	Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(get_fname());
 	try {
@@ -262,13 +262,13 @@ MyArea::on_menu_delete_tile(void)
 }
 
 void
-MyArea::on_menu_popup(void) 
+VmTile::on_menu_popup(void) 
 {
     cout << __FUNCTION__ << ": called." << endl;
 }
 
 bool
-MyArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
+VmTile::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 {
     m_image_scaled =
 	Gdk::Pixbuf::create(m_image->get_colorspace(),
@@ -331,14 +331,14 @@ MyArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 }
 
 bool
-MyArea::on_configure_event(GdkEventConfigure *configure_event)
+VmTile::on_configure_event(GdkEventConfigure *configure_event)
 {
     //cout << __FUNCTION__ << ": " << file_name << endl;
     return TRUE;
 }
 
 void
-MyArea::on_button_drag_data_get(
+VmTile::on_button_drag_data_get(
     const Glib::RefPtr<Gdk::DragContext>&,
     Gtk::SelectionData& selection_data, guint, guint)
 {
@@ -349,7 +349,7 @@ MyArea::on_button_drag_data_get(
     dnd_tile = this;
 }
 
-void MyArea::on_label_drop_drag_data_received(
+void VmTile::on_label_drop_drag_data_received(
     const Glib::RefPtr<Gdk::DragContext>& context, int, int,
     const Gtk::SelectionData& selection_data, guint, guint time)
 {
@@ -377,9 +377,9 @@ void MyArea::on_label_drop_drag_data_received(
 }
 
 bool
-MyArea::on_button_press_event(GdkEventButton *e) 
+VmTile::on_button_press_event(GdkEventButton *e) 
 {
-    mw_status->show(MyStatus::STATL, to_string(xk) + "x" + to_string(yk) + "|" + file_basename);
+    mw_status->show(VmStatus::STATL, to_string(xk) + "x" + to_string(yk) + "|" + file_basename);
     if( (e->type == GDK_BUTTON_PRESS) && (e->button == 3) )
     {
 	if (!m_pMenuPopup) setup_popup();
@@ -394,7 +394,7 @@ MyArea::on_button_press_event(GdkEventButton *e)
 }
 
 void
-MyArea::set_dirty(bool d) 
+VmTile::set_dirty(bool d) 
 {
     if (is_empty()) {
 	dirty = FALSE; // empty is never dirty
@@ -405,13 +405,13 @@ MyArea::set_dirty(bool d)
 }
 
 void
-MyArea::scale(float sfx, float sfy) 
+VmTile::scale(float sfx, float sfy) 
 {
     set_size_request(m_image->get_width()/sfx, m_image->get_height()/sfy);
 }
 
 void
-MyArea::xchange_tiles(MyArea &s, MyArea &d) 
+VmTile::xchange_tiles(VmTile &s, VmTile &d) 
 {
     // call this == destination tile
     cout << __FUNCTION__ << ": " << s.get_fname() << " <-> " << d.get_fname() << endl;
@@ -422,7 +422,7 @@ MyArea::xchange_tiles(MyArea &s, MyArea &d)
 }
 
 void
-MyArea::sync_tile(void)
+VmTile::sync_tile(void)
 {
     Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(get_fname());
     int x, y;
@@ -438,7 +438,7 @@ MyArea::sync_tile(void)
 }
 
 bool
-MyArea::update_minmax(void) 
+VmTile::update_minmax(void) 
 {
     bool changed = false;
 
@@ -454,34 +454,34 @@ MyArea::update_minmax(void)
     if (ymax == yk) { ymax++; changed = true; }
     string s = string("xmin=") + to_string(xmin) + ",ymin=" + to_string(ymin) + ",xmax=" + to_string(xmax) + ",ymax=" + to_string(ymax);
     
-    mw_status->show(MyStatus::STATR, s);
+    mw_status->show(VmStatus::STATR, s);
     
     return changed;
 }
 
 void
-MyArea::refresh_minmax(void)
+VmTile::refresh_minmax(void)
 {
     xmin = ymin = map_max - 4;
     xmax = ymax = 5;
     std::for_each(all_tiles.begin(), all_tiles.end(),
-		  [](MyArea *t)->void { (void) t->update_minmax(); } );
+		  [](VmTile *t)->void { (void) t->update_minmax(); } );
     //cout << "New dimension: " << xmin << "," << ymin << "x" << xmax << "," << ymax << endl;
 }
 
-MyArea *
-MyArea::lookup_by_name(std::string name) 
+VmTile *
+VmTile::lookup_by_name(std::string name) 
 {
     /*
-    std::vector<MyArea *>::iterator it =
+    std::vector<VmTile *>::iterator it =
 	std::find_if(all_tiles.begin(), all_tiles.end(),
-		     [name](MyArea *t) {
+		     [name](VmTile *t) {
 			 if (t->get_fname() == name) return true;
 			 return false;
 		     });
     */
-    std::vector<MyArea *>::iterator it;
-    MyArea *ret = NULL;
+    std::vector<VmTile *>::iterator it;
+    VmTile *ret = NULL;
     
     for (auto it = begin(all_tiles); it != end(all_tiles); ++it) {
 	if ((*it)->get_fname() == name) {
@@ -501,7 +501,7 @@ MyArea::lookup_by_name(std::string name)
 }
 
 void
-MyArea::park_tile_file(void) 
+VmTile::park_tile_file(void) 
 {
     cout << __FUNCTION__ << ": "; print();
     Glib::RefPtr<Gio::File> fn = Gio::File::create_for_path(get_fname());
@@ -519,7 +519,7 @@ MyArea::park_tile_file(void)
 }
 
 void
-MyArea::commit_changes(void) 
+VmTile::commit_changes(void) 
 {
     string new_fn;
     if (!is_dirty()) {
@@ -538,7 +538,7 @@ MyArea::commit_changes(void)
     Glib::RefPtr<Gio::File> new_file = Gio::File::create_for_path(new_fn);
     if (new_file->query_exists()) {
 	/* lookup which tile references conflicting name */
-	MyArea *conflicting_tile = lookup_by_name(new_fn);
+	VmTile *conflicting_tile = lookup_by_name(new_fn);
 	cout << "conflict of: "; print();
 	cout << "with: "; conflicting_tile->print();
 	conflicting_tile->park_tile_file();
