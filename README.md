@@ -93,11 +93,11 @@ Internals:
 - log-window
 - adjust maximum map dynamically depending on 32/64 bit
 - refactor code to follow consistent conventions
-- put in GPL license
+- fix bugs
 
-# Copyright noticed
+# Copyright notice
 
-(C) by pottendo
+(C) 2020 by pottendo
 
 vice-mapper is release under the terms of GPL V3
 Refer to gpl-3.0.txt.
