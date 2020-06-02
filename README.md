@@ -95,6 +95,13 @@ Internals:
 - refactor code to follow consistent conventions
 - put in GPL license
 
+# Copyright noticed
+
+(C) by pottendo
+
+vice-mapper is release under the terms of GPL V3
+Refer to gpl-3.0.txt.
+
 # Build vice for Windoze
 
 This is just a brief reminder how to build Vice/Gtk+ on windoze using

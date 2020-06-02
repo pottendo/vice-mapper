@@ -1,16 +1,29 @@
-// -*-c++-*-
-// $Id$
-//
-// File:		myarea.cc
-// Date:		Tue May  5 21:23:45 2020
-// Author:		pottendo (pottendo)
-// 
-// Abstract:
-//      
-//
-// Modifications:
-// 	$Log$
-//
+/* -*-c++-*-
+ * This file is part of vice-mapper.
+ * 
+ * vice-mapper is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * vice-mapper is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with vice-mapper.  If not, see <https://www.gnu.org/licenses/>.
+ * 
+ * File:		myarea.cc
+ * Date:		Tue May  5 21:23:45 2020
+ * Author:		pottendo (pottendo)
+ *  
+ * Abstract:
+ *     tile class 
+ * 
+ * Modifications:
+ * 	$Log$
+ */
 
 #include <cairomm/context.h>
 #include <giomm/resource.h>
