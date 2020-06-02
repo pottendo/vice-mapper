@@ -105,7 +105,6 @@ MyArea::MyArea(map_window &m, const char *fn, int x, int y)
 		tiles_placed=true;
 	    }
 	    empty = false;
-	    //all_tiles.push_back(this);
 	    all_tiles.insert(this);
 	}
 	else {
@@ -407,8 +406,6 @@ MyArea::xchange_tiles(MyArea &s, MyArea &d)
     d.set_dirty(true);
     s.set_dirty(true);
     mw.xchange_tiles(&s, this);
-    s.sync_tile();
-    d.sync_tile();
 }
 
 void

@@ -473,13 +473,16 @@ map_window::xchange_tiles(MyArea *s, MyArea *d)
 	
     s->setXY(tdx, tdy);
     add_tile(s);
+    s->sync_tile();
     d->setXY(tsx, tsy);
     if (tsx > 0) {
 	add_tile(d);
+	d->sync_tile();
     }
     else {
 	if (!d->is_empty()) {	// pushback if we placed on occupied tile
 	    ctrls->add_tile(d);
+	    d->sync_tile();
 	}
 	else {
 	    delete d;		// dispose unused empty tile
@@ -529,6 +532,7 @@ map_window::remove_map(void)
 	 << ", alloc_count = " << MyArea::alloc_count << endl;
     mw_status->clear();
     set_dirty(false);
+    MyArea::tiles_placed = false;
     show_all_children();
 }
 
