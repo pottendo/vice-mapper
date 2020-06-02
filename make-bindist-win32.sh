@@ -10,7 +10,7 @@ cp *.exe gui.glade $BUILDPATH
 strip $BUILDPATH/*.exe
 cp `ntldd -R $BUILDPATH/mapper.exe|gawk '/\\\\bin\\\\/{print $3;}'|cygpath -f -` $BUILDPATH
 cd $MINGW_PREFIX
-cp bin/lib{croco-0.6-3,lzma-5,rsvg-2-2,xml2-2}.dll $BUILDPATH
+cp bin/lib{lzma-5,rsvg-2-2,xml2-2}.dll $BUILDPATH
 cp --parents lib/gdk-pixbuf-2.0/2.*/loaders.cache lib/gdk-pixbuf-2.0/2.*/loaders/libpixbufloader-{png,svg,xpm}.dll $BUILDPATH
 # GTK3 accepts having only scalable icons,
 # which reduces the bindist size considerably.

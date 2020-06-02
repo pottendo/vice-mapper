@@ -36,7 +36,7 @@ Index: kbd.c
 +
 +void ui_push_screenshot(void) 
 +{
-+    static int ss_num = 0;
++    static int ss_num = 1;
 +    static char filename[1024];
 +    sprintf(filename, "vice-screen--1x%02d", ss_num++);
 +    printf("SS: %s\n", filename);

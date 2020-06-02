@@ -51,9 +51,15 @@ int main(int argc, char** argv)
 	cerr << "Usage: " << argv[0] << " [map-directory]" << endl;
 	return 1;
     }
-    if (argc == 2)
-	mw.reload_unplaced_tiles(argv[1]);
-
+    if (argc == 2) {
+	try {
+	    mw.reload_unplaced_tiles(argv[1]);
+	}
+	catch (...) {
+	    cerr << "Usage: " << argv[0] << " [map-directory]" << endl;
+	    return 1;
+	}
+    }
     builder->get_widget("ViceMapper", mainWindow);
     g_signal_connect(mainWindow->gobj(), "delete-event",
 		     G_CALLBACK(on_delete_event), NULL);
