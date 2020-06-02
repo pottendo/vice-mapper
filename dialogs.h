@@ -30,6 +30,9 @@
 
 #include <string>
 #include <gtkmm/messagedialog.h>
+#include <gtkmm/togglebutton.h>
+#include <gtkmm/textview.h>
+#include <gtkmm/textbuffer.h>
 #include <gtkmm/dialog.h>
 #include <gtkmm/menu.h>
 #include <gtkmm/builder.h>
@@ -67,9 +70,24 @@ class VmAbout
     ~VmAbout() {} ;
 };
 
+class VmDebug 
+{
+    Gtk::Window *p_win;
+    Gtk::ToggleButton *b;
+    Gtk::TextView *tv;
+    Glib::RefPtr<Gtk::TextBuffer> tb;
+public:
+    VmDebug();
+    virtual ~VmDebug() { };
+
+    void toggle();
+    void log(std::string s);
+};
+
 extern Glib::RefPtr<Gtk::Builder> builder;
 extern VmStatus *mw_status;
 extern VmMap *mw_map;
+extern VmDebug *mw_debug;
 extern Glib::RefPtr<Gtk::Application> app;
 extern Gtk::Window *mainWindow;
 #endif /* __dialogs_h__ */

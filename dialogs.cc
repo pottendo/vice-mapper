@@ -65,6 +65,36 @@ VmAbout::VmAbout()
     pDialog->run();
 }
 
+VmDebug::VmDebug()
+{
+    p_win = nullptr;
+    builder->get_widget("VMDebugWindow", p_win);
+    p_win->set_default_size(400, 300);
+    p_win->set_title("vice-mapper - debug console");
+    p_win->show_all_children();
+    b = nullptr;
+    builder->get_widget("VMDebugButton", b);
+    tv = nullptr;
+    builder->get_widget("VMDebugTextView", tv);
+    tb = Gtk::TextBuffer::create();
+    tv->set_buffer(tb);
+}
+
+void
+VmDebug::toggle(void) 
+{
+    bool s = b->get_active();
+    if (s) p_win->show();
+    else p_win->hide();
+}
+
+void
+VmDebug::log(std::string s) 
+{
+    tb->insert_at_cursor(s);
+    tb->insert_at_cursor("\n");
+}
+
 /* callbacks from Main Menubar */
 extern "C"  {
 G_MODULE_EXPORT void
@@ -115,6 +145,11 @@ on_MenuSettings_activate(Gtk::MenuItem *m)
 {
     VmMsg("Settings", "lost").run();
 }
-
+    
+G_MODULE_EXPORT void
+on_VMDebugButton_toggled(Gtk::ToggleButton *m) 
+{
+    mw_debug->toggle();
+}
     
 } /* extern "C" */

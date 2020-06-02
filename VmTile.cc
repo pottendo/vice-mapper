@@ -153,14 +153,18 @@ VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
 					       Gdk::INTERP_BILINEAR));
     
     // connect signals
-    signal_configure_event().connect(sigc::mem_fun(*this, &VmTile::on_configure_event), false);
-    signal_drag_data_get().connect(sigc::mem_fun(*this,
-						 &VmTile::on_button_drag_data_get));
-    signal_drag_data_received().connect(sigc::mem_fun(*this,
-						      &VmTile::on_label_drop_drag_data_received));
+    /*
+    signal_configure_event()
+	.connect(sigc::mem_fun(*this, &VmTile::on_configure_event), false);
+    */
+    signal_drag_data_get()
+	.connect(sigc::mem_fun(*this, &VmTile::on_button_drag_data_get));
+    signal_drag_data_received()
+	.connect(sigc::mem_fun(*this, &VmTile::on_label_drop_drag_data_received));
 
-    signal_button_press_event().connect(sigc::mem_fun(*this, &VmTile::on_button_press_event), false);
-
+    add_events(Gdk::ENTER_NOTIFY_MASK | Gdk::LEAVE_NOTIFY_MASK);
+    set_selected(false);
+    
     cout << __FUNCTION__ << ": new tile ";
     print();
 }
@@ -179,6 +183,7 @@ VmTile::print(void)
 {
     cout << "'" << file_name << "'@" << xk << "," << yk
 	 << (is_dirty() ? ",is-dirty" : ",is-clean") << endl;
+    mw_debug->log(file_name);
 }
 
 void
@@ -292,6 +297,9 @@ VmTile::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
     if (is_dirty()) {
 	m_image_scaled->saturate_and_pixelate(m_image_scaled, 0.7, TRUE);
     }
+    if (is_selected()) {
+	m_image_scaled->saturate_and_pixelate(m_image_scaled, 0.9, TRUE);
+    }
     if (is_empty()) {
 	if ((xk == 0) || (yk == 0) || (xk == map_max) || (yk == map_max)) {
 	    /* draw a border box */
@@ -333,8 +341,27 @@ VmTile::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 bool
 VmTile::on_configure_event(GdkEventConfigure *configure_event)
 {
-    //cout << __FUNCTION__ << ": " << file_name << endl;
+    //cout << __FUNCTION__ << ": "; print();
     return TRUE;
+}
+
+bool
+VmTile::on_enter_notify_event(GdkEventCrossing* crossing_event)
+{
+    //cout << __FUNCTION__ << ": called." << endl;
+    set_selected(true);
+    mw_status->show(VmStatus::STATL, to_string(xk) + "x" + to_string(yk) + "|" + file_basename);
+    queue_draw();
+    return FALSE;
+}
+
+bool
+VmTile::on_leave_notify_event(GdkEventCrossing* crossing_event)
+{
+    //cout << __FUNCTION__ << ": called." << endl;
+    set_selected(false);
+    queue_draw();
+    return FALSE;
 }
 
 void
@@ -379,7 +406,6 @@ void VmTile::on_label_drop_drag_data_received(
 bool
 VmTile::on_button_press_event(GdkEventButton *e) 
 {
-    mw_status->show(VmStatus::STATL, to_string(xk) + "x" + to_string(yk) + "|" + file_basename);
     if( (e->type == GDK_BUTTON_PRESS) && (e->button == 3) )
     {
 	if (!m_pMenuPopup) setup_popup();

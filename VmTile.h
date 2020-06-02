@@ -39,7 +39,7 @@ class VmMap;
 class VmTile : public Gtk::DrawingArea
 {
     std::string file_name, file_basename;
-    bool dirty, empty;
+    bool dirty, empty, selected;
     int xk, yk;
     static VmTile *dnd_tile;
     
@@ -73,6 +73,8 @@ class VmTile : public Gtk::DrawingArea
     inline void getXY(int &x, int &y) { x = getX(); y = getY(); }
     inline bool is_empty(void) { return empty; }
     inline bool is_dirty(void) { return dirty; }
+    inline bool is_selected(void) { return selected; }
+    inline void set_selected(bool s) { selected = s; }
     void set_dirty(bool d);
 	
     static int xmin, ymin, xmax, ymax;
@@ -85,16 +87,19 @@ class VmTile : public Gtk::DrawingArea
   protected:
     //Override default signal handler:
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
+    bool on_button_press_event(GdkEventButton *e) override;
+    bool on_configure_event(GdkEventConfigure *configure_event) override;
+    bool on_enter_notify_event(GdkEventCrossing* crossing_event) override;
+    bool on_leave_notify_event(GdkEventCrossing* crossing_event) override;
+    
     //Other signal handlers:
-    bool on_configure_event(GdkEventConfigure *configure_event);
     void on_button_drag_data_get(
 	const Glib::RefPtr<Gdk::DragContext>& context,
 	Gtk::SelectionData& selection_data, guint info, guint time);
     void on_label_drop_drag_data_received(
 	const Glib::RefPtr<Gdk::DragContext>& context, int x, int y,
 	const Gtk::SelectionData& selection_data, guint info, guint time);
-    bool on_button_press_event(GdkEventButton *e);
-    
+
     Glib::RefPtr<Gdk::Pixbuf> m_image;
     Glib::RefPtr<Gdk::Pixbuf> m_image_scaled;
     Glib::RefPtr<Gdk::Pixbuf> m_image_icon;
