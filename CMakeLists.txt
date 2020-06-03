@@ -41,7 +41,7 @@ else()
 # msys2 build
 set (ARCH $ENV{MINGW_PREFIX})
 string (REPLACE "/" "" ARCH ${ARCH})
-set (MAPPER_VERSION ${ARCH}-1.0)
+set (MAPPER_VERSION ${ARCH}-${VER})
 
 # for some reason "include_directories (${GTK_INCLUDE_DIRS})" results in a wrong CXX_INCLUDES line
 # by preending each -I<some correct path> by -I/my/current/dir/<some correct path>
