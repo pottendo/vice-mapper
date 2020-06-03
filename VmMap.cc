@@ -506,7 +506,7 @@ VmMap::xchange_tiles(VmTile *s, VmTile *d)
     }
     
     // check if we need to grow/shrink
-    if (s->update_minmax())
+    if (s->update_minmax() || d->update_minmax())
 	fill_empties(); // already placed therefore s(ource)!
     resize_map();
 }
