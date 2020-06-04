@@ -80,11 +80,11 @@ VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
 	std::cmatch cm;
 	std::regex_match(fn, cm, re, std::regex_constants::match_default);
 	/*
-	std::cout << cm.size() << " matches for " << fn << " were: " << endl;
+	mw_out << cm.size() << " matches for " << fn << " were: " << endl;
 	for (unsigned i=0; i<cm.size(); ++i) {
-	    std::cout << "[" << cm[i] << "] ";
+	    mw_out << "[" << cm[i] << "] ";
 	}
-	cout << endl;
+	mw_out << endl;
 	*/
 	
 	if (cm.size() > 0) {
@@ -108,8 +108,7 @@ VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
 			mw.set_tile(xk,yk, nullptr);
 		    }
 		    else {
-			cout << __FUNCTION__ << ": refusing to overload tile with ";
-			print();
+			mw_out << __FUNCTION__ << ": refusing to overload tile with " << *this << endl;
 			throw -1;
 		    }
 		}
@@ -165,14 +164,12 @@ VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
     add_events(Gdk::ENTER_NOTIFY_MASK | Gdk::LEAVE_NOTIFY_MASK);
     set_selected(false);
     
-    cout << __FUNCTION__ << ": new tile ";
-    print();
+    mw_out << __FUNCTION__ << ": new tile " << *this << endl;
 }
 
 VmTile::~VmTile()
 {
-    cout << "*** Destructor called for ";
-    print();
+    mw_out << "*** Destructor called for " << *this << endl;
     if (m_pMenuPopup)
 	delete m_pMenuPopup;
     alloc_count--;
@@ -181,8 +178,11 @@ VmTile::~VmTile()
 void
 VmTile::print(void) 
 {
-    cout << "'" << file_name << "'@" << xk << "," << yk
+    mw_out << *this;
+    /*
+    mw_out << "'" << file_name << "'@" << xk << "," << yk
 	 << (is_dirty() ? ",is-dirty" : ",is-clean") << endl;
+    */
     mw_debug->log(file_name);
 }
 
@@ -250,13 +250,13 @@ VmTile::on_menu_delete_tile(void)
     
     if (/* running_on_win32 ||*/	// f->trash below sometimes(!) opens the std dialog on win32
 	VmMsg("delete Tile", "Are you sure?").run() == Gtk::RESPONSE_OK) {
-        cout << __FUNCTION__ << ": delete confirmed for "; print();
+        mw_out << __FUNCTION__ << ": delete confirmed for " << *this << endl;
 	Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(get_fname());
 	try {
 	    f->trash();		// park tiles in trash
 	}
 	catch (Glib::Error &e) {
-	    //cout << __FUNCTION__ << ": move to trash failed for "; print();
+	    //mw_out << __FUNCTION__ << ": move to trash failed for "; print();
 	    cerr << e.what() << endl; // user has cancelled
 	    //f->remove();	// plain remove only if NOT_SUPPORTED comes back TODO
 	    return;
@@ -269,7 +269,12 @@ VmTile::on_menu_delete_tile(void)
 void
 VmTile::on_menu_popup(void) 
 {
-    cout << __FUNCTION__ << ": called." << endl;
+    mw_out << __FUNCTION__ << ": called." << endl;
+}
+
+std::ostream &operator<<(std::ostream & out, VmTile &t) {
+    return out << "'" << t.get_fname() << "'@" << t.xk << "," << t.yk
+	       << (t.is_dirty() ? ",is-dirty" : ",is-clean");
 }
 
 bool
@@ -286,7 +291,7 @@ VmTile::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 		       m_image->get_height()-cr_up-cr_do,
 		       m_image_scaled, 0, 0);
     /*
-    cout << file_name << ": scaled size: " << m_image_scaled->get_width() << "x"
+    mw_out << file_name << ": scaled size: " << m_image_scaled->get_width() << "x"
 	 << m_image_scaled->get_height() << cr_le << "," << cr_up << endl;
     */
     
@@ -341,14 +346,13 @@ VmTile::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 bool
 VmTile::on_configure_event(GdkEventConfigure *configure_event)
 {
-    //cout << __FUNCTION__ << ": "; print();
     return TRUE;
 }
 
 bool
 VmTile::on_enter_notify_event(GdkEventCrossing* crossing_event)
 {
-    //cout << __FUNCTION__ << ": called." << endl;
+    //mw_out << __FUNCTION__ << ": called." << endl;
     set_selected(true);
     mw_status->show(VmStatus::STATL, to_string(xk) + "x" + to_string(yk) + "|" + file_basename);
     queue_draw();
@@ -358,7 +362,7 @@ VmTile::on_enter_notify_event(GdkEventCrossing* crossing_event)
 bool
 VmTile::on_leave_notify_event(GdkEventCrossing* crossing_event)
 {
-    //cout << __FUNCTION__ << ": called." << endl;
+    //mw_out << __FUNCTION__ << ": called." << endl;
     set_selected(false);
     queue_draw();
     return FALSE;
@@ -384,14 +388,14 @@ void VmTile::on_label_drop_drag_data_received(
     if((length >= 0) && (selection_data.get_format() == 8))
     {
 	if (selection_data.get_data_as_string().compare("TILE") != 0) {
-	    cout << "Dragdest: " << selection_data.get_data_as_string() << " l: "
+	    mw_out << "Dragdest: " << selection_data.get_data_as_string() << " l: "
 		 << selection_data.get_data_as_string().length() << endl;
 	    return;
 	}
     }
     /*
-    cout << "Drag start at "; dnd_tile->print();
-    cout << "Drag stop at " << file_name << endl;
+      mw_out << "Drag start at " << *dnd_tile << endl;
+      mw_out << "Drag stop at " << *this << endl;
     */
     if (dnd_tile == this) return; // Don't do anything if we drag over ourselves
     if (this->getX() < 0) return; // we don't drag back to unplaced tiles
@@ -440,7 +444,7 @@ void
 VmTile::xchange_tiles(VmTile &s, VmTile &d) 
 {
     // call this == destination tile
-    cout << __FUNCTION__ << ": " << s.get_fname() << " <-> " << d.get_fname() << endl;
+    mw_out << __FUNCTION__ << ": " << s.get_fname() << " <-> " << d.get_fname() << endl;
     // set dirty flag for later commit
     d.set_dirty(true);
     s.set_dirty(true);
@@ -492,7 +496,7 @@ VmTile::refresh_minmax(void)
     xmax = ymax = 5;
     std::for_each(all_tiles.begin(), all_tiles.end(),
 		  [](VmTile *t)->void { (void) t->update_minmax(); } );
-    //cout << "New dimension: " << xmin << "," << ymin << "x" << xmax << "," << ymax << endl;
+    //mw_out << "New dimension: " << xmin << "," << ymin << "x" << xmax << "," << ymax << endl;
 }
 
 VmTile *
@@ -515,13 +519,13 @@ VmTile::lookup_by_name(std::string name)
 		ret = *it;
 	    }
 	    else {
-		cout << __FUNCTION__ << "***found more: "; (*it)->print();
+		mw_out << __FUNCTION__ << "***found more: " << *(*it) << endl;
 	    }
 	}
     }
     /*
     if (!ret)
-	cout << __FUNCTION__ << "*** not found: " << name << endl;
+	mw_out << __FUNCTION__ << "*** not found: " << name << endl;
     */
     return ret;
 }
@@ -529,14 +533,14 @@ VmTile::lookup_by_name(std::string name)
 void
 VmTile::park_tile_file(void) 
 {
-    cout << __FUNCTION__ << ": "; print();
+    mw_out << __FUNCTION__ << ": " << *this << endl;
     Glib::RefPtr<Gio::File> fn = Gio::File::create_for_path(get_fname());
     string tmpnam = fn->get_parent()->get_path() + G_DIR_SEPARATOR_S+ "_X_" + fn->get_basename();
-    cout << "generated tmpnam: " << tmpnam << endl;
+    mw_out << "generated tmpnam: " << tmpnam << endl;
     Glib::RefPtr<Gio::File> tfile = Gio::File::create_for_path(tmpnam);
     if (tfile->query_exists())
     {
-	cout << __FUNCTION__ << ": ***File exists!" << tmpnam << endl;
+	mw_out << __FUNCTION__ << ": ***File exists!" << tmpnam << endl;
 	return;
     }
     fn->copy(tfile);
@@ -549,10 +553,9 @@ VmTile::commit_changes(void)
 {
     string new_fn;
     if (!is_dirty()) {
-	//print();
 	return;
     }
-    cout << __FUNCTION__ << ": ";
+    mw_out << __FUNCTION__ << ": ";
 
     Glib::RefPtr<Gio::File> file = Gio::File::create_for_path(file_name);
     char xl[3], yl[3];
@@ -565,11 +568,11 @@ VmTile::commit_changes(void)
     if (new_file->query_exists()) {
 	/* lookup which tile references conflicting name */
 	VmTile *conflicting_tile = lookup_by_name(new_fn);
-	cout << "conflict of: "; print();
-	cout << "with: "; conflicting_tile->print();
+	mw_out << "conflict of: " << *this << endl;
+	mw_out << "with: " << *conflicting_tile << endl;
 	conflicting_tile->park_tile_file();
     }
-    cout << "rename: " << file_name << "->" << new_fn << endl;
+    mw_out << "rename: " << file_name << "->" << new_fn << endl;
     file->copy(new_file);
     file->remove();
     set_fname(new_fn, new_file->get_basename());

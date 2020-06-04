@@ -100,7 +100,7 @@ VmMap::MyScw::on_scroll_event(GdkEventScroll *scroll_event)
 	GdkScrollDirection dir;
 	gdouble dx, dy;
 	if (gdk_event_get_scroll_direction((GdkEvent *)scroll_event, &dir)) {
-	    // cout << __FUNCTION__ << ": direction = " << dir << endl;
+	    // mw_out << __FUNCTION__ << ": direction = " << dir << endl;
 	    switch (dir) {
 	    case GDK_SCROLL_UP:
 		scale_factor_x *= 1.05;
@@ -112,7 +112,7 @@ VmMap::MyScw::on_scroll_event(GdkEventScroll *scroll_event)
 		break;
 	    default:
 		;
-		cout << __FUNCTION__ << ": unknown direction: " << scroll_event->direction << endl;
+		mw_out << __FUNCTION__ << ": unknown direction: " << scroll_event->direction << endl;
 	    }
 	}
 	else if (gdk_event_get_scroll_deltas((GdkEvent *)scroll_event, &dx, &dy)) {
@@ -120,7 +120,7 @@ VmMap::MyScw::on_scroll_event(GdkEventScroll *scroll_event)
 	    if (dx < 0) scale_factor_x /= 1.05;
 	    if (dy > 0) scale_factor_y *= 1.05;
 	    if (dy < 0) scale_factor_y /= 1.05;
-	    //cout << __FUNCTION__ << ": dx = " << dx << ", dy = " << dy << endl;
+	    //mw_out << __FUNCTION__ << ": dx = " << dx << ", dy = " << dy << endl;
 	}
 
     }
@@ -141,7 +141,7 @@ VmMap::MyScw::on_motion_notify_event(GdkEventMotion* motion_event)
 	dx = (motion_event->x - xp);
 	dy = (motion_event->y - yp);
 	/*
-	cout << __FUNCTION__ << ": space+mouse-move: hadj = " << get_hadjustment()->get_value()
+	mw_out << __FUNCTION__ << ": space+mouse-move: hadj = " << get_hadjustment()->get_value()
 	     << "- dx: " << dx << ",dy: " << dy << ", xp: " << xp << ",yp: " << yp << endle;
 	*/
 	xa = get_hadjustment()->get_value() - dx;
@@ -189,7 +189,7 @@ bool
 map_window::MyScw::on_button_press_event(GdkEventButton* button_event) 
 {
     button_press = TRUE;
-    cout << "button press" << endl;
+    mw_out << "button press" << endl;
     Gtk::ScrolledWindow::on_button_press_event(button_event);
     return TRUE;
 }
@@ -198,7 +198,7 @@ bool
 map_window::MyScw::on_button_release_event(GdkEventButton* button_event) 
 {
     button_press = FALSE;
-    cout << "button rel" << endl;
+    mw_out << "button rel" << endl;
     Gtk::ScrolledWindow::on_button_release_event(button_event);
     return TRUE;
 }
@@ -217,8 +217,7 @@ VmMap::add_tile(VmTile *a)
 void
 VmMap::remove_tile(VmTile *a, bool map_remove)
 {
-    cout << __FUNCTION__ << ": " << map_remove << " called for ";
-    a->print();
+    // mw_out << __FUNCTION__ << ": " << map_remove << " called for " << *a << endl;
     
     if (a->getX() < 0) {
 	ctrls->remove_tile(a);
@@ -230,8 +229,7 @@ VmMap::remove_tile(VmTile *a, bool map_remove)
 	    VmTile *new_empty = new VmTile(*this, NULL, a->getX(), a->getY());
 	    //map_grid.attach(*new_empty, a->getX(), a->getY());
 	    add_tile(new_empty);
-	    cout << __FUNCTION__ << ": attached new ";
-	    new_empty->print();
+	    mw_out << __FUNCTION__ << ": attached new " << *new_empty << endl;
 	    resize_map();
 	}
 	else
@@ -258,7 +256,7 @@ VmMap::reload_unplaced_tiles(char *path)
 	string fp = cp + G_DIR_SEPARATOR_S + *e;
 	VmTile *t = VmTile::lookup_by_name(fp);
 	if (t) continue;
-	cout << __FUNCTION__ << ": new tile: " << fp << endl;
+	mw_out << __FUNCTION__ << ": new tile: " << fp << endl;
 	try {
 	    t = new VmTile(*this, fp.c_str());
 	}
@@ -281,7 +279,7 @@ VmMap::save_settings(void)
     size_t ext_pos = def_basename.find_last_of(".");
     string cfg_fname = cp + G_DIR_SEPARATOR_S + def_basename.substr(0, ext_pos) + def_cfg_ext;
     
-    cout << __FUNCTION__ << ": cfg file = " << cfg_fname << endl;
+    mw_out << __FUNCTION__ << ": cfg file = " << cfg_fname << endl;
      
     Glib::RefPtr<Gio::File> cfg_file = Gio::File::create_for_path(cfg_fname);
     try {
@@ -319,7 +317,7 @@ VmMap::save_settings(void)
 bool
 VmMap::process_line(string l) 
 {
-    //cout << __FUNCTION__ << ": processing line '" << l << "'" << endl;
+    //mw_out << __FUNCTION__ << ": processing line '" << l << "'" << endl;
     if (l.find("#END") < l.size())
 	return false;
 
@@ -346,11 +344,11 @@ VmMap::load_settings(void)
     size_t ext_pos = def_basename.find_last_of(".");
     string cfg_fname = cp + G_DIR_SEPARATOR_S + def_basename.substr(0, ext_pos) + def_cfg_ext;
     
-    cout << __FUNCTION__ << ": cfg file = " << cfg_fname << endl;
+    mw_out << __FUNCTION__ << ": cfg file = " << cfg_fname << endl;
      
     Glib::RefPtr<Gio::File> cfg_file = Gio::File::create_for_path(cfg_fname);
     if (!cfg_file) {
-	cout << __FUNCTION__ << ": can't open cfg file for map." << endl;
+	mw_out << __FUNCTION__ << ": can't open cfg file for map." << endl;
 	return false;
     }
     
@@ -388,7 +386,7 @@ VmMap::fill_empties()
 {
     int x, y;
 /*
-    cout << "X:" << VmTile::xmin << "-" << VmTile::xmax
+    mw_out << "X:" << VmTile::xmin << "-" << VmTile::xmax
 	 << "Y:" << VmTile::ymin << "-" << VmTile::ymax << endl;
 */
     try {
@@ -401,7 +399,7 @@ VmMap::fill_empties()
 	}
     }
     catch (std::exception &e) {
-	cout << __FUNCTION__ << ": failed with exception " << e.what() << endl;
+	mw_out << __FUNCTION__ << ": failed with exception " << e.what() << endl;
 	return;
     }
 }
@@ -439,7 +437,7 @@ VmMap::get_empty_area(int from_x, int from_y, int to_x, int to_y)
 	}
     }
     if (do_scratch) {
-	cout << "found " << do_scratch << " empty tiles to remove." << endl;
+	mw_out << "found " << do_scratch << " empty tiles to remove." << endl;
 	std::for_each(scratch.begin(), scratch.end(),
 		      [](VmTile *x)->void {
 			  if (x) {
@@ -461,29 +459,28 @@ VmMap::xchange_tiles(VmTile *s, VmTile *d)
     d->getXY(tdx, tdy);
 
     if ((tsx < 0) && (tsy < 0)) {
-	cout << "*** shoud not happen !!! - placed from/to unplaced tiles." << endl;
+	mw_out << "*** shoud not happen !!! - placed from/to unplaced tiles." << endl;
 	return;
     }
     
     if (tsx < 0) {
-	//cout << "remove from unplaced tiles";
-	s->print();
+	//mw_out << "remove from unplaced tiles";
+	mw_out << *s << endl;
 	ctrls->remove_tile(s);
     }
     if ((t = (VmTile *) map_grid.get_child_at(s->getX(), s->getY())) != NULL) {
-	//cout << "removing: ";
-	t->print();
+	//mw_out << "removing: ";
+	mw_out << *t << endl;
 	map_grid.remove(*t);
     }
     if (tdx < 0) {
-	cout << "*** should not happen !!! - move to unplaced tiles";
+	mw_out << "*** should not happen !!! - move to unplaced tiles";
 	//special case - add to list of unplace tiles
 	return;
 	
     }
     if ((t = (VmTile *) map_grid.get_child_at(d->getX(), d->getY())) != NULL) {
-	cout << "removing: ";
-	t->print();
+	mw_out << "removing: " << *t << endl;
 	map_grid.remove(*t);
     }
 	
@@ -524,14 +521,14 @@ VmMap::resize_map(void)
     do_scratch += get_empty_area(0, 0, VmTile::xmin, map_max+1);
     do_scratch += get_empty_area(VmTile::xmax+1, 0, map_max+1, map_max+1);
     if (do_scratch) {
-	cout << "found " << do_scratch << " empty tiles to remove." << endl;
+	mw_out << "found " << do_scratch << " empty tiles to remove." << endl;
     }
 }
 
 void
 VmMap::remove_map(void) 
 {
-    cout << __FUNCTION__ << ": called." << endl;
+    mw_out << __FUNCTION__ << ": called." << endl;
     std::vector<Gtk::Widget *> to_scratch = map_grid.get_children();
     std::for_each(to_scratch.begin(), to_scratch.end(),
 		  [this](Gtk::Widget *t)->void {
@@ -544,7 +541,7 @@ VmMap::remove_map(void)
 	VmTile::all_tiles.erase(t);
     }
     nr_tiles = VmTile::all_tiles.size();
-    cout << __FUNCTION__ << ": pending tiles = " << nr_tiles
+    mw_out << __FUNCTION__ << ": pending tiles = " << nr_tiles
 	 << ", alloc_count = " << VmTile::alloc_count << endl;
     mw_status->clear();
     set_dirty(false);
@@ -563,7 +560,7 @@ VmMap::open_map(void)
     if (d.run() != Gtk::RESPONSE_OK)
 	return;
     
-    cout << __FUNCTION__ << ": load map from '" <<  d.get_filename() << "'." << endl;
+    mw_out << __FUNCTION__ << ": load map from '" <<  d.get_filename() << "'." << endl;
     remove_map();
     VmTile::current_path = d.get_filename();
     reload_unplaced_tiles();

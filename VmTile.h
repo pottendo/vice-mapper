@@ -33,6 +33,7 @@
 #include <gdkmm/pixbuf.h>
 #include <vector>
 #include <set>
+#include <iostream>
 
 class VmMap;
 
@@ -48,10 +49,12 @@ class VmTile : public Gtk::DrawingArea
     void setup_popup(void);
     void on_menu_delete_tile(void);
     void on_menu_popup(void);
-    
+
   public:
     VmTile(VmMap &m, const char *fn, int xk = -1, int yk = -1);
     virtual ~VmTile();
+
+    friend std::ostream &operator<<(std::ostream &out, VmTile &t);
 
     static std::set<VmTile *> all_tiles;
     static int alloc_count;
@@ -72,8 +75,8 @@ class VmTile : public Gtk::DrawingArea
     inline void setXY(int x, int y) { xk = x; yk = y; set_dirty(true);}
     inline void getXY(int &x, int &y) { x = getX(); y = getY(); }
     inline bool is_empty(void) { return empty; }
-    inline bool is_dirty(void) { return dirty; }
-    inline bool is_selected(void) { return selected; }
+    inline bool is_dirty(void) const { return dirty; }
+    inline bool is_selected(void) const { return selected; }
     inline void set_selected(bool s) { selected = s; }
     void set_dirty(bool d);
 	

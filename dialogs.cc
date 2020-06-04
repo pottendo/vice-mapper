@@ -89,10 +89,43 @@ VmDebug::toggle(void)
 }
 
 void
-VmDebug::log(std::string s) 
+VmDebug::log(std::string &s) 
 {
     tb->insert_at_cursor(s);
     tb->insert_at_cursor("\n");
+    tb->get_bounds(ti1, ti2);
+    tv->scroll_to(ti2);
+}
+
+/*
+std::ostream &
+operator<<(std::ostream &out, VmDebug &d) 
+{
+    cerr << __FUNCTION__ << ": called." << endl;
+    std::ostringstream ss;
+    ss << out.rdbuf();
+    string s = ss.str();
+    //d.log(s);
+    out << "'" << s << "'" << "bla" << endl;
+    return out;
+}
+*/
+
+int
+VmDebug::overflow(int c)
+{
+    static string s = "";
+    if (c != '\n') {
+	s += (char)c;
+    }
+    else
+    {
+	cout << s << "'" << endl;
+	log(s);
+	s = "";
+    }
+    
+    return c;
 }
 
 /* callbacks from Main Menubar */

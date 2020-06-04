@@ -70,24 +70,31 @@ class VmAbout
     ~VmAbout() {} ;
 };
 
-class VmDebug 
+class VmDebug : public std::streambuf
 {
     Gtk::Window *p_win;
     Gtk::ToggleButton *b;
     Gtk::TextView *tv;
     Glib::RefPtr<Gtk::TextBuffer> tb;
+    Gtk::TextBuffer::iterator ti1, ti2;
 public:
     VmDebug();
     virtual ~VmDebug() { };
 
     void toggle();
-    void log(std::string s);
+    void log(std::string &s);
+    //friend std::ostream &operator<<(std::ostream &o, VmDebug &d);
+protected:
+    virtual int_type overflow(int_type c);
 };
 
 extern Glib::RefPtr<Gtk::Builder> builder;
 extern VmStatus *mw_status;
 extern VmMap *mw_map;
 extern VmDebug *mw_debug;
+extern std::ostream *mw_out_stream;
+#define mw_out (*mw_out_stream)
 extern Glib::RefPtr<Gtk::Application> app;
 extern Gtk::Window *mainWindow;
+
 #endif /* __dialogs_h__ */

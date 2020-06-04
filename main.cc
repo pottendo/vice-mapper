@@ -40,6 +40,7 @@ Glib::RefPtr<Gtk::Application> app;
 VmStatus *mw_status = nullptr;
 VmMap *mw_map = nullptr;
 VmDebug *mw_debug = nullptr;
+std::ostream *mw_out_stream;
 Gtk::Window *mainWindow = nullptr;
 
 static gboolean on_delete_event (GtkWidget *window,
@@ -59,7 +60,7 @@ int main(int argc, char** argv)
     gtk_builder_connect_signals(builder->gobj(), NULL);
     //cout << __FUNCTION__ << ": sizeof size_t = " << sizeof(size_t) << endl;
     mw_status = new VmStatus();
-    mw_debug = new VmDebug();
+    mw_out_stream = new std::ostream(mw_debug = new VmDebug());
     VmMap mw;
     mw_map = &mw;
 

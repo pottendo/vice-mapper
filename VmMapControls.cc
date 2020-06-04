@@ -156,7 +156,7 @@ VmMapControls::commit_changes(void)
 bool
 VmMapControls::on_commit_press_event(GdkEventButton *) 
 {
-    //cout << "Save button pressed." << endl;
+    //mw_out << "Save button pressed." << endl;
     commit_changes();
     return TRUE;
 }
@@ -164,7 +164,7 @@ VmMapControls::on_commit_press_event(GdkEventButton *)
 
 bool
 VmMapControls::on_reload_press_event(GdkEventButton *) {
-    //cout << __FUNCTION__ << ": called." << endl;
+    //mw_out << __FUNCTION__ << ": called." << endl;
     mw.reload_unplaced_tiles();
     return TRUE;
 }
@@ -172,7 +172,7 @@ VmMapControls::on_reload_press_event(GdkEventButton *) {
 void
 VmMapControls::on_scale_event1() 
 {
-    //cout << "Scale 1: " << adjx->get_value() << endl;
+    //mw_out << "Scale 1: " << adjx->get_value() << endl;
     VmMap::scale_factor_x = adjx->get_value();
     mw.scale_all();
     mw.set_dirty(true);
@@ -181,7 +181,7 @@ VmMapControls::on_scale_event1()
 void
 VmMapControls::on_scale_event2() 
 {
-    //cout << "Scale 2: " << adjy->get_value() << endl;
+    //mw_out << "Scale 2: " << adjy->get_value() << endl;
     VmMap::scale_factor_y = adjy->get_value();
     mw.scale_all();
     mw.set_dirty(true);
@@ -190,7 +190,7 @@ VmMapControls::on_scale_event2()
 void
 VmMapControls::on_scale_crop() 
 {
-    //cout << "Scale 2: " << adjy->get_value() << endl;
+    //mw_out << "Scale 2: " << adjy->get_value() << endl;
     VmTile::cr_up = adj_crup->get_value();
     VmTile::cr_do = adj_crdo->get_value();
     VmTile::cr_le = adj_crle->get_value();
