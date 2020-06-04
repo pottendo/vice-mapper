@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with vice-mapper.  If not, see <https://www.gnu.org/licenses/>.
  *
- * File:		myarea.h
+ * File:		VmTile.h
  * Date:		Tue May  5 21:22:45 2020
  * Author:		pottendo (pottendo)
  *  
@@ -25,43 +25,46 @@
  * $Log$
  */
 
-#ifndef __myarea_h__
-#define __myarea_h__
+#ifndef __VmTile_h__
+#define __VmTile_h__
 
 #include <gtkmm/drawingarea.h>
 #include <gtkmm/menu.h>
 #include <gdkmm/pixbuf.h>
 #include <vector>
 #include <set>
+#include <iostream>
 
-class map_window;
+class VmMap;
 
-class MyArea : public Gtk::DrawingArea
+class VmTile : public Gtk::DrawingArea
 {
     std::string file_name, file_basename;
-    bool dirty, empty;
+    bool dirty, empty, selected;
     int xk, yk;
-    static MyArea *dnd_tile;
+    static VmTile *dnd_tile;
     
     void park_tile_file(void);
     Gtk::Menu *m_pMenuPopup;	/* TODO delete in derstructor */
     void setup_popup(void);
     void on_menu_delete_tile(void);
     void on_menu_popup(void);
-    
-  public:
-    MyArea(map_window &m, const char *fn, int xk = -1, int yk = -1);
-    virtual ~MyArea();
 
-    static std::set<MyArea *> all_tiles;
+  public:
+    VmTile(VmMap &m, const char *fn, int xk = -1, int yk = -1);
+    virtual ~VmTile();
+
+    friend std::ostream &operator<<(std::ostream &out, VmTile &t);
+
+    static std::set<VmTile *> all_tiles;
     static int alloc_count;
     static std::vector<Gtk::TargetEntry> listTargets;
     static std::string current_path;
     static void refresh_minmax(void);
-    static MyArea *lookup_by_name(std::string name);
+    static VmTile *lookup_by_name(std::string name);
     static bool tiles_placed;
     
-    map_window &mw;
+    VmMap &mw;
 
     void print(void);
     inline std::string get_fname() { return file_name; }
@@ -72,33 +75,38 @@ class MyArea : public Gtk::DrawingArea
     inline void setXY(int x, int y) { xk = x; yk = y; set_dirty(true);}
     inline void getXY(int &x, int &y) { x = getX(); y = getY(); }
     inline bool is_empty(void) { return empty; }
-    inline bool is_dirty(void) { return dirty; }
+    inline bool is_dirty(void) const { return dirty; }
+    inline bool is_selected(void) const { return selected; }
+    inline void set_selected(bool s) { selected = s; }
     void set_dirty(bool d);
 	
     static int xmin, ymin, xmax, ymax;
     static int cr_up, cr_do, cr_le, cr_ri;
     void scale(float sfx, float sfy);
-    void xchange_tiles(MyArea &s, MyArea &d);
+    void xchange_tiles(VmTile &s, VmTile &d);
     void sync_tile(void);
     bool update_minmax(void);
     void commit_changes(void);
   protected:
     //Override default signal handler:
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
+    bool on_button_press_event(GdkEventButton *e) override;
+    bool on_configure_event(GdkEventConfigure *configure_event) override;
+    bool on_enter_notify_event(GdkEventCrossing* crossing_event) override;
+    bool on_leave_notify_event(GdkEventCrossing* crossing_event) override;
+    
     //Other signal handlers:
-    bool on_configure_event(GdkEventConfigure *configure_event);
     void on_button_drag_data_get(
 	const Glib::RefPtr<Gdk::DragContext>& context,
 	Gtk::SelectionData& selection_data, guint info, guint time);
     void on_label_drop_drag_data_received(
 	const Glib::RefPtr<Gdk::DragContext>& context, int x, int y,
 	const Gtk::SelectionData& selection_data, guint info, guint time);
-    bool on_button_press_event(GdkEventButton *e);
-    
+
     Glib::RefPtr<Gdk::Pixbuf> m_image;
     Glib::RefPtr<Gdk::Pixbuf> m_image_scaled;
     Glib::RefPtr<Gdk::Pixbuf> m_image_icon;
 };
 
 
-#endif /* __myarea_h__ */
+#endif /* __VmTile_h__ */

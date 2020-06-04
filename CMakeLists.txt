@@ -25,7 +25,7 @@ project(mapper)
 #set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 #set(CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
-set (VER 1.0)
+set (VER 1.1)
 # Find dependencies
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GTK REQUIRED gtk+-3.0 gtkmm-3.0)
@@ -41,7 +41,7 @@ else()
 # msys2 build
 set (ARCH $ENV{MINGW_PREFIX})
 string (REPLACE "/" "" ARCH ${ARCH})
-set (MAPPER_VERSION ${ARCH}-1.0)
+set (MAPPER_VERSION ${ARCH}-${VER})
 
 # for some reason "include_directories (${GTK_INCLUDE_DIRS})" results in a wrong CXX_INCLUDES line
 # by preending each -I<some correct path> by -I/my/current/dir/<some correct path>
@@ -78,7 +78,7 @@ link_directories (${GTK_LIBRARY_DIRS})
 #set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${GTK3_FLAGS})
 
 # ${PROJECT_SOURCE_DIR}/dinphil-gtk.cc 
-set(SRC main.cc myarea.cc map-window.cc map-controls.cc dialogs.cc)
+set(SRC main.cc VmTile.cc VmMap.cc VmMapControls.cc dialogs.cc)
 
 # Compile
 add_executable(mapper ${SRC})

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with vice-mapper.  If not, see <https://www.gnu.org/licenses/>.
  *
- * File:		map-controls.h
+ * File:		VmMapControls.h
  * Date:		Fri May  8 18:25:51 2020
  * Author:		pottendo (pottendo)
  *  
@@ -25,8 +25,8 @@
  * $Log$
  */
 
-#ifndef __map_controls_h__
-#define __map_controls_h__
+#ifndef __VmMapControls_h__
+#define __VmMapControls_h__
 
 #include <gtkmm/frame.h>
 #include <gtkmm/button.h>
@@ -35,9 +35,9 @@
 #include <gtkmm/treeview.h>
 #include <gtkmm/liststore.h>
 #include <gtkmm/scrolledwindow.h>
-#include "myarea.h"
+#include "VmTile.h"
 
-class map_controls : public Gtk::Frame
+class VmMapControls : public Gtk::Frame
 {
     Gtk::Button button_commit;
     Gtk::Button button_reload;
@@ -48,7 +48,7 @@ class map_controls : public Gtk::Frame
     void on_scale_event2();
     void on_scale_crop();
 
-    map_window &mw;
+    VmMap &mw;
     
     // Zoom controls
     Glib::RefPtr<Gtk::Adjustment> adjx;
@@ -65,15 +65,15 @@ class map_controls : public Gtk::Frame
     Gtk::ScrolledWindow m_ScrolledWindow;
 
   public:
-    map_controls(map_window &m, const Glib::ustring &);
-    virtual ~map_controls() {};
+    VmMapControls(VmMap &m, const Glib::ustring &);
+    virtual ~VmMapControls() {};
     
     void set_zoom(double x, double y, bool dirty = true);
     void set_crop(int u, int d, int l, int r, bool dirty = true);
-    void add_tile(MyArea *tile);
-    void remove_tile(MyArea *t);
+    void add_tile(VmTile *tile);
+    void remove_tile(VmTile *t);
     void set_dirty(bool d);
     void commit_changes(void);
 };
 
-#endif /* __map_controls_h__ */
+#endif /* __VmMapControls_h__ */

@@ -30,14 +30,17 @@
 #include <gtkmm/application.h>
 #include <gtkmm/window.h>
 #include <gtkmm.h>
-#include "myarea.h"
-#include "map-window.h"
+#include "VmTile.h"
+#include "VmMap.h"
+#include "dialogs.h"
 
 using namespace::std;
 Glib::RefPtr<Gtk::Builder> builder; // global used by all GUI elements
 Glib::RefPtr<Gtk::Application> app;
-MyStatus *mw_status = nullptr;
-map_window *mw_map = nullptr;
+VmStatus *mw_status = nullptr;
+VmMap *mw_map = nullptr;
+VmDebug *mw_debug = nullptr;
+std::ostream *mw_out_stream;
 Gtk::Window *mainWindow = nullptr;
 
 static gboolean on_delete_event (GtkWidget *window,
@@ -56,8 +59,9 @@ int main(int argc, char** argv)
     builder = Gtk::Builder::create_from_file("./gui.glade");
     gtk_builder_connect_signals(builder->gobj(), NULL);
     //cout << __FUNCTION__ << ": sizeof size_t = " << sizeof(size_t) << endl;
-    mw_status = new MyStatus();
-    map_window mw;
+    mw_status = new VmStatus();
+    mw_out_stream = new std::ostream(mw_debug = new VmDebug());
+    VmMap mw;
     mw_map = &mw;
 
     if (argc > 2) {
