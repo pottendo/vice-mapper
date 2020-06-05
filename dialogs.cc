@@ -97,20 +97,6 @@ VmDebug::log(std::string &s)
     tv->scroll_to(ti2);
 }
 
-/*
-std::ostream &
-operator<<(std::ostream &out, VmDebug &d) 
-{
-    cerr << __FUNCTION__ << ": called." << endl;
-    std::ostringstream ss;
-    ss << out.rdbuf();
-    string s = ss.str();
-    //d.log(s);
-    out << "'" << s << "'" << "bla" << endl;
-    return out;
-}
-*/
-
 int
 VmDebug::overflow(int c)
 {

@@ -87,10 +87,9 @@ UI-stuff<br>
 - maybe allow individual crop vals for tiles
 - allow other name than def_basename (i.e. vice-screen-)
 - support multiple maps in parallel (notpads?), encapsule some globals
-- highlight tiles when cursor is hovering over.
 
 Internals:
-- log-window
+- introduce log-levels and make diag-output window clever (highlight, etc.)
 - adjust maximum map dynamically depending on 32/64 bit
 - refactor code to follow consistent conventions
 - fix bugs

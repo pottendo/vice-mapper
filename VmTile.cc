@@ -502,14 +502,6 @@ VmTile::refresh_minmax(void)
 VmTile *
 VmTile::lookup_by_name(std::string name) 
 {
-    /*
-    std::vector<VmTile *>::iterator it =
-	std::find_if(all_tiles.begin(), all_tiles.end(),
-		     [name](VmTile *t) {
-			 if (t->get_fname() == name) return true;
-			 return false;
-		     });
-    */
     std::vector<VmTile *>::iterator it;
     VmTile *ret = NULL;
     

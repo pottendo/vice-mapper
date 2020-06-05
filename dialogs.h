@@ -83,7 +83,6 @@ public:
 
     void toggle();
     void log(std::string &s);
-    //friend std::ostream &operator<<(std::ostream &o, VmDebug &d);
 protected:
     virtual int_type overflow(int_type c);
 };
