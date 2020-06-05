@@ -39,6 +39,7 @@ Glib::RefPtr<Gtk::Builder> builder; // global used by all GUI elements
 Glib::RefPtr<Gtk::Application> app;
 VmStatus *mw_status = nullptr;
 VmMap *mw_map = nullptr;
+VmMapControls *mw_ctrls = nullptr;
 VmDebug *mw_debug = nullptr;
 std::ostream *mw_out_stream;
 Gtk::Window *mainWindow = nullptr;
@@ -83,8 +84,8 @@ int main(int argc, char** argv)
 
     Gtk::Box *mw_box = nullptr;
     builder->get_widget("MWBox", mw_box);
-    mw_box->add(mw);
-    mw_box->reorder_child(mw, 1);
+    //mw_box->add(mw);
+    //mw_box->reorder_child(mw, 1);
     mw_box->show_all();
 
     (void) mw.load_settings();

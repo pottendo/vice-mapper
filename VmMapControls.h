@@ -37,6 +37,33 @@
 #include <gtkmm/scrolledwindow.h>
 #include "VmTile.h"
 
+typedef enum { CZX, CZY, CRUP, CRDO, CRLE, CRRI } VmMapCtrlAdj;
+
+class VmMapControls
+{
+    VmMap &mw;
+    Gtk::Frame *cf;
+    Gtk::Box *unpl_tilesbox;
+    Gtk::Button *button_save;
+//    Gtk::Adjustment *adjx;
+    Glib::RefPtr<Gtk::Adjustment> adj[6];
+    
+public:
+    VmMapControls(VmMap &m);
+    ~VmMapControls() {};
+    
+    inline Gtk::Frame *get_widget(void) { return cf; }
+    inline Glib::RefPtr<Gtk::Adjustment> get_adj(VmMapCtrlAdj a) { return adj[a]; }
+    void add_tile(VmTile *tile);
+    void remove_tile(VmTile *t);
+    void set_dirty(bool d);
+    void commit_changes(void);
+    void set_zoom(double x, double y, bool dirty = true);
+    void set_crop(int u, int d, int l, int r, bool dirty = true);
+};
+
+
+#if 0
 class VmMapControls : public Gtk::Frame
 {
     Gtk::Button button_commit;
@@ -75,5 +102,7 @@ class VmMapControls : public Gtk::Frame
     void set_dirty(bool d);
     void commit_changes(void);
 };
+
+#endif
 
 #endif /* __VmMapControls_h__ */

@@ -36,6 +36,132 @@
 
 using namespace::std;
 
+
+VmMapControls::VmMapControls(VmMap &m)
+    : mw(m)
+{
+    cf = nullptr;
+    builder->get_widget("VmMapControls", cf);
+    unpl_tilesbox = nullptr;
+    builder->get_widget("VmMapControlsUnplTilesBox", unpl_tilesbox);
+    button_save = nullptr;
+    builder->get_widget("VmMapControlsSave", button_save);
+    adj[CZX] = Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder->get_object("VmMapControlsZoomAdjX"));
+    adj[CZY] = Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder->get_object("VmMapControlsZoomAdjY"));
+    adj[CRUP] = Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder->get_object("VmControlsCropAdjUp"));
+    adj[CRDO] = Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder->get_object("VmControlsCropAdjDown"));
+    adj[CRLE] = Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder->get_object("VmControlsCropAdjLeft"));
+    adj[CRRI] = Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder->get_object("VmControlsCropAdjRight"));
+}
+
+void
+VmMapControls::add_tile(VmTile *tile) 
+{
+    mw_out << __FUNCTION__ << ": called." << endl;
+    unpl_tilesbox->pack_end(*tile, FALSE, FALSE, 4);
+    unpl_tilesbox->show_all();
+}
+
+void
+VmMapControls::remove_tile(VmTile *tile) 
+{
+    unpl_tilesbox->remove(*tile);
+}
+
+void
+VmMapControls::commit_changes(void)
+{
+    VmMsg m("Save?", "bla");
+    if (m.run() == Gtk::RESPONSE_OK) {
+	for_each(VmTile::all_tiles.begin(), VmTile::all_tiles.end(),
+		 [](VmTile *t)->void { t->commit_changes(); } );
+	set_dirty(FALSE);
+	mw_map->save_settings();
+    }
+}
+
+void
+VmMapControls::set_dirty(bool d) 
+{
+    if (d) {
+	button_save->set_label("SAVE");
+	button_save->set_sensitive(TRUE);
+    } else {
+	button_save->set_label("all saved");
+	button_save->set_sensitive(FALSE);
+    }
+}
+
+void
+VmMapControls::set_zoom(double x, double y, bool dirty) 
+{
+    mw_ctrls->get_adj(CZX)->set_value(x);
+    mw_ctrls->get_adj(CZY)->set_value(y);
+    mw_map->set_dirty(dirty);
+}
+
+void
+VmMapControls::set_crop(int u, int d, int l, int r, bool dirty) 
+{
+    mw_ctrls->get_adj(CRUP)->set_value(u);
+    mw_ctrls->get_adj(CRDO)->set_value(d);
+    mw_ctrls->get_adj(CRLE)->set_value(l);
+    mw_ctrls->get_adj(CRRI)->set_value(r);
+    mw_map->set_dirty(dirty);
+}
+
+extern "C" 
+{
+    
+bool
+on_VmMapControlsReload_clicked(GdkEventButton *) {
+    mw_map->reload_unplaced_tiles();
+    return TRUE;
+}
+
+bool
+on_VmMapControlsSave_clicked(GdkEventButton *) 
+{
+    //mw_out << "Save button pressed." << endl;
+    mw_ctrls->commit_changes();
+    return TRUE;
+}
+
+void
+on_VmMapControlsZoomAdjX_value_changed() 
+{
+    //mw_out << "Scale 1: " << adjx->get_value() << endl;
+    VmMap::scale_factor_x = mw_ctrls->get_adj(CZX)->get_value();
+    mw_map->scale_all();
+    mw_map->set_dirty(true);
+}
+    
+void
+on_VmMapControlsZoomAdjY_value_changed() 
+{
+    //mw_out << "Scale 1: " << adjx->get_value() << endl;
+    VmMap::scale_factor_y = mw_ctrls->get_adj(CZY)->get_value();
+    mw_map->scale_all();
+    mw_map->set_dirty(true);
+}
+    
+void
+on_VmControlsCropAdj_value_changed() 
+{
+    //mw_out << "Scale 2: " << adjy->get_value() << endl;
+    VmTile::cr_up = mw_ctrls->get_adj(CRUP)->get_value();
+    VmTile::cr_do = mw_ctrls->get_adj(CRDO)->get_value();
+    VmTile::cr_le = mw_ctrls->get_adj(CRLE)->get_value();
+    VmTile::cr_ri = mw_ctrls->get_adj(CRRI)->get_value();
+    std::for_each(VmTile::all_tiles.begin(), VmTile::all_tiles.end(),
+		  [](VmTile *t)->void { t->queue_draw(); } );
+    mw_map->set_dirty(true);
+}
+
+
+} /* extern "C" */
+
+#if 0
 VmMapControls::VmMapControls(VmMap &m, const Glib::ustring &name)
     : Gtk::Frame(name),
       button_commit("commit"),
@@ -242,3 +368,5 @@ VmMapControls::set_dirty(bool d)
 	button_commit.set_sensitive(FALSE);
     }
 }
+
+#endif

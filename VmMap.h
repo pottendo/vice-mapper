@@ -76,11 +76,11 @@ class VmMap : public Gtk::ScrolledWindow
     // Child widgets:
     Gtk::Grid map_grid;
     MyScw scw;
-    Gtk::HBox hbox;		/* main layout box */
     Glib::RefPtr<Gdk::Pixbuf> m_empty;
     VmTile *tiles[map_max+1][map_max+1];
     int nr_tiles;
     VmMapControls *ctrls;
+    Gtk::Frame *map_frame;
 
   public:
     VmMap();

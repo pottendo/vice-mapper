@@ -52,8 +52,9 @@ VmMap::VmMap()
     empty_image = Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, TRUE, 8, resX, resY);
     empty_image->fill(0x0000001f);
 
-    ctrls = new VmMapControls(*this, "Controls");
-
+//    ctrls = new VmMapControls(*this, "Controls");
+    mw_ctrls = ctrls = new VmMapControls(*this);
+        
     //set_default_size(400,400);
     set_border_width(4);
 
@@ -62,24 +63,27 @@ VmMap::VmMap()
 
     scw.mc = ctrls;
     scw.set_border_width(4);
-    scw.set_size_request(100, 100);
+    //scw.set_size_request(100, 100);
     scw.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
     
     scw.add(map_grid);
     scw.set_hexpand(TRUE);
     scw.set_vexpand(TRUE);
-    Gtk::Frame *map_frame = new Gtk::Frame("Map"); // never deleted, TODO
-    //map_frame->set_size_request(1,-1);
+    
+    Gtk::Frame *map_frame = nullptr;
+    builder->get_widget("VmMap", map_frame);
     
     map_frame->add(scw);
-    map_frame->set_hexpand(TRUE);
-    map_frame->set_vexpand(TRUE);
+    //map_frame->set_hexpand(TRUE);
+    //map_frame->set_vexpand(TRUE);
 
+    /*
     hbox.set_homogeneous(FALSE);
     hbox.pack_start(*map_frame, TRUE, TRUE, 0);
 
-    hbox.pack_start(*ctrls, FALSE, FALSE, 0);
+    hbox.pack_start(*ctrls->get_widget(), FALSE, FALSE, 0);
     add(hbox);
+    */
 
     //add_events(Gdk::SCROLL_MASK);
     show_all_children();

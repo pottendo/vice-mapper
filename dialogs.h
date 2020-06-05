@@ -90,6 +90,7 @@ protected:
 extern Glib::RefPtr<Gtk::Builder> builder;
 extern VmStatus *mw_status;
 extern VmMap *mw_map;
+extern VmMapControls *mw_ctrls;
 extern VmDebug *mw_debug;
 extern std::ostream *mw_out_stream;
 #define mw_out (*mw_out_stream)
