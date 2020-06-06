@@ -31,6 +31,7 @@
 #include <gtkmm/aboutdialog.h>
 #include <gtkmm/builder.h>
 #include "dialogs.h"
+#include "VmTile.h"
 
 using namespace::std;
 
@@ -49,6 +50,15 @@ VmStatus::clear(void)
     my_status[STATL]->set_label("");
     my_status[STATM]->set_label("");
     my_status[STATR]->set_label("");
+}
+
+void
+VmStatus::status(void)
+{
+    string s = to_string(VmTile::xmin) + "/" + to_string(VmTile::ymin) + "x" +
+	to_string(VmTile::xmax) + "/" + to_string(VmTile::ymax) + "-"
+	+ to_string(mw_map->get_nrtiles()) + "/" + to_string(VmTile::alloc_count);
+    show(VmStatus::STATR, s);
 }
 
 VmMsg::VmMsg(std::string s1, std::string s2) // 

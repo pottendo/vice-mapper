@@ -50,6 +50,7 @@ class VmStatus
 
     typedef enum { STATL, STATM, STATR } VmStatusPos;
     void show(VmStatusPos w, std::string s) { my_status[w]->set_label(s); }
+    void status(void);
     void clear(void);
 };
 

@@ -78,13 +78,14 @@ class VmMap : public Gtk::ScrolledWindow
     MyScw scw;
     Glib::RefPtr<Gdk::Pixbuf> m_empty;
     VmTile *tiles[map_max+1][map_max+1];
-    int nr_tiles;
     VmMapControls *ctrls;
     Gtk::Frame *map_frame;
 
   public:
     VmMap();
     virtual ~VmMap() {};
+
+    static int nr_tiles;	// managed non-empty tiles 
 
     inline void set_dirty(bool d) { dirty=d; ctrls->set_dirty(d); }
     inline bool is_dirty(void) { return dirty; }

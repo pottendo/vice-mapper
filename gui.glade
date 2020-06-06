@@ -470,6 +470,7 @@ inspired by Overdoc</property>
                                         <property name="hexpand">True</property>
                                         <property name="adjustment">VmControlsCropAdjUp</property>
                                         <property name="round_digits">1</property>
+                                        <property name="digits">0</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -483,6 +484,7 @@ inspired by Overdoc</property>
                                         <property name="hexpand">True</property>
                                         <property name="adjustment">VmControlsCropAdjLeft</property>
                                         <property name="round_digits">1</property>
+                                        <property name="digits">0</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -496,6 +498,7 @@ inspired by Overdoc</property>
                                         <property name="hexpand">True</property>
                                         <property name="adjustment">VmControlsCropAdjDown</property>
                                         <property name="round_digits">1</property>
+                                        <property name="digits">0</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -509,6 +512,7 @@ inspired by Overdoc</property>
                                         <property name="hexpand">True</property>
                                         <property name="adjustment">VmControlsCropAdjRight</property>
                                         <property name="round_digits">1</property>
+                                        <property name="digits">0</property>
                                       </object>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -721,17 +725,17 @@ inspired by Overdoc</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkToggleButton" id="VMDebugButton">
-                        <property name="label" translatable="yes">Debug</property>
+                      <object class="GtkCheckButton" id="VMDebugButton">
+                        <property name="label" translatable="yes">Console</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="draw_indicator">True</property>
                         <signal name="toggled" handler="on_VMDebugButton_toggled" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">True</property>
-                        <property name="pack_type">end</property>
                         <property name="position">5</property>
                       </packing>
                     </child>

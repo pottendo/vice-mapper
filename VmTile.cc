@@ -46,7 +46,6 @@ VmTile *VmTile::dnd_tile;
 int VmTile::alloc_count;
 int VmTile::xmin = map_max - 4, VmTile::ymin = map_max - 4 , VmTile::xmax = 5, VmTile::ymax = 5;
 int VmTile::cr_up=def_cry, VmTile::cr_do=def_cry, VmTile::cr_le=def_crx, VmTile::cr_ri=def_crx;
-//vector<MyArea *> MyArea::all_tiles;
 set<VmTile *> VmTile::all_tiles;
 std::string VmTile::current_path="";
 bool VmTile::tiles_placed = false;
@@ -118,10 +117,11 @@ VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
 	    }
 	    empty = false;
 	    all_tiles.insert(this);
+	    VmMap::nr_tiles++;
 	}
 	else {
-	    std::cerr << "filename not following convention " << def_basename << "XX:YY.png): "
-		      << fn << std::endl;
+	    mw_out << "filename not following convention " << def_basename << "XX:YY.png): "
+		   << fn << std::endl;
 	    throw -1;
 	}
     }
@@ -482,10 +482,7 @@ VmTile::update_minmax(void)
     if (ymin == yk) { ymin--; changed = true; }
     if (xmax == xk) { xmax++; changed = true; }
     if (ymax == yk) { ymax++; changed = true; }
-    string s = string("xmin=") + to_string(xmin) + ",ymin=" + to_string(ymin) + ",xmax=" + to_string(xmax) + ",ymax=" + to_string(ymax);
-    
-    mw_status->show(VmStatus::STATR, s);
-    
+    mw_status->status();
     return changed;
 }
 

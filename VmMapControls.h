@@ -64,47 +64,4 @@ public:
     inline bool get_zoom_lock(void) { return zoom_lock; }
 };
 
-
-#if 0
-class VmMapControls : public Gtk::Frame
-{
-    Gtk::Button button_commit;
-    Gtk::Button button_reload;
-    
-    bool on_commit_press_event(GdkEventButton *);
-    bool on_reload_press_event(GdkEventButton *);
-    void on_scale_event1();
-    void on_scale_event2();
-    void on_scale_crop();
-
-    VmMap &mw;
-    
-    // Zoom controls
-    Glib::RefPtr<Gtk::Adjustment> adjx;
-    Glib::RefPtr<Gtk::Adjustment> adjy;
-    // Crop controls
-    Glib::RefPtr<Gtk::Adjustment> adj_crup;
-    Glib::RefPtr<Gtk::Adjustment> adj_crdo;
-    Glib::RefPtr<Gtk::Adjustment> adj_crle;
-    Glib::RefPtr<Gtk::Adjustment> adj_crri;
-    // Unplaced tiles
-    Gtk::VBox unpl_tilesbox;
-    
-  protected:
-    Gtk::ScrolledWindow m_ScrolledWindow;
-
-  public:
-    VmMapControls(VmMap &m, const Glib::ustring &);
-    virtual ~VmMapControls() {};
-    
-    void set_zoom(double x, double y, bool dirty = true);
-    void set_crop(int u, int d, int l, int r, bool dirty = true);
-    void add_tile(VmTile *tile);
-    void remove_tile(VmTile *t);
-    void set_dirty(bool d);
-    void commit_changes(void);
-};
-
-#endif
-
 #endif /* __VmMapControls_h__ */

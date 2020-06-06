@@ -41,10 +41,10 @@ using namespace::std;
 Glib::RefPtr<Gdk::Pixbuf> VmMap::empty_image;
 double VmMap::scale_factor_x = def_zoom;
 double VmMap::scale_factor_y = def_zoom;
+int VmMap::nr_tiles = 0;
 
 VmMap::VmMap()
-    : dirty(false),
-      nr_tiles(0)
+    : dirty(false)
 {
     //set_title("Map");
 
@@ -155,6 +155,7 @@ VmMap::MyScw::on_motion_notify_event(GdkEventMotion* motion_event)
     }
     xp = motion_event->x;	// track last location even if not panning
     yp = motion_event->y;
+    mw_status->status();
     return Gtk::ScrolledWindow::on_motion_notify_event(motion_event);
 }
 
@@ -214,7 +215,7 @@ VmMap::add_tile(VmTile *a)
     map_grid.attach(*a, a->getX(), a->getY());
     tiles[a->getX()][a->getY()] = a;
     a->scale(scale_factor_x, scale_factor_y); // make sure tile adjusts to current scaling
-    nr_tiles++;
+    //nr_tiles++;
     map_grid.show_all_children();
 }
 
@@ -543,8 +544,9 @@ VmMap::remove_map(void)
     for (auto t : VmTile::all_tiles) {
 	delete t;
 	VmTile::all_tiles.erase(t);
+	nr_tiles--;
     }
-    nr_tiles = VmTile::all_tiles.size();
+    //nr_tiles = VmTile::all_tiles.size();
     mw_out << __FUNCTION__ << ": pending tiles = " << nr_tiles
 	 << ", alloc_count = " << VmTile::alloc_count << endl;
     mw_status->clear();
