@@ -52,6 +52,13 @@ VmMapControls::VmMapControls(VmMap &m)
     adj[CRDO] = Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder->get_object("VmControlsCropAdjDown"));
     adj[CRLE] = Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder->get_object("VmControlsCropAdjLeft"));
     adj[CRRI] = Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder->get_object("VmControlsCropAdjRight"));
+    adj[CRUP]->set_upper(resY/2);
+    adj[CRDO]->set_upper(resY/2-1);
+    adj[CRLE]->set_upper(resX/2);
+    adj[CRRI]->set_upper(resX/2-1);
+    zl = nullptr;
+    builder->get_widget("VmMapControlsZoomLock", zl);
+    zoom_lock = zl->get_active();
 }
 
 void
@@ -95,19 +102,30 @@ VmMapControls::set_dirty(bool d)
 void
 VmMapControls::set_zoom(double x, double y, bool dirty) 
 {
-    mw_ctrls->get_adj(CZX)->set_value(x);
-    mw_ctrls->get_adj(CZY)->set_value(y);
+    get_adj(CZX)->set_value(x);
+    get_adj(CZY)->set_value(y);
     mw_map->set_dirty(dirty);
 }
 
 void
 VmMapControls::set_crop(int u, int d, int l, int r, bool dirty) 
 {
-    mw_ctrls->get_adj(CRUP)->set_value(u);
-    mw_ctrls->get_adj(CRDO)->set_value(d);
-    mw_ctrls->get_adj(CRLE)->set_value(l);
-    mw_ctrls->get_adj(CRRI)->set_value(r);
+    get_adj(CRUP)->set_value(u);
+    get_adj(CRDO)->set_value(d);
+    get_adj(CRLE)->set_value(l);
+    get_adj(CRRI)->set_value(r);
     mw_map->set_dirty(dirty);
+}
+
+void
+VmMapControls::toggle_zoom_lock(void) 
+{
+    zoom_lock = zl->get_active();
+    if (zoom_lock) {
+	double nv = (adj[CZX]->get_value() + adj[CZY]->get_value()) / 2;
+	adj[CZX]->set_value(nv);
+	adj[CZY]->set_value(nv);
+    }
 }
 
 extern "C" 
@@ -132,6 +150,10 @@ on_VmMapControlsZoomAdjX_value_changed()
 {
     //mw_out << "Scale 1: " << adjx->get_value() << endl;
     VmMap::scale_factor_x = mw_ctrls->get_adj(CZX)->get_value();
+    if (mw_ctrls->get_zoom_lock()) {
+	VmMap::scale_factor_y = VmMap::scale_factor_x;
+	mw_ctrls->get_adj(CZY)->set_value(VmMap::scale_factor_x);
+    }
     mw_map->scale_all();
     mw_map->set_dirty(true);
 }
@@ -141,6 +163,10 @@ on_VmMapControlsZoomAdjY_value_changed()
 {
     //mw_out << "Scale 1: " << adjx->get_value() << endl;
     VmMap::scale_factor_y = mw_ctrls->get_adj(CZY)->get_value();
+    if (mw_ctrls->get_zoom_lock()) {
+	VmMap::scale_factor_x = VmMap::scale_factor_y;
+	mw_ctrls->get_adj(CZX)->set_value(VmMap::scale_factor_y);
+    }
     mw_map->scale_all();
     mw_map->set_dirty(true);
 }
@@ -158,7 +184,13 @@ on_VmControlsCropAdj_value_changed()
     mw_map->set_dirty(true);
 }
 
-
+void
+on_VmMapControlsZoomLock_toggled() 
+{
+    mw_out << __FUNCTION__ << ": called." << endl;
+    mw_ctrls->toggle_zoom_lock();
+}
+    
 } /* extern "C" */
 
 #if 0

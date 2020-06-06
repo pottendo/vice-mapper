@@ -30,11 +30,9 @@
 
 #include <gtkmm/frame.h>
 #include <gtkmm/button.h>
+#include <gtkmm/togglebutton.h>
 #include <gtkmm/adjustment.h>
-#include <gtkmm/treemodel.h>
-#include <gtkmm/treeview.h>
-#include <gtkmm/liststore.h>
-#include <gtkmm/scrolledwindow.h>
+
 #include "VmTile.h"
 
 typedef enum { CZX, CZY, CRUP, CRDO, CRLE, CRRI } VmMapCtrlAdj;
@@ -47,7 +45,9 @@ class VmMapControls
     Gtk::Button *button_save;
 //    Gtk::Adjustment *adjx;
     Glib::RefPtr<Gtk::Adjustment> adj[6];
-    
+    Gtk::ToggleButton *zl;
+
+    bool zoom_lock;
 public:
     VmMapControls(VmMap &m);
     ~VmMapControls() {};
@@ -60,6 +60,8 @@ public:
     void commit_changes(void);
     void set_zoom(double x, double y, bool dirty = true);
     void set_crop(int u, int d, int l, int r, bool dirty = true);
+    void toggle_zoom_lock(void);
+    inline bool get_zoom_lock(void) { return zoom_lock; }
 };
 
 

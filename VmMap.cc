@@ -215,7 +215,7 @@ VmMap::add_tile(VmTile *a)
     tiles[a->getX()][a->getY()] = a;
     a->scale(scale_factor_x, scale_factor_y); // make sure tile adjusts to current scaling
     nr_tiles++;
-    show_all_children();
+    map_grid.show_all_children();
 }
 
 void
