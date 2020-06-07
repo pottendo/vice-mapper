@@ -131,13 +131,13 @@ VmMapControls::toggle_zoom_lock(void)
 extern "C" 
 {
     
-bool
+G_MODULE_EXPORT bool
 on_VmMapControlsReload_clicked(GdkEventButton *) {
     mw_map->reload_unplaced_tiles();
     return TRUE;
 }
 
-bool
+G_MODULE_EXPORT bool
 on_VmMapControlsSave_clicked(GdkEventButton *) 
 {
     //mw_out << "Save button pressed." << endl;
@@ -145,7 +145,7 @@ on_VmMapControlsSave_clicked(GdkEventButton *)
     return TRUE;
 }
 
-void
+G_MODULE_EXPORT void
 on_VmMapControlsZoomAdjX_value_changed() 
 {
     //mw_out << "Scale 1: " << adjx->get_value() << endl;
@@ -158,7 +158,7 @@ on_VmMapControlsZoomAdjX_value_changed()
     mw_map->set_dirty(true);
 }
     
-void
+G_MODULE_EXPORT void
 on_VmMapControlsZoomAdjY_value_changed() 
 {
     //mw_out << "Scale 1: " << adjx->get_value() << endl;
@@ -171,7 +171,7 @@ on_VmMapControlsZoomAdjY_value_changed()
     mw_map->set_dirty(true);
 }
     
-void
+G_MODULE_EXPORT void
 on_VmControlsCropAdj_value_changed() 
 {
     //mw_out << "Scale 2: " << adjy->get_value() << endl;
@@ -184,7 +184,7 @@ on_VmControlsCropAdj_value_changed()
     mw_map->set_dirty(true);
 }
 
-void
+G_MODULE_EXPORT void
 on_VmMapControlsZoomLock_toggled() 
 {
     mw_out << __FUNCTION__ << ": called." << endl;
