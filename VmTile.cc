@@ -45,9 +45,10 @@ std::vector<Gtk::TargetEntry> VmTile::listTargets;
 VmTile *VmTile::dnd_tile;
 int VmTile::alloc_count;
 int VmTile::xmin = map_max - 4, VmTile::ymin = map_max - 4 , VmTile::xmax = 5, VmTile::ymax = 5;
-int VmTile::cr_up=def_cry, VmTile::cr_do=def_cry, VmTile::cr_le=def_crx, VmTile::cr_ri=def_crx;
+int VmTile::cr_up = def_cry, VmTile::cr_do=def_cry, VmTile::cr_le=def_crx, VmTile::cr_ri=def_crx;
+int VmTile::resX = def_resX;
+int VmTile::resY = def_resY;
 set<VmTile *> VmTile::all_tiles;
-std::string VmTile::current_path="";
 bool VmTile::tiles_placed = false;
 
 /* MyArea members */
@@ -57,13 +58,15 @@ VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
     if (fn) {
 	Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(fn);
 	set_fname(f->get_path(), f->get_basename());
-	if (current_path == "") {
-	    current_path = f->get_parent()->get_path();
-	    mw_status->show(VmStatus::STATM, current_path);
+	if (VmMap::current_path == "") {
+	    VmMap::current_path = f->get_parent()->get_path();
+	    mw_status->show(VmStatus::STATM, VmMap::current_path);
 	}
 	
 	try {
-	    m_image_scaled = m_image = Gdk::Pixbuf::create_from_file(fn, resX, resY);
+	    m_image_scaled = m_image = Gdk::Pixbuf::create_from_file(fn);//, resX, resY);
+	    resX = w = m_image->get_width();
+	    resY = h = m_image->get_height();
 	}
 	catch(const Gio::ResourceError& ex) {
 	    std::cerr << "ResourceError: " << ex.what() << std::endl;
@@ -73,11 +76,23 @@ VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
 	    std::cerr << "PixbufError: " << ex.what() << std::endl;
 	    throw -1;
 	}
-	std::string regstr("(.*)" + std::string(def_basename) +
-			   "([-0-9][0-9])x([0-9][0-9][0-9]*)\\.(png|PNG|gif|GIF)");
-	std::regex re(regstr); 
 	std::cmatch cm;
-	std::regex_match(fn, cm, re, std::regex_constants::match_default);
+	std::regex re_ext("(.*)\\.(png|PNG|gif|GIF|jpg|JPG)");
+	std::regex_match(file_basename.c_str(), cm, re_ext, std::regex_constants::match_default);
+	if (cm.size() <= 0) {
+	    mw_out << __FUNCTION__ << ": couldn't find extension in name " << file_basename << endl;
+	    throw -1;
+	}
+	file_ext = cm[cm.size()-1];
+	if (VmMap::current_ext == "") {
+	    VmMap::current_ext = file_ext;
+	    mw_out << __FUNCTION__ << ": extension set to '" << VmMap::current_ext << "'." << endl;
+	}
+	
+	std::string regstr("(.*)" + std::string(def_basename) +
+			   "([0-9][0-9])x([0-9][0-9]*)\\.(png|PNG|gif|GIF|jpg|JPG)");
+	std::regex re(regstr); 
+	std::regex_match(file_basename.c_str(), cm, re, std::regex_constants::match_default);
 	/*
 	mw_out << cm.size() << " matches for " << fn << " were: " << endl;
 	for (unsigned i=0; i<cm.size(); ++i) {
@@ -86,44 +101,44 @@ VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
 	mw_out << endl;
 	*/
 	
-	if (cm.size() > 0) {
-	    xk = std::stod(cm[cm.size()-3]); // -1 would be extension
+	if (cm.size() > 0) {	// OK, we've found a placed tile folling the filename convention
+	    xk = std::stod(cm[cm.size()-3]);
 	    yk = std::stod(cm[cm.size()-2]);
-	    if ((xk == 0) || (yk == 0)) throw -1; // maps start at 01x01
-	    if (xk < 0) {	// identify unplaced tiles
-		if (m_image) {
-		    m_image_icon = m_image->scale_simple(m_image->get_width()/4,
-							 m_image->get_height()/4,
-							 Gdk::INTERP_BILINEAR);
-		}
-		mw.add_unplaced_tile(this);
+	    if ((xk == 0) || (yk == 0)) {
+		mw_out << __FUNCTION__ << "basename not following convention " << def_basename << "XXxYY.<valid ext>): "
+		       << file_basename << std::endl;
+		throw -1; // maps start at 01x01
 	    }
-	    else {
-		(void) update_minmax();
-		VmTile *t;
-		if ((t = mw.get_tile(xk, yk)) != nullptr) {
-		    if (t->is_empty()) {
-			delete t;
-			mw.set_tile(xk,yk, nullptr);
-		    }
-		    else {
-			mw_out << __FUNCTION__ << ": refusing to overload tile with " << *this << endl;
-			throw -1;
-		    }
+	    (void) update_minmax();
+	    VmTile *t;
+	    if ((t = mw.get_tile(xk, yk)) != nullptr) {
+		if (t->is_empty()) {
+		    delete t;
+		    mw.set_tile(xk,yk, nullptr);
 		}
-		if (yk >= map_max) throw -1; // y can be larger to allow 100+ unplaced tiles.
-		mw.add_tile(this);
-		tiles_placed=true;
+		else {
+		    mw_out << __FUNCTION__ << ": refusing to overload tile with " << *this << endl;
+		    throw -1;
+		}
 	    }
-	    empty = false;
-	    all_tiles.insert(this);
-	    VmMap::nr_tiles++;
+	    mw.add_tile(this);
+	    tiles_placed=true;
 	}
-	else {
-	    mw_out << "filename not following convention " << def_basename << "XX:YY.png): "
-		   << fn << std::endl;
-	    throw -1;
+	else {			// some image file, but not following convention -> unplaced tile
+	    if (!m_image) {
+		mw_out << __FUNCTION__ << ": *** m_image == 0, but now exception..." << endl;
+		throw -1;
+	    }
+	    m_image_icon = m_image->scale_simple(m_image->get_width()/4,
+						 m_image->get_height()/4,
+						 Gdk::INTERP_BILINEAR);
+	    xk = -1;		// xk == -1 is the internal convention for all unplaced tiles
+	    yk = -1;
+	    mw.add_unplaced_tile(this);
 	}
+	empty = false;
+	all_tiles.insert(this);
+	VmMap::nr_tiles++;
     }
     else {
 	xk = x; yk = y;
@@ -444,7 +459,7 @@ void
 VmTile::xchange_tiles(VmTile &s, VmTile &d) 
 {
     // call this == destination tile
-    mw_out << __FUNCTION__ << ": " << s.get_fname() << " <-> " << d.get_fname() << endl;
+    mw_out << __FUNCTION__ << ": " << s << " <-> " << d << endl;
     // set dirty flag for later commit
     d.set_dirty(true);
     s.set_dirty(true);
@@ -454,17 +469,16 @@ VmTile::xchange_tiles(VmTile &s, VmTile &d)
 void
 VmTile::sync_tile(void)
 {
+    if (xk < 0) return;		// unplaced tiles are handled on commit only
     Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(get_fname());
-    int x, y;
     char xl[3], yl[3];
-    getXY(x, y);
-    sprintf(xl, "%02d", x);
-    sprintf(yl, "%02d", y);
-    
+    sprintf(xl, "%02d", xk);
+    sprintf(yl, "%02d", yk);
     string p = f->get_parent()->get_path() + G_DIR_SEPARATOR_S +
-	def_basename + xl + "x" + yl + ".png";
+	def_basename + xl + "x" + yl + "." + file_ext;
     if (p == get_fname())
 	set_dirty(FALSE);
+    mw_out << __FUNCTION__ << ": " << p << " == " << *this << endl;
 }
 
 bool
@@ -544,15 +558,24 @@ VmTile::commit_changes(void)
     if (!is_dirty()) {
 	return;
     }
-    mw_out << __FUNCTION__ << ": ";
+    mw_out << __FUNCTION__ << ": " << *this << endl;
 
     Glib::RefPtr<Gio::File> file = Gio::File::create_for_path(file_name);
     char xl[3], yl[3];
     sprintf(xl, "%02d", xk);
     sprintf(yl, "%02d", yk);
 
-    new_fn = file->get_parent()->get_path() + G_DIR_SEPARATOR_S + def_basename +
-	xl + "x" + yl + ".png";
+    if (xk < 0) {
+	char *t = tempnam(file->get_parent()->get_path().c_str(), "vmap-");
+	new_fn = string(t) + "." + file_ext;
+	free(t);
+	mw_out << __FUNCTION__ << ": generated fn '" << new_fn << "' for tile " << *this << endl;
+    }
+    else {
+	new_fn = file->get_parent()->get_path() + G_DIR_SEPARATOR_S + def_basename +
+	    xl + "x" + yl + "." + file_ext;
+    }
+    
     Glib::RefPtr<Gio::File> new_file = Gio::File::create_for_path(new_fn);
     if (new_file->query_exists()) {
 	/* lookup which tile references conflicting name */
@@ -566,5 +589,16 @@ VmTile::commit_changes(void)
     file->remove();
     set_fname(new_fn, new_file->get_basename());
     set_dirty(FALSE);
-    get_window()->invalidate(TRUE);
+    queue_draw();
+//    get_window()->invalidate(TRUE);
+
+    /* 
+    else {
+	char *t = tempnam(f->get_parent()->get_path().c_str(), "VMUNPL");
+	p = string(t) + "." + file_ext;
+	free(t);
+	mw_out << __FUNCTION__ << ": generated fn '" << p << "' for tile " << *this << endl;
+	file_basename = p;
+    }
+    */
 }

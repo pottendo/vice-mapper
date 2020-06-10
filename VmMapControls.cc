@@ -52,10 +52,10 @@ VmMapControls::VmMapControls(VmMap &m)
     adj[CRDO] = Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder->get_object("VmControlsCropAdjDown"));
     adj[CRLE] = Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder->get_object("VmControlsCropAdjLeft"));
     adj[CRRI] = Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder->get_object("VmControlsCropAdjRight"));
-    adj[CRUP]->set_upper(resY/2);
-    adj[CRDO]->set_upper(resY/2-1);
-    adj[CRLE]->set_upper(resX/2);
-    adj[CRRI]->set_upper(resX/2-1);
+    adj[CRUP]->set_upper(VmTile::resY/2);
+    adj[CRDO]->set_upper(VmTile::resY/2-1);
+    adj[CRLE]->set_upper(VmTile::resX/2);
+    adj[CRRI]->set_upper(VmTile::resX/2-1);
     zl = nullptr;
     builder->get_widget("VmMapControlsZoomLock", zl);
     zoom_lock = zl->get_active();
@@ -64,7 +64,7 @@ VmMapControls::VmMapControls(VmMap &m)
 void
 VmMapControls::add_tile(VmTile *tile) 
 {
-    mw_out << __FUNCTION__ << ": called." << endl;
+    mw_out << __FUNCTION__ << ": '" << *tile << "'" << endl;
     unpl_tilesbox->pack_end(*tile, FALSE, FALSE, 4);
     unpl_tilesbox->show_all();
 }

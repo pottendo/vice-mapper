@@ -39,9 +39,10 @@ class VmMap;
 
 class VmTile : public Gtk::DrawingArea
 {
-    std::string file_name, file_basename;
+    std::string file_name, file_basename, file_ext;
     bool dirty, empty, selected;
     int xk, yk;
+    int w, h;
     static VmTile *dnd_tile;
     
     void park_tile_file(void);
@@ -82,6 +83,7 @@ class VmTile : public Gtk::DrawingArea
 	
     static int xmin, ymin, xmax, ymax;
     static int cr_up, cr_do, cr_le, cr_ri;
+    static int resX, resY;
     void scale(float sfx, float sfy);
     void xchange_tiles(VmTile &s, VmTile &d);
     void sync_tile(void);

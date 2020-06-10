@@ -42,6 +42,9 @@ Glib::RefPtr<Gdk::Pixbuf> VmMap::empty_image;
 double VmMap::scale_factor_x = def_zoom;
 double VmMap::scale_factor_y = def_zoom;
 int VmMap::nr_tiles = 0;
+string VmMap::current_path="";
+string VmMap::current_ext="";
+string VmMap::current_basename=def_basename;
 
 VmMap::VmMap()
     : dirty(false)
@@ -49,7 +52,7 @@ VmMap::VmMap()
     //set_title("Map");
 
     //map_grid.attach_next_to(ma, m_button_quit, Gtk::POS_BOTTOM, 1, 1);
-    empty_image = Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, TRUE, 8, resX, resY);
+    empty_image = Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, TRUE, 8, def_resX, def_resY);
     empty_image->fill(0x0000001f);
 
 //    ctrls = new VmMapControls(*this, "Controls");
@@ -251,7 +254,7 @@ VmMap::remove_tile(VmTile *a, bool map_remove)
 void
 VmMap::reload_unplaced_tiles(char *path)
 {
-    string cp = (path != NULL) ? string(path) : VmTile::current_path;
+    string cp = (path != NULL) ? string(path) : current_path;
     
     if (cp == "") return;
     Glib::Dir dir(cp);
@@ -260,7 +263,7 @@ VmMap::reload_unplaced_tiles(char *path)
     for (auto e = entries.begin(); e != entries.end(); ++e) {
 	string fp = cp + G_DIR_SEPARATOR_S + *e;
 	VmTile *t = VmTile::lookup_by_name(fp);
-	if (t) continue;
+	if (t) continue;	// skip if a tile with the filename exists
 	mw_out << __FUNCTION__ << ": new tile: " << fp << endl;
 	try {
 	    t = new VmTile(*this, fp.c_str());
@@ -271,7 +274,7 @@ VmMap::reload_unplaced_tiles(char *path)
     }
     VmTile::refresh_minmax();
     fill_empties();
-    mw_status->show(VmStatus::STATM, VmTile::current_path);
+    mw_status->show(VmStatus::STATM, current_path);
     if (!VmTile::tiles_placed && tiles[map_max / 2][map_max / 2] == nullptr)
 	add_tile(new VmTile(*this, NULL, map_max / 2, map_max / 2));
 }
@@ -279,7 +282,7 @@ VmMap::reload_unplaced_tiles(char *path)
 void
 VmMap::save_settings(void) 
 {
-    string &cp = VmTile::current_path;
+    string &cp = current_path;
     if (cp == "") return;
     size_t ext_pos = def_basename.find_last_of(".");
     string cfg_fname = cp + G_DIR_SEPARATOR_S + def_basename.substr(0, ext_pos) + def_cfg_ext;
@@ -344,7 +347,7 @@ VmMap::process_line(string l)
 bool
 VmMap::load_settings(void) 
 {
-    string &cp = VmTile::current_path;
+    string &cp = current_path;
     if (cp == "") return false;
     size_t ext_pos = def_basename.find_last_of(".");
     string cfg_fname = cp + G_DIR_SEPARATOR_S + def_basename.substr(0, ext_pos) + def_cfg_ext;
@@ -463,9 +466,17 @@ VmMap::xchange_tiles(VmTile *s, VmTile *d)
     s->getXY(tsx, tsy);		// get x,y
     d->getXY(tdx, tdy);
 
+    /*
     if ((tsx < 0) && (tsy < 0)) {
 	mw_out << "*** shoud not happen !!! - placed from/to unplaced tiles." << endl;
 	return;
+    }
+    */
+    if (tdx < 0) {
+	mw_out << "*** should not happen !!! - move to unplaced tiles";
+	//special case - add to list of unplace tiles
+	return;
+	
     }
     
     if (tsx < 0) {
@@ -477,12 +488,6 @@ VmMap::xchange_tiles(VmTile *s, VmTile *d)
 	//mw_out << "removing: ";
 	mw_out << *t << endl;
 	map_grid.remove(*t);
-    }
-    if (tdx < 0) {
-	mw_out << "*** should not happen !!! - move to unplaced tiles";
-	//special case - add to list of unplace tiles
-	return;
-	
     }
     if ((t = (VmTile *) map_grid.get_child_at(d->getX(), d->getY())) != NULL) {
 	mw_out << "removing: " << *t << endl;
@@ -568,7 +573,7 @@ VmMap::open_map(void)
     
     mw_out << __FUNCTION__ << ": load map from '" <<  d.get_filename() << "'." << endl;
     remove_map();
-    VmTile::current_path = d.get_filename();
+    current_path = d.get_filename();
     reload_unplaced_tiles();
     if (!load_settings()) {
 	ctrls->set_crop(def_cry, def_cry, def_crx, def_crx);
