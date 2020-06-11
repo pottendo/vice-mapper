@@ -3,5 +3,5 @@
 	* VmTile.cc (VmTile::commit_changes): replaced tempnam() with own
 	implementation to avoid warning.
 
-	(all): ChangLog started
+	(all): ChangeLog started
 
