@@ -6,7 +6,7 @@ echo "Generating a $WINXX GTK3 port binary distribution in $BUILDPATH..."
 rm -rf ${BUILDPATH}
 mkdir $BUILDPATH
 
-cp *.exe gui.glade $BUILDPATH
+cp *.exe gui.glade *.dll.a $BUILDPATH
 strip $BUILDPATH/*.exe
 cp `ntldd -R $BUILDPATH/mapper.exe|gawk '/\\\\bin\\\\/{print $3;}'|cygpath -f -` $BUILDPATH
 cd $MINGW_PREFIX
