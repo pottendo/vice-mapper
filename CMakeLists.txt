@@ -25,7 +25,7 @@ project(mapper)
 #set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 #set(CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
-set (VER 1.2)
+set (VER 1.3)
 # Find dependencies
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GTK REQUIRED gtk+-3.0 gtkmm-3.0)
