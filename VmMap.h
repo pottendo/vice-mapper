@@ -37,8 +37,8 @@
 #include "dialogs.h"
 
 const int map_max = 100;	/* 100x100 tiles should be enough */
-const int resX = 384;		/* typical C64 screen resolution */
-const int resY = 272;
+const int def_resX = 384;		/* typical C64 screen resolution */
+const int def_resY = 272;
 const int def_crx = 32;
 const int def_cry = 36;
 const double def_zoom = 3.0;
@@ -104,7 +104,10 @@ class VmMap : public Gtk::ScrolledWindow
     static Glib::RefPtr<Gdk::Pixbuf> empty_image;
     static double scale_factor_x;
     static double scale_factor_y;
-
+    static std::string current_path;
+    static std::string current_ext;
+    static std::string current_basename;
+    
     void resize_map(void);
     void remove_map(void);
     void open_map(void);
