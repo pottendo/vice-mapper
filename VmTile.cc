@@ -36,6 +36,7 @@
 #include <iostream>
 #include <string>
 #include <regex>
+#include <time.h>
 #include "VmTile.h"
 #include "VmMap.h"
 
@@ -554,51 +555,46 @@ VmTile::park_tile_file(void)
 void
 VmTile::commit_changes(void) 
 {
-    string new_fn;
     if (!is_dirty()) {
 	return;
     }
     mw_out << __FUNCTION__ << ": " << *this << endl;
-
+    string new_fn;
+    Glib::RefPtr<Gio::File> new_file;
     Glib::RefPtr<Gio::File> file = Gio::File::create_for_path(file_name);
-    char xl[3], yl[3];
-    sprintf(xl, "%02d", xk);
-    sprintf(yl, "%02d", yk);
-
     if (xk < 0) {
-	char *t = tempnam(file->get_parent()->get_path().c_str(), "vmap-");
-	new_fn = string(t) + "." + file_ext;
-	free(t);
+	char r[6];
+	/* generate a random unique name, we're unplacing the tile on disk */
+	do {
+	    unsigned ri = (static_cast<unsigned>(time(NULL)) + rand()) % 10000;
+	    sprintf(r, "%05d",ri);
+	    new_fn = file->get_parent()->get_path() + G_DIR_SEPARATOR_S + def_basename +
+		"unpl" + string(r) + "." + file_ext; 
+	    new_file = Gio::File::create_for_path(new_fn);
+	} while (new_file->query_exists());
 	mw_out << __FUNCTION__ << ": generated fn '" << new_fn << "' for tile " << *this << endl;
     }
     else {
+	/* generate the new filename to match the coordinates where the tile is placed */
+	char xl[3], yl[3];
+	sprintf(xl, "%02d", xk);
+	sprintf(yl, "%02d", yk);
 	new_fn = file->get_parent()->get_path() + G_DIR_SEPARATOR_S + def_basename +
 	    xl + "x" + yl + "." + file_ext;
+	new_file = Gio::File::create_for_path(new_fn);
+	if (new_file->query_exists()) {
+	    /* lookup which tile references conflicting name */
+	    VmTile *conflicting_tile = lookup_by_name(new_fn);
+	    mw_out << "conflict of: " << *this << endl;
+	    mw_out << "with: " << *conflicting_tile << endl;
+	    conflicting_tile->park_tile_file();
+	}
     }
     
-    Glib::RefPtr<Gio::File> new_file = Gio::File::create_for_path(new_fn);
-    if (new_file->query_exists()) {
-	/* lookup which tile references conflicting name */
-	VmTile *conflicting_tile = lookup_by_name(new_fn);
-	mw_out << "conflict of: " << *this << endl;
-	mw_out << "with: " << *conflicting_tile << endl;
-	conflicting_tile->park_tile_file();
-    }
     mw_out << "rename: " << file_name << "->" << new_fn << endl;
     file->copy(new_file);
     file->remove();
     set_fname(new_fn, new_file->get_basename());
     set_dirty(FALSE);
     queue_draw();
-//    get_window()->invalidate(TRUE);
-
-    /* 
-    else {
-	char *t = tempnam(f->get_parent()->get_path().c_str(), "VMUNPL");
-	p = string(t) + "." + file_ext;
-	free(t);
-	mw_out << __FUNCTION__ << ": generated fn '" << p << "' for tile " << *this << endl;
-	file_basename = p;
-    }
-    */
 }
