@@ -1,0 +1,7 @@
+2020-06-11  pottendo  <pottendo@gmx.net>
+
+	* VmTile.cc (VmTile::commit_changes): replaced tempnam() with own
+	implementation to avoid warning.
+
+	(all): ChangLog started
+
