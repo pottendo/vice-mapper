@@ -13,14 +13,22 @@ Limitations:
 However, for games like "Blinky's Scary School" or "Cauldron II" a
 mapping feature can be very handy.
 
-The map is composed ouf of individual screenshots which must follow a
+The map is composed ouf of individual screenshots which follow a
 specific naming convention:
-  some-prefix-XXxYY.png
-  
+  vice-screen--XXxYY.png
 'XXxYY' provides the coordinates within the map. 
 
 e.g.
   vice-screen-50x50.png
+  
+bitmaps not following this convention are *unplaced* and can be
+placed. Once a map is saved, the filenames are renamed.
+
+Exported maps should follow the convention to be named as the
+directory holding all individual tiles:
+  .../barnsley-badger/barnsley-badger.png
+These files are **ignored** and not shot shown as *unplaced* to avoid
+cluttering up the list of unplaced tiles.
   
 PNG file-format is preferred for now as some elements are hardcoded
 within the current code.
@@ -54,6 +62,8 @@ temporary filenames are created to save unplaced tiles if needed.
 A tiny configuration file is generated *vice-screen-.vsm* to store
 zoom and crop parameters.
 
+Per convention 
+
 # Build
 
 Make sure you have the respective gtk+* and the gtkmm* development
@@ -69,6 +79,7 @@ e.g. $ export PATH=/mingw64/bin:$PATH
 
 - The simple map file format using standard names implies that there
   is only **one map per directory** possible.
+- Note that some conventions for the file-names exist! see above!
 - Currently the design is not optimized for speed & memory footprint
 - Maps dimension limits are hard-coded to 100x100.
 - memory limit is not handled at all and just kills the app when reached<br>
