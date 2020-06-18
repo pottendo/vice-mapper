@@ -1,5 +1,5 @@
 # vice-mapper settings for for 'vice-screen-'
-MAPV=1_2
+MAPV=1_3
 CRUP=71
 CRDO=41
 CRLE=39

@@ -89,6 +89,9 @@ class VmTile : public Gtk::DrawingArea
     void sync_tile(void);
     bool update_minmax(void);
     void commit_changes(void);
+    Glib::RefPtr<Gdk::Pixbuf> get_cropped_image(void);
+    void get_cropped_dimensions(int &w, int &h);
+    
   protected:
     //Override default signal handler:
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;

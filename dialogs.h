@@ -56,7 +56,7 @@ class VmStatus
 
 class VmMsg : public Gtk::MessageDialog {
   public:
-    VmMsg(std::string s1, std::string s2);
+    VmMsg(std::string s1, std::string s2 = "");
     virtual ~VmMsg() {};
 };
 

@@ -57,7 +57,14 @@ int main(int argc, char** argv)
 {
     int argc1 = 1;
     app = Gtk::Application::create(argc1, argv, "org.gtkmm.example");
-    builder = Gtk::Builder::create_from_file("./gui.glade");
+    try {
+	builder = Gtk::Builder::create_from_file("./gui.glade");
+    }
+    catch (Gtk::BuilderError &ex) {
+	std::cerr << __FUNCTION__ << ": builder failed - " << ex.what() << endl;
+	return -1;
+    }
+    
     gtk_builder_connect_signals(builder->gobj(), NULL);
     //cout << __FUNCTION__ << ": sizeof size_t = " << sizeof(size_t) << endl;
     srand(time(NULL));		// initialize random generator for filenames

@@ -32,6 +32,8 @@
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/grid.h>
 #include <gtkmm/hvbox.h>
+#include <gtkmm/entry.h>
+#include <gtkmm/filechooserwidget.h>
 #include "VmTile.h"
 #include "VmMapControls.h"
 #include "dialogs.h"
@@ -73,6 +75,24 @@ class VmMap : public Gtk::ScrolledWindow
 	VmMapControls *mc;
 	Glib::RefPtr<Gdk::Cursor> move_cursor;
     };
+
+    class MapPreview : public Gtk::DrawingArea {
+	Gtk::Entry *header, *footer;
+	Glib::RefPtr<Gdk::Pixbuf> out_image;
+    protected:
+	bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
+	// bool on_configure_event(GdkEventConfigure *configure_event) override;
+
+    public:
+	MapPreview();
+	~MapPreview() {};
+
+	void set_header(std::string s) { header->set_text(s); };
+	void set_footer(std::string s) { footer->set_text(s); };
+	void render_preview(void);
+	void save(std::string name);
+    };
+    
     // Child widgets:
     Gtk::Grid map_grid;
     MyScw scw;
@@ -80,6 +100,9 @@ class VmMap : public Gtk::ScrolledWindow
     VmTile *tiles[map_max+1][map_max+1];
     VmMapControls *ctrls;
     Gtk::Frame *map_frame;
+    MapPreview *map_preview;
+    Gtk::Window *preview_win;
+    Gtk::FileChooserWidget *file_chooser;
 
   public:
     VmMap();
@@ -111,9 +134,12 @@ class VmMap : public Gtk::ScrolledWindow
     void resize_map(void);
     void remove_map(void);
     void open_map(void);
+    void export_map(void);
+    void export_map_commit(bool save);
     void commit_changes(void) { if (dirty) { ctrls->commit_changes(); } }
     void save_settings(void);
     bool load_settings(void);
+    void update_preview(void) { map_preview->render_preview(); }
 };
 
 #endif /* __map_window_h__ */

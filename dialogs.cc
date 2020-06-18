@@ -116,7 +116,7 @@ VmDebug::overflow(int c)
     }
     else
     {
-	cout << s << "'" << endl;
+	cout << s << endl;
 	log(s);
 	s = "";
     }
@@ -141,6 +141,12 @@ on_MenuOpen_activate(Gtk::MenuItem *m)
 	return;
     }
     mw_map->open_map();
+}
+
+G_MODULE_EXPORT void
+on_MenuExport_activate(Gtk::MenuItem *m) 
+{
+    mw_map->export_map();
 }
 
 G_MODULE_EXPORT void

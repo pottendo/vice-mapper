@@ -32,7 +32,11 @@
 #include <gtkmm/frame.h>
 #include <gtkmm/filechooserdialog.h>
 #include <glibmm/fileutils.h>
+#include <glibmm/miscutils.h>
+#include <cairomm/context.h>
+#include <gdkmm/general.h> // set_source_pixbuf()
 #include <iostream>
+#include <regex>
 #include "VmMap.h"
 #include "VmMapControls.h"
 #include "dialogs.h"
@@ -72,23 +76,22 @@ VmMap::VmMap()
     scw.add(map_grid);
     scw.set_hexpand(TRUE);
     scw.set_vexpand(TRUE);
+
+    preview_win = nullptr;
+    builder->get_widget("VmMapPreview", preview_win);
+    file_chooser = nullptr;
+    builder->get_widget("VmMapPreviewFileChooser", file_chooser);
+
+    Gtk::Frame *prev_frame = nullptr;
+    builder->get_widget("VmMapPreviewFrame", prev_frame);
+    map_preview = new MapPreview();
+    map_preview->show();
+    prev_frame->add(*map_preview);
+    prev_frame->show();
     
     Gtk::Frame *map_frame = nullptr;
     builder->get_widget("VmMap", map_frame);
-    
     map_frame->add(scw);
-    //map_frame->set_hexpand(TRUE);
-    //map_frame->set_vexpand(TRUE);
-
-    /*
-    hbox.set_homogeneous(FALSE);
-    hbox.pack_start(*map_frame, TRUE, TRUE, 0);
-
-    hbox.pack_start(*ctrls->get_widget(), FALSE, FALSE, 0);
-    add(hbox);
-    */
-
-    //add_events(Gdk::SCROLL_MASK);
     show_all_children();
     memset(tiles, 0, 101*101*sizeof(VmTile*));
 }
@@ -579,4 +582,223 @@ VmMap::open_map(void)
 	ctrls->set_crop(def_cry, def_cry, def_crx, def_crx);
 	ctrls->set_zoom(def_zoom, def_zoom);
     }
+}
+
+void
+VmMap::export_map(void) 
+{
+    //mw_out << __FUNCTION__ << ": called." << endl;
+    if (!VmTile::tiles_placed) {
+	mw_out << __FUNCTION__ << ": no tiles placed, nothing to export." << endl;
+	return;
+    }
+    
+    map_preview->set_header("Map: " + current_path);
+    auto t = std::chrono::system_clock::now();
+    time_t tt = chrono::system_clock::to_time_t(t);
+    struct tm * p = localtime(&tt);
+    char ttc[256];
+    strftime(ttc, 256, "%c", p);
+    map_preview->set_footer(string("mapped on ") +
+			    ttc + " by " +
+			    Glib::get_user_name());
+    map_preview->render_preview();
+    preview_win->show_all_children();
+    preview_win->show();
+    Glib::RefPtr<Gio::File> fnp = Gio::File::create_for_path(current_path);
+    string s = string(current_path) + G_DIR_SEPARATOR_S + fnp->get_basename() + ".png";
+    
+    mw_out << __FUNCTION__ << ": " << s << endl;
+    file_chooser->set_current_name(s);
+}
+
+void
+VmMap::export_map_commit(bool save) 
+{
+    if (!save) {
+	preview_win->hide();
+	return;
+    }
+    string fn = file_chooser->get_filename();
+    if (fn == "")
+	return;
+    std::cmatch cm;
+    std::regex re_ext("(.*)\\.(png|PNG)");
+    std::regex_match(fn.c_str(), cm, re_ext, std::regex_constants::match_default);
+    if (cm.size() <= 0) {
+	fn += ".png";
+    }
+
+    Glib::RefPtr<Gio::File> fnp = Gio::File::create_for_path(fn);
+    if (fnp->query_exists()) {
+	if (VmMsg("Overwrite existing file?", fn).run() != Gtk::RESPONSE_OK)
+	    return;
+    }
+    
+    map_preview->save(fn);
+    preview_win->hide();
+}
+
+VmMap::MapPreview::MapPreview() 
+{
+    set_hexpand(TRUE);
+    set_vexpand(TRUE);
+    header = footer = nullptr;
+    builder->get_widget("VmMapPreviewHeader", header);
+    builder->get_widget("VmMapPreviewFooter", footer);
+}
+
+void
+VmMap::MapPreview::render_preview(void) 
+{
+    Glib::RefPtr<Gdk::Pixbuf> tile_img;
+    int x, y, dxk, dyk, out_xres, out_yres;
+
+    out_xres = out_yres = 0;
+    // calculate width of output image 
+    for (x = VmTile::xmin+1; x < VmTile::xmax; x++) {
+	mw_map->get_tile(x, VmTile::ymin)->get_cropped_dimensions(dxk, dyk); // dyk not used
+	out_xres += dxk;
+    }
+    
+    // calculate height of output image 
+    for (y = VmTile::ymin; y <= VmTile::ymax; y++) {	    
+	mw_map->get_tile(VmTile::xmin, y)->get_cropped_dimensions(dxk, dyk); // dxk not used
+	out_yres += dyk;
+    }
+    out_image = Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, TRUE, 8, out_xres, out_yres);
+    
+    dyk = 0;
+    for (y = VmTile::ymin; y <= VmTile::ymax; y++) {
+	dxk = 0;
+	for (x = VmTile::xmin+1; x < VmTile::xmax; x++) {
+	    tile_img = mw_map->get_tile(x, y)->get_cropped_image();
+	    tile_img->copy_area(0, 0, tile_img->get_width(), tile_img->get_height(), out_image, dxk, dyk);
+	    dxk += tile_img->get_width();
+	}
+	dyk += tile_img->get_height();
+    }
+
+    Cairo::RefPtr<Cairo::Surface> imgs = Cairo::ImageSurface::create(Cairo::FORMAT_RGB24, out_xres, 50);
+    Cairo::RefPtr<Cairo::Context> cr = Cairo::Context::create(imgs);
+    Glib::RefPtr<Gdk::Pixbuf> text;
+    
+    Pango::FontDescription font;
+    font.set_family("Arial Rounded Mt Bold");
+    font.set_size(32 * PANGO_SCALE);
+    
+    // header
+    cr->set_source_rgb(0.8, 0.8, 0.8);
+    cr->rectangle(0, 0, out_xres, 50);
+    cr->fill();
+
+    cr->set_source_rgb(0.2, 0.2, 0.2);
+    auto headerlayout = create_pango_layout(header->get_text());
+    headerlayout->set_font_description(font);
+    cr->move_to(1, 1);
+    headerlayout->show_in_cairo_context(cr);
+    
+    cr->set_source_rgb(0.2, 0.2, 0.2);
+    cr->rectangle(0, 0, out_xres, 50);
+    cr->stroke();
+
+    imgs = cr->get_target();
+    text = Gdk::Pixbuf::create(imgs, 0, 0, out_xres, 50);
+    text->copy_area(0, 0, out_xres, 50, out_image, 0, 0);
+
+    // footer 
+    font.set_size(20 * PANGO_SCALE);
+    cr->set_source_rgb(0.8, 0.8, 0.8);
+    cr->rectangle(0, 0, out_xres, 40);
+    cr->fill();
+
+    cr->set_source_rgb(0.2, 0.2, 0.2);
+    cr->move_to(1, 1);
+    auto footerlayout = create_pango_layout(footer->get_text());
+    footerlayout->set_font_description(font);
+    footerlayout->show_in_cairo_context(cr);
+
+    auto vm_text = create_pango_layout(" --- powered by vice-mapper");
+    vm_text->set_font_description(font);
+    int w, h;
+    vm_text->get_pixel_size(w, h);
+    cr->move_to(out_xres - w - 1, 1);
+    vm_text->show_in_cairo_context(cr);
+    
+    cr->set_source_rgb(0.2, 0.2, 0.2);
+    cr->rectangle(0, 0, out_xres, 40);
+    cr->stroke();
+
+    imgs = cr->get_target();
+    text = Gdk::Pixbuf::create(imgs, 0, 0, out_xres, 40);
+    text->copy_area(0, 0, out_xres, 40, out_image, 0, out_image->get_height() - 40);
+//    mw_out << __FUNCTION__ << ": out_image = " << out_image->get_width() << "x" << out_image->get_height() << endl;
+    queue_draw();
+}
+
+void
+VmMap::MapPreview::save(std::string name)
+{
+    try {
+	mw_out << __FUNCTION__ << ": " << name << endl;
+	out_image->save(name, "png");
+    }
+    catch (Gdk::PixbufError &ex) {
+	mw_out << __FUNCTION__ << ": failed - " << ex.what() << endl;
+    }
+}
+    
+bool
+VmMap::MapPreview::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) 
+{
+    //mw_out << __FUNCTION__ << ": called." << endl;
+    Glib::RefPtr<Gdk::Pixbuf> scaled = 
+	Gdk::Pixbuf::create(out_image->get_colorspace(),
+			    out_image->get_has_alpha(),
+			    out_image->get_bits_per_sample(),
+			    out_image->get_width(),
+			    out_image->get_height());
+    out_image->copy_area(0, 0,
+			 out_image->get_width(),
+			 out_image->get_height(),
+			 scaled, 0, 0);
+    scaled = scaled->scale_simple(get_allocated_width(), get_allocated_height(), Gdk::INTERP_BILINEAR);
+    
+    Gdk::Cairo::set_source_pixbuf(cr, scaled);
+    cr->paint();
+    return TRUE;
+}
+
+extern "C" 
+{
+
+G_MODULE_EXPORT void
+on_VmMapPreviewHeader_activate(void) 
+{
+//    mw_out << __FUNCTION__ << ": called." << endl;
+    mw_map->update_preview();
+}
+
+G_MODULE_EXPORT void
+on_VmMapPreviewFooter_activate(void) 
+{
+//    mw_out << __FUNCTION__ << ": called." << endl;
+    mw_map->update_preview();
+}
+    
+G_MODULE_EXPORT void
+on_VmMapPreviewSave_clicked(void) 
+{
+//    mw_out << __FUNCTION__ << ": called." << endl;
+    mw_map->export_map_commit(true);
+}
+    
+G_MODULE_EXPORT void
+on_VmMapPreviewCancel_clicked(void) 
+{
+//    mw_out << __FUNCTION__ << ": called." << endl;
+    mw_map->export_map_commit(false);
+
+}
+    
 }

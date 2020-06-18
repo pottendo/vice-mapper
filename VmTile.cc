@@ -89,6 +89,9 @@ VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
 	    VmMap::current_ext = file_ext;
 	    mw_out << __FUNCTION__ << ": extension set to '" << VmMap::current_ext << "'." << endl;
 	}
+	// heuristic to ignore full maps, which shouldn't be listed
+	string file_base = string(cm[cm.size()-2]) + ".png"; 
+	mw_out << __FUNCTION__ << ": file base: " << file_base << endl;
 	
 	std::string regstr("(.*)" + std::string(def_basename) +
 			   "([0-9][0-9])x([0-9][0-9]*)\\.(png|PNG|gif|GIF|jpg|JPG)");
@@ -127,7 +130,11 @@ VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
 	}
 	else {			// some image file, but not following convention -> unplaced tile
 	    if (!m_image) {
-		mw_out << __FUNCTION__ << ": *** m_image == 0, but now exception..." << endl;
+		mw_out << __FUNCTION__ << ": *** m_image == 0, but no exception..." << endl;
+		throw -1;
+	    }
+	    if (string(f->get_parent()->get_basename()) + ".png" == file_base){
+		mw_out << __FUNCTION__ << ": ignoring potential full map " << file_basename << endl;
 		throw -1;
 	    }
 	    m_image_icon = m_image->scale_simple(m_image->get_width()/4,
@@ -180,12 +187,12 @@ VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
     add_events(Gdk::ENTER_NOTIFY_MASK | Gdk::LEAVE_NOTIFY_MASK);
     set_selected(false);
     
-    mw_out << __FUNCTION__ << ": new tile " << *this << endl;
+    //mw_out << __FUNCTION__ << ": new tile " << *this << endl;
 }
 
 VmTile::~VmTile()
 {
-    mw_out << "*** Destructor called for " << *this << endl;
+    //mw_out << "*** Destructor called for " << *this << endl;
     if (m_pMenuPopup)
 	delete m_pMenuPopup;
     alloc_count--;
@@ -597,4 +604,26 @@ VmTile::commit_changes(void)
     set_fname(new_fn, new_file->get_basename());
     set_dirty(FALSE);
     queue_draw();
+}
+
+Glib::RefPtr<Gdk::Pixbuf>
+VmTile::get_cropped_image(void)
+{
+    Glib::RefPtr<Gdk::Pixbuf> t =  Gdk::Pixbuf::create(m_image->get_colorspace(),
+						       m_image->get_has_alpha(),
+						       m_image->get_bits_per_sample(),
+						       m_image->get_width()-cr_le-cr_ri,
+						       m_image->get_height()-cr_up-cr_do);
+    m_image->copy_area(cr_le, cr_up,
+		       m_image->get_width()-cr_le-cr_ri,
+		       m_image->get_height()-cr_up-cr_do,
+		       t, 0, 0);
+    return t;
+}
+
+void
+VmTile::get_cropped_dimensions(int &w, int &h)
+{
+    w = m_image->get_width() - cr_le - cr_ri;
+    h = m_image->get_height() - cr_up - cr_do;
 }
