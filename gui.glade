@@ -131,6 +131,7 @@ inspired by Overdoc</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <signal name="activate" handler="on_VmMapPreviewHeader_activate" swapped="no"/>
+                <signal name="changed" handler="on_VmMapPreviewHeader_activate" swapped="no"/>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -168,6 +169,7 @@ inspired by Overdoc</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <signal name="activate" handler="on_VmMapPreviewFooter_activate" swapped="no"/>
+                <signal name="changed" handler="on_VmMapPreviewFooter_activate" swapped="no"/>
               </object>
               <packing>
                 <property name="left_attach">1</property>

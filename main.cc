@@ -92,10 +92,7 @@ int main(int argc, char** argv)
 
     Gtk::Box *mw_box = nullptr;
     builder->get_widget("MWBox", mw_box);
-    //mw_box->add(mw);
-    //mw_box->reorder_child(mw, 1);
     mw_box->show_all();
-
     (void) mw.load_settings();
 	
     return app->run(*mainWindow);    

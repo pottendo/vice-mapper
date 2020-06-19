@@ -118,6 +118,15 @@ VmMapControls::set_crop(int u, int d, int l, int r, bool dirty)
 }
 
 void
+VmMapControls::update_ctrls(void)
+{
+    adj[CRUP]->set_upper(VmTile::resY/2);
+    adj[CRDO]->set_upper(VmTile::resY/2-1);
+    adj[CRLE]->set_upper(VmTile::resX/2);
+    adj[CRRI]->set_upper(VmTile::resX/2-1);
+}
+
+void
 VmMapControls::toggle_zoom_lock(void) 
 {
     zoom_lock = zl->get_active();
