@@ -60,6 +60,7 @@ public:
     void commit_changes(void);
     void set_zoom(double x, double y, bool dirty = true);
     void set_crop(int u, int d, int l, int r, bool dirty = true);
+    void update_ctrls(void);
     void toggle_zoom_lock(void);
     inline bool get_zoom_lock(void) { return zoom_lock; }
 };

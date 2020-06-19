@@ -1,3 +1,8 @@
+2020-06-19  pottendo  <pottendo@gmx.net>
+
+	* VmMap.cc (VmMap::reload_unplaced_tiles): moved empty image
+	allocation after reload, to adjust tile dimensions of last load.
+
 2020-06-18  pottendo  <pottendo@gmx.net>
 
 	* (all): implemented .png export of map.

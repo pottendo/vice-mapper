@@ -56,8 +56,8 @@ VmMap::VmMap()
     //set_title("Map");
 
     //map_grid.attach_next_to(ma, m_button_quit, Gtk::POS_BOTTOM, 1, 1);
-    empty_image = Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, TRUE, 8, def_resX, def_resY);
-    empty_image->fill(0x0000001f);
+    //empty_image = Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, TRUE, 8, def_resX, def_resY);
+    //empty_image->fill(0x0000001f);
 
 //    ctrls = new VmMapControls(*this, "Controls");
     mw_ctrls = ctrls = new VmMapControls(*this);
@@ -275,6 +275,10 @@ VmMap::reload_unplaced_tiles(char *path)
 	    continue;		// ignore non-tiles
 	}
     }
+    empty_image = Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, TRUE, 8, VmTile::resX, VmTile::resY);
+    empty_image->fill(0x0000001f);
+
+    ctrls->update_ctrls();
     VmTile::refresh_minmax();
     fill_empties();
     mw_status->show(VmStatus::STATM, current_path);
