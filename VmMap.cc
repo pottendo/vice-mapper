@@ -504,6 +504,7 @@ VmMap::xchange_tiles(VmTile *s, VmTile *d)
     s->setXY(tdx, tdy);
     add_tile(s);
     s->sync_tile();
+    VmTile::tiles_placed=true;
     d->setXY(tsx, tsy);
     if (tsx > 0) {
 	add_tile(d);
