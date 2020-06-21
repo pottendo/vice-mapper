@@ -606,16 +606,9 @@ VmTile::commit_changes(void)
 Glib::RefPtr<Gdk::Pixbuf>
 VmTile::get_cropped_image(void)
 {
-    Glib::RefPtr<Gdk::Pixbuf> t =  Gdk::Pixbuf::create(m_image->get_colorspace(),
-						       m_image->get_has_alpha(),
-						       m_image->get_bits_per_sample(),
-						       m_image->get_width()-cr_le-cr_ri,
-						       m_image->get_height()-cr_up-cr_do);
-    m_image->copy_area(cr_le, cr_up,
-		       m_image->get_width()-cr_le-cr_ri,
-		       m_image->get_height()-cr_up-cr_do,
-		       t, 0, 0);
-    return t;
+    return Gdk::Pixbuf::create_subpixbuf(m_image, cr_le, cr_up,
+					 m_image->get_width()-cr_le-cr_ri,
+					 m_image->get_height()-cr_up-cr_do);
 }
 
 void
