@@ -105,10 +105,12 @@ Internals:<br>
 - fix bugs
 
 Know issues:<br>
-- If trash-bin is unsupported deleted tiles remain -> will cause map inconsistencies
+- If trash-bin is unsupported deleted tiles remain -> will cause map
+  inconsistencies
 - If memory limit is reached (32bit system), mapper crashes without
   warning.
 - Potential, maybe GTK+ related memory leaks detected with valgrind.
+- About dialog on Windows has buttons without effect.
 
 # Copyright notice
 
