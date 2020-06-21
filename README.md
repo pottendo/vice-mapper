@@ -96,6 +96,7 @@ UI-stuff<br>
 - insert row/columns more easily
 - better support moving around tiles on map to make space in case a border is reached 
 - maybe allow individual crop vals for tiles
+- Add a save button to the debug window.
 
 Internals:<br>
 - introduce log-levels and make diag-output window clever (highlight, etc.)
