@@ -1,3 +1,12 @@
+2020-06-21  pottendo  <pottendo@gmx.net>
+
+	* VmTile.cc (VmTile::get_cropped_image): Use `create_subpixbuf'.
+
+	* VmMap.cc (VmMap::update_state): new function to keep track of
+	placed tiles and dirty state.
+
+	* VmTile.cc (VmTile::set_dirty): Don't set dirty for map.
+
 2020-06-19  pottendo  <pottendo@gmx.net>
 
 	* VmMap.cc (VmMap::reload_unplaced_tiles): moved empty image

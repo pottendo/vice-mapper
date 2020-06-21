@@ -84,19 +84,21 @@ e.g. $ export PATH=/mingw64/bin:$PATH
 - Maps dimension limits are hard-coded to 100x100.
 - memory limit is not handled at all and just kills the app when reached<br>
   Especially on 32bit systems the map may only support 50x50 (used) tiles.
-  Tiles beyond/below the current min/max coordinates aren't managed, so won't need space.
+  Tiles beyond/below the current min/max coordinates aren't managed,
+  so won't need space.
+- Handling of different tile-sizes in one map has some flaws when exporting
 
 # TODOs
 
 UI-stuff<br>
 - insert row/columns more easily
-- support moving around tiles on map to make space in case a border is reached 
+- better support moving around tiles on map to make space in case a border is reached 
 - maybe allow individual crop vals for tiles
-- support multiple maps in parallel (notpads?), encapsule some globals
 
 Internals:
 - introduce log-levels and make diag-output window clever (highlight, etc.)
 - adjust maximum map dynamically depending on 32/64 bit
+- encapsule some globals
 - refactor code to follow consistent conventions
 - fix bugs
 
