@@ -99,6 +99,7 @@ UI-stuff<br>
 Internals:<br>
 - introduce log-levels and make diag-output window clever (highlight, etc.)
 - adjust maximum map dynamically depending on 32/64 bit
+- Properly manage 'gui.glade' path.
 - encapsule some globals
 - refactor code to follow consistent conventions
 - fix bugs
