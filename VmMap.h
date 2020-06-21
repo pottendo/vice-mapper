@@ -106,7 +106,7 @@ class VmMap : public Gtk::ScrolledWindow
 
   public:
     VmMap();
-    virtual ~VmMap() {};
+    virtual ~VmMap();
 
     static int nr_tiles;	// managed non-empty tiles 
 

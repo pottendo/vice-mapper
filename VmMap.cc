@@ -97,6 +97,16 @@ VmMap::VmMap()
     memset(tiles, 0, 101*101*sizeof(VmTile*));
 }
 
+VmMap::~VmMap() 
+{
+    mw_out << __FUNCTION__ << ": main map delete." << endl;
+    delete map_preview;
+    delete mw_ctrls;
+    delete mw_out_stream;	// a bit ugly to delete here not in main. TODO: Fixme.
+    delete mw_debug;
+    delete mw_status;
+}
+
 VmMap::MyScw::MyScw()
 {
 }

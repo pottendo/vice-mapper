@@ -49,6 +49,7 @@ static gboolean on_delete_event (GtkWidget *window,
                                  gpointer   data)
 {
     mw_map->commit_changes();
+
     return false;
 }
 

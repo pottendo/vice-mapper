@@ -220,7 +220,7 @@ VmTile::setup_popup(void)
 				   sigc::mem_fun(*this, &VmTile::on_menu_delete_tile));
     }
 /* not yet implemented    
-    refActionGroup->add_action("icolumn", //TODO: How to specify "<control>P" as an accelerator.
+    refActionGroup->add_action("icolumn", 
 			       sigc::mem_fun(*this, &VmTile::on_menu_popup));
     
     refActionGroup->add_action("irow",
