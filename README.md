@@ -52,7 +52,8 @@ Map](https://github.com/pottendo/vice-mapper/blob/master/doc/Demo1-BlinkeyMap.pn
 [Cybernoid](https://github.com/pottendo/vice-mapper/blob/master/doc/Demo3-Cybernoid.png)<br>
 
 Use drag&drop to move tiles around. <br>
-Use SPACE+Mousemove within the map to pan around the map. 
+Use SPACE+mousemove within the map to pan around the map. 
+Use right mouse button to show popup menu on tiles.
 
 A map is stored in one directory using a standard filename convention
 for each placed (and even unplaced) tiles.
@@ -62,7 +63,7 @@ temporary filenames are created to save unplaced tiles if needed.
 A tiny configuration file is generated *vice-screen-.vsm* to store
 zoom and crop parameters.
 
-Per convention 
+Delete tiles are moved to the trash-bin (if supported).
 
 # Build
 
@@ -111,6 +112,8 @@ Know issues:<br>
   warning.
 - Potential, maybe GTK+ related memory leaks detected with valgrind.
 - About dialog on Windows has buttons without effect.
+- On windows some stock icons are not found/rendered if certain system
+  packages are not installed.
 
 # Copyright notice
 
