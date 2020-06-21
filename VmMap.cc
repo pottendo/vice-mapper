@@ -51,7 +51,8 @@ string VmMap::current_ext="";
 string VmMap::current_basename=def_basename;
 
 VmMap::VmMap()
-    : dirty(false)
+    : dirty(false),
+      tiles_placed(false)
 {
     //set_title("Map");
 
@@ -216,12 +217,25 @@ map_window::MyScw::on_button_release_event(GdkEventButton* button_event)
 */
 
 void
+VmMap::update_state(void) 
+{
+    tiles_placed = dirty = false;
+    for (auto it = begin(VmTile::all_tiles);
+	 (!dirty || !tiles_placed) && it != end(VmTile::all_tiles);
+	 ++it) {
+	if ((*it)->is_empty()) continue;
+	dirty |= (*it)->is_dirty();
+	tiles_placed |= ((*it)->getX() > 0) ? true : false;
+    }
+    set_dirty(dirty);
+}
+
+void
 VmMap::add_tile(VmTile *a) 
 {
     map_grid.attach(*a, a->getX(), a->getY());
     tiles[a->getX()][a->getY()] = a;
     a->scale(scale_factor_x, scale_factor_y); // make sure tile adjusts to current scaling
-    //nr_tiles++;
     map_grid.show_all_children();
 }
 
@@ -238,7 +252,6 @@ VmMap::remove_tile(VmTile *a, bool map_remove)
 	if (!map_remove) {
 	    // placed tile
 	    VmTile *new_empty = new VmTile(*this, NULL, a->getX(), a->getY());
-	    //map_grid.attach(*new_empty, a->getX(), a->getY());
 	    add_tile(new_empty);
 	    mw_out << __FUNCTION__ << ": attached new " << *new_empty << endl;
 	    resize_map();
@@ -251,6 +264,7 @@ VmMap::remove_tile(VmTile *a, bool map_remove)
 	cerr << __FUNCTION__ << ": erased " << e << " tiles." << endl;
     }
     nr_tiles = VmTile::all_tiles.size();
+    update_state();
     show_all_children();
 }
 
@@ -282,7 +296,8 @@ VmMap::reload_unplaced_tiles(char *path)
     VmTile::refresh_minmax();
     fill_empties();
     mw_status->show(VmStatus::STATM, current_path);
-    if (!VmTile::tiles_placed && tiles[map_max / 2][map_max / 2] == nullptr)
+    update_state();
+    if (!tiles_placed && tiles[map_max / 2][map_max / 2] == nullptr)
 	add_tile(new VmTile(*this, NULL, map_max / 2, map_max / 2));
 }
 
@@ -488,23 +503,22 @@ VmMap::xchange_tiles(VmTile *s, VmTile *d)
     
     if (tsx < 0) {
 	//mw_out << "remove from unplaced tiles";
-	mw_out << *s << endl;
+	mw_out << __FUNCTION__ << ": removing (unplaced) " << *s << endl;
 	ctrls->remove_tile(s);
     }
-    if ((t = (VmTile *) map_grid.get_child_at(s->getX(), s->getY())) != NULL) {
-	//mw_out << "removing: ";
-	mw_out << *t << endl;
+    if ((t = (VmTile *) map_grid.get_child_at(tsx, tsy)) != NULL) {
+	mw_out << __FUNCTION__ << ": removing (placed) " << *t << endl;
 	map_grid.remove(*t);
     }
-    if ((t = (VmTile *) map_grid.get_child_at(d->getX(), d->getY())) != NULL) {
-	mw_out << "removing: " << *t << endl;
+    if ((t = (VmTile *) map_grid.get_child_at(tdx, tdy)) != NULL) {
+	mw_out << __FUNCTION__ << ": removing (placed) " << *t << endl;
 	map_grid.remove(*t);
     }
 	
     s->setXY(tdx, tdy);
     add_tile(s);
     s->sync_tile();
-    VmTile::tiles_placed=true;
+    tiles_placed=true;
     d->setXY(tsx, tsy);
     if (tsx > 0) {
 	add_tile(d);
@@ -564,7 +578,7 @@ VmMap::remove_map(void)
 	 << ", alloc_count = " << VmTile::alloc_count << endl;
     mw_status->clear();
     set_dirty(false);
-    VmTile::tiles_placed = false;
+    tiles_placed = false;
     show_all_children();
 }
 
@@ -593,7 +607,8 @@ void
 VmMap::export_map(void) 
 {
     //mw_out << __FUNCTION__ << ": called." << endl;
-    if (!VmTile::tiles_placed) {
+    update_state();
+    if (!tiles_placed) {
 	mw_out << __FUNCTION__ << ": no tiles placed, nothing to export." << endl;
 	return;
     }

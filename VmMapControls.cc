@@ -78,7 +78,7 @@ VmMapControls::remove_tile(VmTile *tile)
 void
 VmMapControls::commit_changes(void)
 {
-    VmMsg m("Save?", "bla");
+    VmMsg m("Save?");
     if (m.run() == Gtk::RESPONSE_OK) {
 	for_each(VmTile::all_tiles.begin(), VmTile::all_tiles.end(),
 		 [](VmTile *t)->void { t->commit_changes(); } );

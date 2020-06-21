@@ -55,8 +55,13 @@ VmStatus::clear(void)
 void
 VmStatus::status(void)
 {
-    string s = to_string(VmTile::xmin) + "/" + to_string(VmTile::ymin) + "x" +
-	to_string(VmTile::xmax) + "/" + to_string(VmTile::ymax) + "-"
+    mw_map->update_state();
+    string stat1 = mw_map->is_dirty() ? "mod/" : "clean/";
+    string stat2 = mw_map->is_placed() ? "placed|" : "empty|";
+    
+    string s = stat1 + stat2 + 	
+	to_string(VmTile::xmin) + "/" + to_string(VmTile::ymin) + "x" +
+	to_string(VmTile::xmax) + "/" + to_string(VmTile::ymax) + "|"
 	+ to_string(mw_map->get_nrtiles()) + "/" + to_string(VmTile::alloc_count);
     show(VmStatus::STATR, s);
 }
@@ -135,7 +140,7 @@ on_MenuAbout_activate(Gtk::MenuItem *m)
 G_MODULE_EXPORT void
 on_MenuOpen_activate(Gtk::MenuItem *m) 
 {
-    
+    mw_map->update_state();
     if (mw_map->is_dirty() &&
 	VmMsg("Open new map?", "unsaved changes will be lost").run() != Gtk::RESPONSE_OK) {
 	return;
@@ -152,6 +157,7 @@ on_MenuExport_activate(Gtk::MenuItem *m)
 G_MODULE_EXPORT void
 on_MenuClose_activate(Gtk::MenuItem *m) 
 {
+    mw_map->update_state();
     if (mw_map->is_dirty() &&
 	VmMsg("Close map?", "unsaved changes will be lost").run() != Gtk::RESPONSE_OK) {
 	return;
@@ -168,6 +174,7 @@ on_MenuPrint_activate(Gtk::MenuItem *m)
 G_MODULE_EXPORT void
 on_MenuQuit_activate(Gtk::MenuItem *m) 
 {
+    mw_map->update_state();
     if (mw_map->is_dirty() &&
 	VmMsg("Really Quit?", "unsaved changes will be lost").run() != Gtk::RESPONSE_OK) {
 	return;

@@ -50,7 +50,6 @@ int VmTile::cr_up = def_cry, VmTile::cr_do=def_cry, VmTile::cr_le=def_crx, VmTil
 int VmTile::resX = def_resX;
 int VmTile::resY = def_resY;
 set<VmTile *> VmTile::all_tiles;
-bool VmTile::tiles_placed = false;
 
 /* MyArea members */
 VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
@@ -126,7 +125,6 @@ VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
 		}
 	    }
 	    mw.add_tile(this);
-	    tiles_placed=true;
 	}
 	else {			// some image file, but not following convention -> unplaced tile
 	    if (!m_image) {
@@ -454,7 +452,6 @@ VmTile::set_dirty(bool d)
 	return;
     }
     dirty = d;
-    mw.set_dirty(d);
 }
 
 void

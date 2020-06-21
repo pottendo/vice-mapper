@@ -53,7 +53,7 @@ class VmMap : public Gtk::ScrolledWindow
 {
     int get_empty_area(int from_x, int from_y, int to_x, int to_y);
     bool process_line(std::string);
-    bool dirty;
+    bool dirty, tiles_placed;
   protected:
     class MyScw : public Gtk::ScrolledWindow
     {
@@ -112,7 +112,9 @@ class VmMap : public Gtk::ScrolledWindow
 
     inline void set_dirty(bool d) { dirty=d; ctrls->set_dirty(d); }
     inline bool is_dirty(void) { return dirty; }
-	
+    inline bool is_placed(void) { return tiles_placed; }
+    void update_state(void);
+
     void add_tile(VmTile *);
     void remove_tile(VmTile *, bool map_remove = false);
     void add_unplaced_tile(VmTile *t) { ctrls->add_tile(t); }
