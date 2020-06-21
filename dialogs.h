@@ -84,6 +84,7 @@ public:
 
     void toggle();
     void log(std::string &s);
+    void save(void);
 protected:
     virtual int_type overflow(int_type c);
 };

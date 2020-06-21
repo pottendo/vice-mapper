@@ -83,12 +83,12 @@ VmAbout::VmAbout()
 VmDebug::VmDebug()
 {
     p_win = nullptr;
-    builder->get_widget("VMDebugWindow", p_win);
+    builder->get_widget("VmDebugWindow", p_win);
     p_win->set_default_size(400, 300);
     p_win->set_title("vice-mapper - debug console");
     p_win->show_all_children();
     b = nullptr;
-    builder->get_widget("VMDebugButton", b);
+    builder->get_widget("VmDebugButton", b);
     tv = nullptr;
     builder->get_widget("VMDebugTextView", tv);
     tb = Gtk::TextBuffer::create();
@@ -110,6 +110,12 @@ VmDebug::log(std::string &s)
     tb->insert_at_cursor("\n");
     tb->get_bounds(ti1, ti2);
     tv->scroll_to(ti2);
+}
+
+void
+VmDebug::save(void)
+{
+    mw_out << __FUNCTION__ << ": called." << endl;
 }
 
 int
@@ -189,9 +195,15 @@ on_MenuSettings_activate(Gtk::MenuItem *m)
 }
     
 G_MODULE_EXPORT void
-on_VMDebugButton_toggled(Gtk::ToggleButton *m) 
+on_VmDebugButton_toggled(Gtk::ToggleButton *m) 
 {
     mw_debug->toggle();
+}
+    
+G_MODULE_EXPORT void
+on_VmDebugSave_clicked(Gtk::ToggleButton *m) 
+{
+    mw_debug->save();
 }
     
 } /* extern "C" */
