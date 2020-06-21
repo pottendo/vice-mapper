@@ -86,7 +86,8 @@ e.g. $ export PATH=/mingw64/bin:$PATH
   Especially on 32bit systems the map may only support 50x50 (used) tiles.
   Tiles beyond/below the current min/max coordinates aren't managed,
   so won't need space.
-- Handling of different tile-sizes in one map has some flaws when exporting
+- Handling of different tile-sizes in one map has some flaws when
+  exporting
 
 # TODOs
 
@@ -95,12 +96,18 @@ UI-stuff<br>
 - better support moving around tiles on map to make space in case a border is reached 
 - maybe allow individual crop vals for tiles
 
-Internals:
+Internals:<br>
 - introduce log-levels and make diag-output window clever (highlight, etc.)
 - adjust maximum map dynamically depending on 32/64 bit
 - encapsule some globals
 - refactor code to follow consistent conventions
 - fix bugs
+
+Know issues:<br>
+- If trash-bin is unsupported deleted tiles remain -> will cause map inconsistencies
+- If memory limit is reached (32bit system), mapper crashes without
+  warning.
+- Potential, maybe GTK+ related memory leaks detected with valgrind.
 
 # Copyright notice
 

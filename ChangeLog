@@ -1,5 +1,7 @@
 2020-06-21  pottendo  <pottendo@gmx.net>
 
+	* VmMap.cc (~VmMap): Added destructor for cleanup.
+
 	* VmTile.cc (VmTile::get_cropped_image): Use `create_subpixbuf'.
 
 	* VmMap.cc (VmMap::update_state): new function to keep track of
