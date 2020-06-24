@@ -65,7 +65,7 @@ temporary filenames are created to save unplaced tiles if needed.
 A tiny configuration file is generated *vice-screen-.vsm* to store
 zoom and crop parameters.
 
-Delete tiles are moved to the trash-bin (if supported).
+Deleted tiles are moved to the trash-bin (if supported).
 
 # Build
 
