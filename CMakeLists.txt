@@ -68,8 +68,7 @@ endif()
 
 message (STATUS "building for ${ARCH}...")
 
-string(REPLACE "." "_" VERSION_CSTR ${VER})
-add_compile_options(${CXX_INCLUDES} ${GTK_CFLAGS_OTHER} -DMAPPER_VERSION=\"${VERSION_CSTR}\" -g -Wall -Wno-deprecated-declarations -I.)
+add_compile_options(${CXX_INCLUDES} ${GTK_CFLAGS_OTHER} -DMAPPER_VERSION=\"${VER}\" -g -Wall -Wno-deprecated-declarations -I.)
 link_directories (${GTK_LIBRARY_DIRS})
 #set(LIBRARIES ${LIBRARIES} ${GTK3_LIBRARIES})
 #set(FLAGS "-I${GTK3_INCLUDE_DIRS}")
