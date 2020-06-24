@@ -31,6 +31,7 @@
 #include <gtkmm/aboutdialog.h>
 #include <gtkmm/builder.h>
 #include <giomm/fileoutputstream.h>
+#include <glibmm/convert.h>
 #include "dialogs.h"
 #include "VmTile.h"
 
@@ -123,7 +124,8 @@ VmDebug::toggle(void)
 void
 VmDebug::log(std::string &s) 
 {
-    ti = tb->insert_with_tag(ti, s, tag);
+    const Glib::ustring str2 = Glib::locale_to_utf8(s);
+    ti = tb->insert_with_tag(ti, str2, tag);
     tv->scroll_to(ti);
 }
 
