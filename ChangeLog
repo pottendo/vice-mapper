@@ -1,3 +1,14 @@
+2020-06-24  pottendo  <pottendo@gmx.net>
+
+	* VmMap.cc (VmMap::print): Print implemented.
+
+2020-06-23  pottendo  <pottendo@gmx.net>
+
+	* VmMap.cc (VmMap::export_map_updatefn): handle dir-change gracefully.
+
+	* dialogs.cc (VmDebug::save): Implemented save.
+	(VmDebug::VmDebug): introduced mw_err, colored console.
+
 2020-06-21  pottendo  <pottendo@gmx.net>
 
 	* dialogs.cc (VmDebug::save): Started to add a save button for the

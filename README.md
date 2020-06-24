@@ -54,6 +54,8 @@ Map](https://github.com/pottendo/vice-mapper/blob/master/doc/Demo1-BlinkeyMap.pn
 Use drag&drop to move tiles around. <br>
 Use SPACE+mousemove within the map to pan around the map. 
 Use right mouse button to show popup menu on tiles.
+A debug log is collected and saved at exit in file vice-mapper.log
+(Backup file vice-mapper.log~).
 
 A map is stored in one directory using a standard filename convention
 for each placed (and even unplaced) tiles.
@@ -96,10 +98,8 @@ UI-stuff<br>
 - insert row/columns more easily
 - better support moving around tiles on map to make space in case a border is reached 
 - maybe allow individual crop vals for tiles
-- Add a save button to the debug window.
 
 Internals:<br>
-- introduce log-levels and make diag-output window clever (highlight, etc.)
 - adjust maximum map dynamically depending on 32/64 bit
 - Properly manage 'gui.glade' path.
 - encapsule some globals
@@ -115,6 +115,10 @@ Know issues:<br>
 - About dialog on Windows has buttons without effect.
 - On windows some stock icons are not found/rendered if certain system
   packages are not installed.
+- Printer dialog on Linux won't let one set page format, etc. (Ubuntu
+  19.10), Print Preview behaves strange (print button won't do
+  anything from the preview popup) -> use *print button* directly from
+  print dialog instead.
 
 # Copyright notice
 
