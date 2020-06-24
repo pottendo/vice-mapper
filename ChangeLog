@@ -1,5 +1,7 @@
 2020-06-24    <pottendo@HANSI>
 
+	* dialogs.cc (VmDebug::log): Fixed output to convert to UTF8.
+
 	* dialogs.[cc,h] (VmDebug::put_pixbuf): Added function to put pixbuf
 	into debug console.
 
