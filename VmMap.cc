@@ -835,7 +835,8 @@ VmMap::MapPreview::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 			 out_image->get_width(),
 			 out_image->get_height(),
 			 scaled, 0, 0);
-    scaled = scaled->scale_simple(get_allocated_width(), get_allocated_height(), Gdk::INTERP_BILINEAR);
+    scaled = scaled->scale_simple(get_allocated_width(), get_allocated_height(),
+				  Gdk::INTERP_BILINEAR);
     
     Gdk::Cairo::set_source_pixbuf(cr, scaled);
     cr->paint();
@@ -871,13 +872,19 @@ VmMap::MapPrint::on_request_page_setup(const Glib::RefPtr<Gtk::PrintContext>& co
     mw_out << __FUNCTION__ << ": called." << endl;
     Gtk::PaperSize ps = psetup->get_paper_size();
     double w, h, to, bo, le, ri;
+    /*
     w = ps.get_width(Gtk::UNIT_POINTS);
     h = ps.get_height(Gtk::UNIT_POINTS);
-    mw_out << __FUNCTION__ << ": paper wxh=" << w << "x" << h << endl;
+    */
+    w = context->get_width();
+    h = context->get_height();
     to = psetup->get_top_margin(Gtk::UNIT_POINTS);
     bo = psetup->get_bottom_margin(Gtk::UNIT_POINTS);
     le = psetup->get_left_margin(Gtk::UNIT_POINTS);
     ri = psetup->get_right_margin(Gtk::UNIT_POINTS);
+    mw_out << __FUNCTION__ << ": paper wxh=" << w << "x" << h
+	   << ", to/bo/le/ri=" << to << "/" << bo << "/" << le << "/" << ri
+	   << endl;
     
     Glib::RefPtr<Gdk::Pixbuf> tmp = mw_map->get_out_image();
     print_image = Gdk::Pixbuf::create(tmp->get_colorspace(),
@@ -895,6 +902,8 @@ VmMap::MapPrint::on_draw_page(const Glib::RefPtr<Gtk::PrintContext>& context, in
 {
     mw_out << __FUNCTION__ << ": called." << endl;
     Cairo::RefPtr<Cairo::Context>cr = context->get_cairo_context();
+    mw_out << __FUNCTION__ << ": wxh=" << print_image->get_width() << "x" << print_image->get_height() << endl;
+    mw_debug->put_pixbuf(print_image);
     Gdk::Cairo::set_source_pixbuf(cr, print_image);
     cr->paint();
 }

@@ -87,6 +87,7 @@ public:
 
     void toggle();
     void log(std::string &s);
+    void put_pixbuf(Glib::RefPtr<Gdk::Pixbuf> p);
     void save(void);
 protected:
     virtual int_type overflow(int_type c);

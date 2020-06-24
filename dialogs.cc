@@ -80,6 +80,7 @@ VmAbout::VmAbout()
     pDialog->set_version(mapper_version);
     pDialog->run();
 }
+
 Gtk::Window *VmDebug::p_win = nullptr;
 Gtk::ToggleButton *VmDebug::b = nullptr;
 Gtk::TextView *VmDebug::tv = nullptr;
@@ -123,6 +124,14 @@ void
 VmDebug::log(std::string &s) 
 {
     ti = tb->insert_with_tag(ti, s, tag);
+    tv->scroll_to(ti);
+}
+
+void
+VmDebug::put_pixbuf(Glib::RefPtr<Gdk::Pixbuf> p)
+{
+    ti = tb->insert_pixbuf(ti, p);
+    ti = tb->insert_with_tag(ti, "\n", tag);
     tv->scroll_to(ti);
 }
 
