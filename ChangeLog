@@ -1,3 +1,11 @@
+2020-06-24    <pottendo@HANSI>
+
+	* dialogs.[cc,h] (VmDebug::put_pixbuf): Added function to put pixbuf
+	into debug console.
+
+	* VmMap.cc (VmMap::MapPrint::on_request_page_setup): use context
+	to determine page dimensions.
+
 2020-06-24  pottendo  <pottendo@gmx.net>
 
 	* VmMap.cc (VmMap::print): Print implemented.

@@ -91,6 +91,9 @@ e.g. $ export PATH=/mingw64/bin:$PATH
   so won't need space.
 - Handling of different tile-sizes in one map has some flaws when
   exporting
+- Printing always scales to one page, may lead to distortions.
+  Use export and your favorite printing program to print .png files.
+
 
 # TODOs
 
@@ -119,6 +122,7 @@ Know issues:<br>
   19.10), Print Preview behaves strange (print button won't do
   anything from the preview popup) -> use *print button* directly from
   print dialog instead.
+  any tips are welcome!
 
 # Copyright notice
 
