@@ -30,6 +30,7 @@
 #include <gtkmm/messagedialog.h>
 #include <gtkmm/aboutdialog.h>
 #include <gtkmm/builder.h>
+#include <giomm/fileoutputstream.h>
 #include "dialogs.h"
 #include "VmTile.h"
 
@@ -79,20 +80,35 @@ VmAbout::VmAbout()
     pDialog->set_version(mapper_version);
     pDialog->run();
 }
-
-VmDebug::VmDebug()
+Gtk::Window *VmDebug::p_win = nullptr;
+Gtk::ToggleButton *VmDebug::b = nullptr;
+Gtk::TextView *VmDebug::tv = nullptr;
+Glib::RefPtr<Gtk::TextBuffer> VmDebug::tb;
+Gtk::TextBuffer::iterator VmDebug::ti;
+VmDebug::VmDebug(debug_type_t t)
 {
-    p_win = nullptr;
-    builder->get_widget("VmDebugWindow", p_win);
-    p_win->set_default_size(400, 300);
-    p_win->set_title("vice-mapper - debug console");
-    p_win->show_all_children();
-    b = nullptr;
-    builder->get_widget("VmDebugButton", b);
-    tv = nullptr;
-    builder->get_widget("VMDebugTextView", tv);
-    tb = Gtk::TextBuffer::create();
-    tv->set_buffer(tb);
+    if (p_win == nullptr) {
+	builder->get_widget("VmDebugWindow", p_win);
+	p_win->set_default_size(400, 300);
+	p_win->set_title("vice-mapper - debug console");
+	p_win->show_all_children();
+	builder->get_widget("VmDebugButton", b);
+	builder->get_widget("VMDebugTextView", tv);
+	tb = Gtk::TextBuffer::create();
+	tv->set_buffer(tb);
+	ti = tb->get_iter_at_offset(0);
+    }
+    if (t == MW_ERR) {
+	tag = Gtk::TextBuffer::Tag::create();
+	tag->property_foreground() = "red";
+    }
+    else {
+	tag = Gtk::TextBuffer::Tag::create();
+	tag->property_foreground() = "blue";
+    }
+    tag->property_size() = 8 * Pango::SCALE;
+    
+    tb->get_tag_table()->add(tag);
 }
 
 void
@@ -106,32 +122,45 @@ VmDebug::toggle(void)
 void
 VmDebug::log(std::string &s) 
 {
-    tb->insert_at_cursor(s);
-    tb->insert_at_cursor("\n");
-    tb->get_bounds(ti1, ti2);
-    tv->scroll_to(ti2);
+    ti = tb->insert_with_tag(ti, s, tag);
+    tv->scroll_to(ti);
 }
 
 void
 VmDebug::save(void)
 {
-    mw_out << __FUNCTION__ << ": called." << endl;
+    try {
+	Glib::RefPtr<Gio::File> f = Gio::File::create_for_path("vice-mapper.log");
+	Glib::RefPtr<Gio::FileOutputStream> lfstr = f->replace("", true);
+	string text;
+
+	mw_out << __FUNCTION__ << ": save logfile to "
+	       << f->get_path() << G_DIR_SEPARATOR_S << f->get_basename() << endl;
+	text = string(tb->get_text());
+	
+	if (lfstr->write(text) == false) {
+	    mw_out << __FUNCTION__ << ": write log-file failed." << endl;
+	    return;
+	}
+	lfstr->flush();
+    }
+    catch (Glib::Error &e) {
+	mw_out << __FUNCTION__ << ": failed with " << e.what() << endl;
+	return;
+    }
 }
 
 int
 VmDebug::overflow(int c)
 {
     static string s = "";
-    if (c != '\n') {
-	s += (char)c;
-    }
-    else
-    {
-	cout << s << endl;
+    
+    s += (char)c;
+    if (c == '\n') {
+	cout << s;
 	log(s);
 	s = "";
     }
-    
     return c;
 }
 
@@ -171,11 +200,13 @@ on_MenuClose_activate(Gtk::MenuItem *m)
     mw_map->remove_map();
 }
 
+/* 
 G_MODULE_EXPORT void
 on_MenuPrint_activate(Gtk::MenuItem *m) 
 {
     VmMsg("Print not yet implemented!", ":-(").run();
 }
+*/
 
 G_MODULE_EXPORT void
 on_MenuQuit_activate(Gtk::MenuItem *m) 

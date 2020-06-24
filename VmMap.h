@@ -34,6 +34,7 @@
 #include <gtkmm/hvbox.h>
 #include <gtkmm/entry.h>
 #include <gtkmm/filechooserwidget.h>
+#include <gtkmm/printoperation.h>
 #include "VmTile.h"
 #include "VmMapControls.h"
 #include "dialogs.h"
@@ -82,15 +83,30 @@ class VmMap : public Gtk::ScrolledWindow
     protected:
 	bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 	// bool on_configure_event(GdkEventConfigure *configure_event) override;
-
     public:
 	MapPreview();
-	~MapPreview() {};
-
+	virtual ~MapPreview() {};
+	inline Glib::RefPtr<Gdk::Pixbuf> get_out_image(void) { return out_image; }
+	
 	void set_header(std::string s) { header->set_text(s); };
 	void set_footer(std::string s) { footer->set_text(s); };
 	void render_preview(void);
 	void save(std::string name);
+    };
+    
+    class MapPrint : public Gtk::PrintOperation {
+	Glib::RefPtr<Gdk::Pixbuf> print_image;
+      protected:
+	void on_begin_print(const Glib::RefPtr<Gtk::PrintContext>& context) override;
+	void on_request_page_setup(const Glib::RefPtr<Gtk::PrintContext>& context,
+				   int page_no, const Glib::RefPtr<Gtk::PageSetup>& setup) override;
+	void on_draw_page(const Glib::RefPtr<Gtk::PrintContext>& context, int page_nr) override;
+      public:
+	MapPrint();
+	virtual ~MapPrint();
+
+	static Glib::RefPtr<VmMap::MapPrint> create();
+	void print(void) { this->run(); }
     };
     
     // Child widgets:
@@ -103,6 +119,9 @@ class VmMap : public Gtk::ScrolledWindow
     MapPreview *map_preview;
     Gtk::Window *preview_win;
     Gtk::FileChooserWidget *file_chooser;
+    Glib::RefPtr<MapPrint> po;
+    Glib::RefPtr<Gtk::PrintSettings> pr_settings;
+    Glib::RefPtr<Gtk::PageSetup> pr_pagesettings;
 
   public:
     VmMap();
@@ -126,6 +145,7 @@ class VmMap : public Gtk::ScrolledWindow
     inline VmTile *get_tile(int x, int y) { return tiles[x][y]; }
     inline void set_tile(int x, int y, VmTile *t = nullptr) { tiles[x][y] = t; }
     inline int get_nrtiles(void) { return nr_tiles; }
+    inline Glib::RefPtr<Gtk::PrintSettings> get_pr_settings(void) { return pr_settings; }
     static Glib::RefPtr<Gdk::Pixbuf> empty_image;
     static double scale_factor_x;
     static double scale_factor_y;
@@ -137,7 +157,10 @@ class VmMap : public Gtk::ScrolledWindow
     void remove_map(void);
     void open_map(void);
     void export_map(void);
+    void export_map_updatefn(void);
     void export_map_commit(bool save);
+    void print(void);
+    Glib::RefPtr<Gdk::Pixbuf> get_out_image(void) { return map_preview->get_out_image(); }
     void commit_changes(void) { if (dirty) { ctrls->commit_changes(); } }
     void save_settings(void);
     bool load_settings(void);

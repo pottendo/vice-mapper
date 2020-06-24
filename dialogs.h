@@ -71,15 +71,18 @@ class VmAbout
     ~VmAbout() {} ;
 };
 
+typedef enum { MW_OUT, MW_ERR } debug_type_t;
 class VmDebug : public std::streambuf
 {
-    Gtk::Window *p_win;
-    Gtk::ToggleButton *b;
-    Gtk::TextView *tv;
-    Glib::RefPtr<Gtk::TextBuffer> tb;
-    Gtk::TextBuffer::iterator ti1, ti2;
+    static Gtk::Window *p_win;
+    static Gtk::ToggleButton *b;
+    static Gtk::TextView *tv;
+    static Glib::RefPtr<Gtk::TextBuffer> tb;
+    static Gtk::TextBuffer::iterator ti;
+    Glib::RefPtr<Gtk::TextBuffer::Tag> tag;
+
 public:
-    VmDebug();
+    VmDebug(debug_type_t t);
     virtual ~VmDebug() { };
 
     void toggle();
@@ -94,8 +97,11 @@ extern VmStatus *mw_status;
 extern VmMap *mw_map;
 extern VmMapControls *mw_ctrls;
 extern VmDebug *mw_debug;
+extern VmDebug *mw_debug2;
 extern std::ostream *mw_out_stream;
+extern std::ostream *mw_err_stream;
 #define mw_out (*mw_out_stream)
+#define mw_err (*mw_err_stream)
 extern Glib::RefPtr<Gtk::Application> app;
 extern Gtk::Window *mainWindow;
 

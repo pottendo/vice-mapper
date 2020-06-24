@@ -69,11 +69,11 @@ VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
 	    resY = h = m_image->get_height();
 	}
 	catch(const Gio::ResourceError& ex) {
-	    std::cerr << "ResourceError: " << ex.what() << std::endl;
+	    mw_err << "ResourceError: " << ex.what() << std::endl;
 	    throw -1;
 	}
 	catch(const Gdk::PixbufError& ex) {
-	    std::cerr << "PixbufError: " << ex.what() << std::endl;
+	    mw_err << "PixbufError: " << ex.what() << std::endl;
 	    throw -1;
 	}
 	std::cmatch cm;
@@ -90,7 +90,7 @@ VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
 	}
 	// heuristic to ignore full maps, which shouldn't be listed
 	string file_base = string(cm[cm.size()-2]) + ".png"; 
-	mw_out << __FUNCTION__ << ": file base: " << file_base << endl;
+	//mw_out << __FUNCTION__ << ": file base: " << file_base << endl;
 	
 	std::string regstr("(.*)" + std::string(def_basename) +
 			   "([0-9][0-9])x([0-9][0-9]*)\\.(png|PNG|gif|GIF|jpg|JPG)");
@@ -278,7 +278,7 @@ VmTile::on_menu_delete_tile(void)
 	}
 	catch (Glib::Error &e) {
 	    //mw_out << __FUNCTION__ << ": move to trash failed for "; print();
-	    cerr << e.what() << endl; // user has cancelled
+	    mw_err << e.what() << endl; // user has cancelled
 	    //f->remove();	// plain remove only if NOT_SUPPORTED comes back TODO
 	    return;
 	}

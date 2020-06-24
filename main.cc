@@ -41,7 +41,8 @@ VmStatus *mw_status = nullptr;
 VmMap *mw_map = nullptr;
 VmMapControls *mw_ctrls = nullptr;
 VmDebug *mw_debug = nullptr;
-std::ostream *mw_out_stream;
+VmDebug *mw_debug2 = nullptr;
+std::ostream *mw_out_stream, *mw_err_stream;
 Gtk::Window *mainWindow = nullptr;
 
 static gboolean on_delete_event (GtkWidget *window,
@@ -70,7 +71,8 @@ int main(int argc, char** argv)
     //cout << __FUNCTION__ << ": sizeof size_t = " << sizeof(size_t) << endl;
     srand(time(NULL));		// initialize random generator for filenames
     mw_status = new VmStatus();
-    mw_out_stream = new std::ostream(mw_debug = new VmDebug());
+    mw_out_stream = new std::ostream(mw_debug = new VmDebug(MW_OUT));
+    mw_err_stream = new std::ostream(mw_debug2 = new VmDebug(MW_ERR));
     VmMap mw;
     mw_map = &mw;
 
@@ -83,7 +85,7 @@ int main(int argc, char** argv)
 	    mw.reload_unplaced_tiles(argv[1]);
 	}
 	catch (...) {
-	    cerr << "Usage: " << argv[0] << " [map-directory]" << endl;
+	    mw_err << "Usage: " << argv[0] << " [map-directory]" << endl;
 	    return 1;
 	}
     }

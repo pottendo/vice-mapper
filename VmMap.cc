@@ -31,6 +31,7 @@
 #include <gtkmm/widget.h>
 #include <gtkmm/frame.h>
 #include <gtkmm/filechooserdialog.h>
+#include <gtkmm/pagesetup.h>
 #include <glibmm/fileutils.h>
 #include <glibmm/miscutils.h>
 #include <cairomm/context.h>
@@ -95,6 +96,9 @@ VmMap::VmMap()
     map_frame->add(scw);
     show_all_children();
     memset(tiles, 0, 101*101*sizeof(VmTile*));
+
+    pr_settings = Gtk::PrintSettings::create();
+    pr_pagesettings = Gtk::PageSetup::create(); 
 }
 
 VmMap::~VmMap() 
@@ -102,8 +106,11 @@ VmMap::~VmMap()
     mw_out << __FUNCTION__ << ": main map delete." << endl;
     delete map_preview;
     delete mw_ctrls;
+    mw_debug->save();
     delete mw_out_stream;	// a bit ugly to delete here not in main. TODO: Fixme.
+    delete mw_err_stream;
     delete mw_debug;
+    delete mw_debug2;
     delete mw_status;
 }
 
@@ -271,7 +278,7 @@ VmMap::remove_tile(VmTile *a, bool map_remove)
     }
     auto e = VmTile::all_tiles.erase(a);
     if (e > 1) {
-	cerr << __FUNCTION__ << ": erased " << e << " tiles." << endl;
+	mw_err << __FUNCTION__ << ": erased " << e << " tiles." << endl;
     }
     nr_tiles = VmTile::all_tiles.size();
     update_state();
@@ -333,7 +340,7 @@ VmMap::save_settings(void)
 	cfg_stream = cfg_file->create_file();
     }
     catch (Gio::Error &e) {
-	cerr << __FUNCTION__ << ": *** cfg file not written: " << e.what() << endl;
+	mw_err << __FUNCTION__ << ": *** cfg file not written: " << e.what() << endl;
 	return;
     }
 
@@ -370,7 +377,7 @@ VmMap::process_line(string l)
 	if (l.find("ZOOMY") < l.size()) { scale_factor_y = stod(l.substr(6)); }
     }
     catch (std::invalid_argument &e) {
-	cerr << e.what() << endl;
+	mw_err << e.what() << endl;
     }
     
     return true;
@@ -398,7 +405,7 @@ VmMap::load_settings(void)
 	char cfg_buffer[1024];
 	gsize bytes_read;
 	if (cfg_stream->read_all(cfg_buffer, 1024, bytes_read) == false) {
-	    cerr << __FUNCTION__ << ": read error." << endl;
+	    mw_err << __FUNCTION__ << ": read error." << endl;
 	    return false;
 	}
 	string cfg(cfg_buffer);
@@ -415,7 +422,7 @@ VmMap::load_settings(void)
 	ctrls->set_crop(VmTile::cr_up, VmTile::cr_do, VmTile::cr_le, VmTile::cr_ri, false);
     }
     catch (Gio::Error &e) {
-	cerr << __FUNCTION__ << ": *** cfg file not read: " << e.what() << endl;
+	mw_err << __FUNCTION__ << ": *** cfg file not read: " << e.what() << endl;
 	return false;
     }
     return true;
@@ -643,6 +650,21 @@ VmMap::export_map(void)
 }
 
 void
+VmMap::export_map_updatefn(void) 
+{
+    /*
+    mw_out << __FUNCTION__ << ": cf=" << file_chooser->get_current_folder() << endl;
+    mw_out << __FUNCTION__ << ": fn=" << file_chooser->get_filename() << endl;
+    */
+    string f = string(file_chooser->get_filename());
+    if (f == "") f = "vice-map.png"; // if user has deleted the entry field
+    Glib::RefPtr<Gio::File> fnp = Gio::File::create_for_path(f);
+    string s = string(file_chooser->get_current_folder()) + G_DIR_SEPARATOR_S + fnp->get_basename();
+    mw_out << __FUNCTION__ << ": " << s << endl;
+    file_chooser->set_current_name(s);
+}
+
+void
 VmMap::export_map_commit(bool save) 
 {
     if (!save) {
@@ -668,6 +690,27 @@ VmMap::export_map_commit(bool save)
     map_preview->save(fn);
     preview_win->hide();
 }
+
+void
+VmMap::print(void) 
+{
+    po = VmMap::MapPrint::create();
+    po->set_default_page_setup(pr_pagesettings);
+    po->set_print_settings(pr_settings);
+    
+    switch(po->run()) {
+    case Gtk::PRINT_OPERATION_RESULT_APPLY:
+	mw_out << __FUNCTION__ << ": printing finished successfully." << endl;
+	break;
+    case Gtk::PRINT_OPERATION_RESULT_ERROR:
+	mw_err << __FUNCTION__ << ": printing failed." << endl;
+	break;
+    default:
+	break;
+    }
+    pr_settings = po->get_print_settings();
+}
+
 
 VmMap::MapPreview::MapPreview() 
 {
@@ -799,6 +842,63 @@ VmMap::MapPreview::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
     return TRUE;
 }
 
+VmMap::MapPrint::MapPrint() 
+{
+    mw_out << __FUNCTION__ << ": created." << endl; 
+}
+
+VmMap::MapPrint::~MapPrint() 
+{
+    // no mw_out possible, as stream has already being destroyed.
+}
+
+Glib::RefPtr<VmMap::MapPrint> VmMap::MapPrint::create()
+{
+    return Glib::RefPtr<VmMap::MapPrint> (new VmMap::MapPrint());
+}
+
+void
+VmMap::MapPrint::on_begin_print(const Glib::RefPtr<Gtk::PrintContext>& context) 
+{
+    mw_out << __FUNCTION__ << ": called." << endl;
+    set_n_pages(1);
+}
+
+void
+VmMap::MapPrint::on_request_page_setup(const Glib::RefPtr<Gtk::PrintContext>& context,
+					 int page_no, const Glib::RefPtr<Gtk::PageSetup>& psetup)
+{
+    mw_out << __FUNCTION__ << ": called." << endl;
+    Gtk::PaperSize ps = psetup->get_paper_size();
+    double w, h, to, bo, le, ri;
+    w = ps.get_width(Gtk::UNIT_POINTS);
+    h = ps.get_height(Gtk::UNIT_POINTS);
+    mw_out << __FUNCTION__ << ": paper wxh=" << w << "x" << h << endl;
+    to = psetup->get_top_margin(Gtk::UNIT_POINTS);
+    bo = psetup->get_bottom_margin(Gtk::UNIT_POINTS);
+    le = psetup->get_left_margin(Gtk::UNIT_POINTS);
+    ri = psetup->get_right_margin(Gtk::UNIT_POINTS);
+    
+    Glib::RefPtr<Gdk::Pixbuf> tmp = mw_map->get_out_image();
+    print_image = Gdk::Pixbuf::create(tmp->get_colorspace(),
+				      tmp->get_has_alpha(),
+				      tmp->get_bits_per_sample(),
+				      tmp->get_width(),
+				      tmp->get_height());
+    tmp->copy_area(0, 0, tmp->get_width(), tmp->get_height(), print_image, 0, 0);
+    
+    print_image = print_image->scale_simple(w-le-ri, h-to-bo, Gdk::INTERP_BILINEAR);
+}
+
+void
+VmMap::MapPrint::on_draw_page(const Glib::RefPtr<Gtk::PrintContext>& context, int page_nr)
+{
+    mw_out << __FUNCTION__ << ": called." << endl;
+    Cairo::RefPtr<Cairo::Context>cr = context->get_cairo_context();
+    Gdk::Cairo::set_source_pixbuf(cr, print_image);
+    cr->paint();
+}
+
 extern "C" 
 {
 
@@ -817,10 +917,25 @@ on_VmMapPreviewFooter_activate(void)
 }
     
 G_MODULE_EXPORT void
+on_VmMapPreviewFileChooser_current_folder_changed(void)
+{
+    mw_out << __FUNCTION__ << ": called." << endl;
+    mw_map->export_map_updatefn();
+}
+    
+G_MODULE_EXPORT void
 on_VmMapPreviewSave_clicked(void) 
 {
 //    mw_out << __FUNCTION__ << ": called." << endl;
     mw_map->export_map_commit(true);
+}
+    
+G_MODULE_EXPORT void
+on_VmMapPreviewPrint_clicked(void) 
+{
+    mw_out << __FUNCTION__ << ": called." << endl;
+    //VmMsg("Print not yet implemented!", ":-(").run();
+    mw_map->print();
 }
     
 G_MODULE_EXPORT void
