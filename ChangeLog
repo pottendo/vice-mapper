@@ -1,3 +1,7 @@
+2020-06-25  pottendo  <pottendo@gmx.net>
+
+	* VmMap.cc (VmMap::export_map): Set folder in filechooser as well.
+
 2020-06-24    <pottendo@HANSI>
 
 	* dialogs.cc (VmDebug::log): Fixed output to convert to UTF8.
