@@ -646,6 +646,7 @@ VmMap::export_map(void)
     string s = string(current_path) + G_DIR_SEPARATOR_S + fnp->get_basename() + ".png";
     
     mw_out << __FUNCTION__ << ": " << s << endl;
+    file_chooser->set_current_folder(current_path);
     file_chooser->set_current_name(s);
 }
 
