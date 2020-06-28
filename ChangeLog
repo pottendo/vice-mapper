@@ -1,3 +1,7 @@
+2020-06-28  pottendo  <pottendo@gmx.net>
+
+	* CMakeLists.txt: Reworked to support Linux->win32 cross build. 
+
 2020-06-25  pottendo  <pottendo@gmx.net>
 
 	* VmMap.cc (VmMap::export_map): Set folder in filechooser as well.
