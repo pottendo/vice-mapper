@@ -30,7 +30,8 @@ if (DEFINED ENV{CROSS})
   set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}-g++-posix)
   set(ARCH mingw64cross)
   message (STATUS "cross build ${ARCH}, $ENV{PKG_CONFIG_PATH}, ${CMAKE_CXX_COMPILER}, ${CMAKE_SOURCE_DIR}, ${CMAKE_CURRENT_BINARY_DIR}")
-
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(GTK REQUIRED gtk+-3.0 gtkmm-3.0)
   include_directories (${GTK_INCLUDE_DIRS})
   set (MAPPER_VERSION ${ARCH}-${VER})
   set (PROGRAMEXE mapper.exe)
@@ -41,13 +42,10 @@ if (DEFINED ENV{CROSS})
     COMMAND zip -r vice-mapper-${MAPPER_VERSION}.zip vice-mapper-${MAPPER_VERSION}    )	
 endif() # CROSS
 
-# Find dependencies, for all architectures
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GTK REQUIRED gtk+-3.0 gtkmm-3.0)
-link_directories(${GTK_LIBRARY_DIRS})
-
 if (NOT DEFINED ENV{MINGW_PREFIX} AND NOT DEFINED ENV{CROSS})
   # linux native build
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(GTK REQUIRED gtk+-3.0 gtkmm-3.0)
   include_directories (${GTK_INCLUDE_DIRS})
   set (ARCH unix)
   if (NOT DEFINED ENV{CROSS})
