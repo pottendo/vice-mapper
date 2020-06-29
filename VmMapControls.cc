@@ -46,6 +46,10 @@ VmMapControls::VmMapControls(VmMap &m)
     builder->get_widget("VmMapControlsUnplTilesBox", unpl_tilesbox);
     button_save = nullptr;
     builder->get_widget("VmMapControlsSave", button_save);
+    button_save->set_image_from_icon_name("document-save-symbolic");
+    Gtk::Button *p = nullptr;
+    builder->get_widget("VmMapControlsReload", p);
+    p->set_image_from_icon_name("document-open-symbolic");
     adj[CZX] = Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder->get_object("VmMapControlsZoomAdjX"));
     adj[CZY] = Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder->get_object("VmMapControlsZoomAdjY"));
     adj[CRUP] = Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder->get_object("VmControlsCropAdjUp"));

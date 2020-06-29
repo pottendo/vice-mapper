@@ -727,6 +727,15 @@ VmMap::MapPreview::MapPreview()
     header = footer = nullptr;
     builder->get_widget("VmMapPreviewHeader", header);
     builder->get_widget("VmMapPreviewFooter", footer);
+    Gtk::Button *p = nullptr;
+    builder->get_widget("VmMapPreviewCancel", p);
+    p->set_image_from_icon_name("window-close-symbolic");
+    p = nullptr;
+    builder->get_widget("VmMapPreviewSave", p);
+    p->set_image_from_icon_name("document-save-symbolic");
+    p = nullptr;
+    builder->get_widget("VmMapPreviewPrint", p);
+    p->set_image_from_icon_name("document-print-symbolic");
 }
 
 void

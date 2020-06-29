@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 -->
+<!-- Generated with glade 3.22.2 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
   <object class="GtkAboutDialog" id="VMAbout">
@@ -12,7 +12,7 @@
 inspired by Overdoc</property>
     <property name="logo_icon_name">face-glasses</property>
     <property name="license_type">gpl-3-0</property>
-    <child>
+    <child type="titlebar">
       <placeholder/>
     </child>
     <child internal-child="vbox">
@@ -73,7 +73,7 @@ inspired by Overdoc</property>
   </object>
   <object class="GtkWindow" id="VmDebugWindow">
     <property name="can_focus">False</property>
-    <child>
+    <child type="titlebar">
       <placeholder/>
     </child>
     <child>
@@ -142,7 +142,7 @@ inspired by Overdoc</property>
   </object>
   <object class="GtkWindow" id="VmMapPreview">
     <property name="can_focus">False</property>
-    <child>
+    <child type="titlebar">
       <placeholder/>
     </child>
     <child>
@@ -226,13 +226,14 @@ inspired by Overdoc</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="halign">end</property>
+                <property name="column_homogeneous">True</property>
                 <child>
                   <object class="GtkButton" id="VmMapPreviewCancel">
                     <property name="label" translatable="yes">Cancel</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="halign">end</property>
+                    <property name="always_show_image">True</property>
                     <signal name="clicked" handler="on_VmMapPreviewCancel_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -246,7 +247,7 @@ inspired by Overdoc</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="halign">start</property>
+                    <property name="always_show_image">True</property>
                     <signal name="clicked" handler="on_VmMapPreviewSave_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -256,11 +257,11 @@ inspired by Overdoc</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="VmMapPreviewPrint">
-                    <property name="label">gtk-print</property>
+                    <property name="label">Print</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="use_stock">True</property>
+                    <property name="always_show_image">True</property>
                     <signal name="clicked" handler="on_VmMapPreviewPrint_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -318,14 +319,9 @@ inspired by Overdoc</property>
     <property name="can_focus">False</property>
     <property name="icon_name">image-x-generic</property>
   </object>
-  <object class="GtkImage" id="VmMapImageOpen">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="stock">gtk-open</property>
-  </object>
   <object class="GtkWindow" id="ViceMapper">
     <property name="can_focus">False</property>
-    <child>
+    <child type="titlebar">
       <placeholder/>
     </child>
     <child>
@@ -805,7 +801,6 @@ inspired by Overdoc</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="image">VmMapImageOpen</property>
                             <property name="always_show_image">True</property>
                             <signal name="clicked" handler="on_VmMapControlsReload_clicked" swapped="no"/>
                           </object>
@@ -821,11 +816,10 @@ inspired by Overdoc</property>
                         </child>
                         <child>
                           <object class="GtkButton" id="VmMapControlsSave">
-                            <property name="label">gtk-save</property>
+                            <property name="label">Save</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="use_stock">True</property>
                             <property name="always_show_image">True</property>
                             <signal name="clicked" handler="on_VmMapControlsSave_clicked" swapped="no"/>
                           </object>
@@ -965,5 +959,10 @@ inspired by Overdoc</property>
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkImage" id="VmMapImageOpen">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-open</property>
   </object>
 </interface>
