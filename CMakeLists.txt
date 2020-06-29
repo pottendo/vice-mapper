@@ -24,7 +24,7 @@ set (VER 1.5.0)
 set(SRC main.cc VmTile.cc VmMap.cc VmMapControls.cc dialogs.cc)
 
 if (DEFINED ENV{CROSS})
-  set(ENV{PKG_CONFIG_PATH} "/usr/x86_64-w64-mingw32/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+  set(ENV{PKG_CONFIG_PATH} "/mingw64/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
   set(TOOLCHAIN_PREFIX x86_64-w64-mingw32)
   set(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}-gcc-posix)
   set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}-g++-posix)
