@@ -306,9 +306,12 @@ VmMap::reload_unplaced_tiles(char *path)
 	    continue;		// ignore non-tiles
 	}
     }
-    empty_image = Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, TRUE, 8, VmTile::resX, VmTile::resY);
-    empty_image->fill(0x0000001f);
-
+    if (!empty_image ||
+	((empty_image->get_width() != VmTile::max_resX) || (empty_image->get_height() != VmTile::max_resY))) {
+	// create a new empty_image if not yet done or if a new max has been detected
+	empty_image = Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, TRUE, 8, VmTile::max_resX, VmTile::max_resY);
+	empty_image->fill(0x0000001f);
+    }
     ctrls->update_ctrls();
     VmTile::refresh_minmax();
     fill_empties();
@@ -596,6 +599,10 @@ VmMap::remove_map(void)
     mw_status->clear();
     set_dirty(false);
     tiles_placed = false;
+    VmTile::min_resX = 100000;
+    VmTile::min_resY = 100000;
+    VmTile::max_resX = -1;
+    VmTile::max_resY = -1;
     show_all_children();
 }
 

@@ -83,7 +83,7 @@ class VmTile : public Gtk::DrawingArea
 	
     static int xmin, ymin, xmax, ymax;
     static int cr_up, cr_do, cr_le, cr_ri;
-    static int resX, resY;
+    static int min_resX, min_resY, max_resX, max_resY;
     void scale(float sfx, float sfy);
     void xchange_tiles(VmTile &s, VmTile &d);
     void sync_tile(void);

@@ -52,10 +52,10 @@ VmMapControls::VmMapControls(VmMap &m)
     adj[CRDO] = Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder->get_object("VmControlsCropAdjDown"));
     adj[CRLE] = Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder->get_object("VmControlsCropAdjLeft"));
     adj[CRRI] = Glib::RefPtr<Gtk::Adjustment>::cast_dynamic(builder->get_object("VmControlsCropAdjRight"));
-    adj[CRUP]->set_upper(VmTile::resY/2);
-    adj[CRDO]->set_upper(VmTile::resY/2-1);
-    adj[CRLE]->set_upper(VmTile::resX/2);
-    adj[CRRI]->set_upper(VmTile::resX/2-1);
+    adj[CRUP]->set_upper(VmTile::min_resY/2);
+    adj[CRDO]->set_upper(VmTile::min_resY/2-1);
+    adj[CRLE]->set_upper(VmTile::min_resX/2);
+    adj[CRRI]->set_upper(VmTile::min_resX/2-1);
     zl = nullptr;
     builder->get_widget("VmMapControlsZoomLock", zl);
     zoom_lock = zl->get_active();
@@ -120,10 +120,10 @@ VmMapControls::set_crop(int u, int d, int l, int r, bool dirty)
 void
 VmMapControls::update_ctrls(void)
 {
-    adj[CRUP]->set_upper(VmTile::resY/2);
-    adj[CRDO]->set_upper(VmTile::resY/2-1);
-    adj[CRLE]->set_upper(VmTile::resX/2);
-    adj[CRRI]->set_upper(VmTile::resX/2-1);
+    adj[CRUP]->set_upper(VmTile::min_resY/2);
+    adj[CRDO]->set_upper(VmTile::min_resY/2-1);
+    adj[CRLE]->set_upper(VmTile::min_resX/2);
+    adj[CRRI]->set_upper(VmTile::min_resX/2-1);
 }
 
 void

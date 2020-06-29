@@ -47,8 +47,10 @@ VmTile *VmTile::dnd_tile;
 int VmTile::alloc_count;
 int VmTile::xmin = map_max - 4, VmTile::ymin = map_max - 4 , VmTile::xmax = 5, VmTile::ymax = 5;
 int VmTile::cr_up = def_cry, VmTile::cr_do=def_cry, VmTile::cr_le=def_crx, VmTile::cr_ri=def_crx;
-int VmTile::resX = def_resX;
-int VmTile::resY = def_resY;
+int VmTile::min_resX = 100000;
+int VmTile::min_resY = 100000;
+int VmTile::max_resX = -1;
+int VmTile::max_resY = -1;
 set<VmTile *> VmTile::all_tiles;
 
 /* MyArea members */
@@ -65,8 +67,8 @@ VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
 	
 	try {
 	    m_image_scaled = m_image = Gdk::Pixbuf::create_from_file(fn);//, resX, resY);
-	    resX = w = m_image->get_width();
-	    resY = h = m_image->get_height();
+	    w = m_image->get_width();
+	    h = m_image->get_height();
 	}
 	catch(const Gio::ResourceError& ex) {
 	    mw_err << "ResourceError: " << ex.what() << std::endl;
@@ -144,10 +146,20 @@ VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
 	}
 	empty = false;
 	all_tiles.insert(this);
+	min_resX = MIN(min_resX, w);
+	max_resX = MAX(max_resX, w);
+	min_resY = MIN(min_resY, h);
+	max_resY = MAX(max_resY, h);
+	/*
+	mw_out << __FUNCTION__ << ": minX/maX=" << min_resX << "/"
+	       << max_resX << ", minY/maxY=" << min_resY << "/" << max_resY << endl;
+	*/
 	VmMap::nr_tiles++;
     }
     else {
 	xk = x; yk = y;
+	w = max_resX;
+	h = max_resY;
 	file_name = file_basename = "<empty>";
 	m_image = VmMap::empty_image;
 	empty = true;
@@ -295,6 +307,7 @@ VmTile::on_menu_popup(void)
 
 std::ostream &operator<<(std::ostream & out, VmTile &t) {
     return out << "'" << t.get_fname() << "'@" << t.xk << "," << t.yk
+	       << "(" << t.w << "x" << t.h << ")"
 	       << (t.is_dirty() ? ",is-dirty" : ",is-clean");
 }
 
@@ -315,7 +328,6 @@ VmTile::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
     mw_out << file_name << ": scaled size: " << m_image_scaled->get_width() << "x"
 	 << m_image_scaled->get_height() << cr_le << "," << cr_up << endl;
     */
-    
     m_image_scaled =
 	m_image_scaled->scale_simple(get_allocated_width(),
 				     get_allocated_height(),
