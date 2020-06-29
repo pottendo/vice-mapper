@@ -1,3 +1,11 @@
+2020-06-29  pottendo  <pottendo@gmx.net>
+
+	* VmMap.cc (VmMap::reload_unplaced_tiles): Fixed unconditional
+	generation of empty_image; handle resX/resY now.
+
+	* VmTile.cc: Introduced min_resX/resY, max_resX/resY to cope with
+	different-sized tiles.
+
 2020-06-28  pottendo  <pottendo@gmx.net>
 
 	* CMakeLists.txt: Reworked to support Linux->win32 cross build. 
