@@ -116,8 +116,6 @@ Know issues:<br>
   warning.
 - Potential, maybe GTK+ related memory leaks detected with valgrind.
 - About dialog on Windows has buttons without effect.
-- On windows some stock icons are not found/rendered if certain system
-  packages are not installed.
 - Printer dialog on Linux won't let one set page format, etc. (Ubuntu
   19.10), Print Preview behaves strange (print button won't do
   anything from the preview popup) -> use *print button* directly from
