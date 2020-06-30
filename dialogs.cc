@@ -77,9 +77,10 @@ VmMsg::VmMsg(std::string s1, std::string s2) //
 VmAbout::VmAbout() 
 {
     Gtk::AboutDialog* pDialog = nullptr;
-    builder->get_widget("VMAbout", pDialog);
+    builder->get_widget("VmAbout", pDialog);
     pDialog->set_version(mapper_version);
     pDialog->run();
+    pDialog->hide();
 }
 
 Gtk::Window *VmDebug::p_win = nullptr;
@@ -180,7 +181,7 @@ extern "C"  {
 G_MODULE_EXPORT void
 on_MenuAbout_activate(Gtk::MenuItem *m) 
 {
-    VmAbout about;
+    VmAbout VmAbout;
 }
 
 G_MODULE_EXPORT void
@@ -246,6 +247,18 @@ G_MODULE_EXPORT void
 on_VmDebugSave_clicked(Gtk::ToggleButton *m) 
 {
     mw_debug->save();
+}
+    
+G_MODULE_EXPORT void
+on_VmAbout_close(Gtk::ToggleButton *m) 
+{
+//    mw_out << __FUNCTION__ << ": called." << endl;
+}
+    
+G_MODULE_EXPORT void
+on_VmAbout_response(Gtk::ToggleButton *m) 
+{
+//    mw_out << __FUNCTION__ << ": called." << endl;
 }
     
 } /* extern "C" */

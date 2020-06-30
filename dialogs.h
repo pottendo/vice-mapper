@@ -60,12 +60,9 @@ class VmMsg : public Gtk::MessageDialog {
     virtual ~VmMsg() {};
 };
 
-class VmAbout 
+class VmAbout
 {
     Gtk::Dialog* pDialog = nullptr;
-    
-    static void on_exit_press(Gtk::Dialog &d) { d.hide(); }
-    
   public:
     VmAbout(void);
     ~VmAbout() {} ;

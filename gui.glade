@@ -2,7 +2,7 @@
 <!-- Generated with glade 3.22.2 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
-  <object class="GtkAboutDialog" id="VMAbout">
+  <object class="GtkAboutDialog" id="VmAbout">
     <property name="can_focus">False</property>
     <property name="type_hint">dialog</property>
     <property name="program_name">vice-mapper</property>
@@ -12,6 +12,8 @@
 inspired by Overdoc</property>
     <property name="logo_icon_name">face-glasses</property>
     <property name="license_type">gpl-3-0</property>
+    <signal name="close" handler="on_VmAbout_close" swapped="no"/>
+    <signal name="response" handler="on_VmAbout_response" swapped="no"/>
     <child type="titlebar">
       <placeholder/>
     </child>
