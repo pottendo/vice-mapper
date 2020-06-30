@@ -1,5 +1,8 @@
 2020-06-30  pottendo  <pottendo@gmx.net>
 
+	* VmMap.cc (VmMap::MapPreview::render_preview): Enlarged
+	header/footer boxes to make windows happy.
+
 	* make-bindist-win32.sh: support cross build linux->win32(msys2 libs).
 
 	* dialogs.cc (VmAbout::VmAbout): Fixed about for windows & linux
