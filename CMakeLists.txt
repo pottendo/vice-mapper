@@ -37,7 +37,7 @@ if (DEFINED ENV{CROSS})
   set (PROGRAMEXE mapper.exe)
 
   add_custom_target (bindist 
-    COMMAND ${CMAKE_SOURCE_DIR}/make-bindist-win32-cross.sh vice-mapper-${MAPPER_VERSION} true ${CMAKE_CXX_COMPILER} ${CMAKE_SOURCE_DIR}
+    COMMAND ${CMAKE_SOURCE_DIR}/make-bindist-win32.sh vice-mapper-${MAPPER_VERSION} true ${CMAKE_CXX_COMPILER} ${CMAKE_SOURCE_DIR}
     COMMAND rm -f vice-mapper-${MAPPER_VERSION}.zip
     COMMAND zip -r vice-mapper-${MAPPER_VERSION}.zip vice-mapper-${MAPPER_VERSION}    )	
 endif() # CROSS
