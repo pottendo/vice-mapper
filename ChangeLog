@@ -1,5 +1,7 @@
 2020-06-30  pottendo  <pottendo@gmx.net>
 
+	* make-bindist-win32.sh: support cross build linux->win32(msys2 libs).
+
 	* dialogs.cc (VmAbout::VmAbout): Fixed about for windows & linux
 
 2020-06-29  pottendo  <pottendo@gmx.net>
