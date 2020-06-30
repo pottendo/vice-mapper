@@ -115,7 +115,6 @@ Know issues:<br>
 - If memory limit is reached (32bit system), mapper crashes without
   warning.
 - Potential, maybe GTK+ related memory leaks detected with valgrind.
-- About dialog on Windows has buttons without effect.
 - Printer dialog on Linux won't let one set page format, etc. (Ubuntu
   19.10), Print Preview behaves strange (print button won't do
   anything from the preview popup) -> use *print button* directly from
