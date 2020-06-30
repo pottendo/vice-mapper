@@ -769,7 +769,7 @@ VmMap::MapPreview::render_preview(void)
 	dyk += tile_img->get_height();
     }
 
-    Cairo::RefPtr<Cairo::Surface> imgs = Cairo::ImageSurface::create(Cairo::FORMAT_RGB24, out_xres, 50);
+    Cairo::RefPtr<Cairo::Surface> imgs = Cairo::ImageSurface::create(Cairo::FORMAT_RGB24, out_xres, 100);
     Cairo::RefPtr<Cairo::Context> cr = Cairo::Context::create(imgs);
     Glib::RefPtr<Gdk::Pixbuf> text;
     
@@ -779,7 +779,7 @@ VmMap::MapPreview::render_preview(void)
     
     // header
     cr->set_source_rgb(0.8, 0.8, 0.8);
-    cr->rectangle(0, 0, out_xres, 50);
+    cr->rectangle(0, 0, out_xres, 100);
     cr->fill();
 
     cr->set_source_rgb(0.2, 0.2, 0.2);
@@ -789,17 +789,17 @@ VmMap::MapPreview::render_preview(void)
     headerlayout->show_in_cairo_context(cr);
     
     cr->set_source_rgb(0.2, 0.2, 0.2);
-    cr->rectangle(0, 0, out_xres, 50);
+    cr->rectangle(0, 0, out_xres, 100);
     cr->stroke();
 
     imgs = cr->get_target();
-    text = Gdk::Pixbuf::create(imgs, 0, 0, out_xres, 50);
-    text->copy_area(0, 0, out_xres, 50, out_image, 0, 0);
+    text = Gdk::Pixbuf::create(imgs, 0, 0, out_xres, 100);
+    text->copy_area(0, 0, out_xres, 100, out_image, 0, 0);
 
     // footer 
     font.set_size(20 * PANGO_SCALE);
     cr->set_source_rgb(0.8, 0.8, 0.8);
-    cr->rectangle(0, 0, out_xres, 40);
+    cr->rectangle(0, 0, out_xres, 80);
     cr->fill();
 
     cr->set_source_rgb(0.2, 0.2, 0.2);
@@ -816,12 +816,12 @@ VmMap::MapPreview::render_preview(void)
     vm_text->show_in_cairo_context(cr);
     
     cr->set_source_rgb(0.2, 0.2, 0.2);
-    cr->rectangle(0, 0, out_xres, 40);
+    cr->rectangle(0, 0, out_xres, 80);
     cr->stroke();
 
     imgs = cr->get_target();
-    text = Gdk::Pixbuf::create(imgs, 0, 0, out_xres, 40);
-    text->copy_area(0, 0, out_xres, 40, out_image, 0, out_image->get_height() - 40);
+    text = Gdk::Pixbuf::create(imgs, 0, 0, out_xres, 80);
+    text->copy_area(0, 0, out_xres, 80, out_image, 0, out_image->get_height() - 80);
 //    mw_out << __FUNCTION__ << ": out_image = " << out_image->get_width() << "x" << out_image->get_height() << endl;
     queue_draw();
 }
