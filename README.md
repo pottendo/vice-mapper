@@ -1,9 +1,9 @@
 # vice-mapper
-Welcome to a little GUI to manage maps out of emulator
-screenshots. This was inspired by Overdoc's dream to have an automap
-feature within retro-machine emulators, such as Vice, where a player
-just navigates through a game and all 'new' screens are somehow
-mapped.
+Welcome to a little GUI to create graphical maps out of emulator
+screenshots - tested with Vice. This was inspired by Overdoc's dream
+to have an automap feature within retro-machine emulators, such as
+Vice, where a player just navigates through a game and all 'new'
+screens are somehow mapped.
 
 Limitations:
 - Automation was postponed until we find some clever idea to detect
