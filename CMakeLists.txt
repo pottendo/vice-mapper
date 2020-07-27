@@ -21,7 +21,7 @@ project(mapper)
 
 set (VER 1.5.0)
 
-set(SRC main.cc VmTile.cc VmMap.cc VmMapControls.cc dialogs.cc)
+set(SRC main.cc VmTile.cc VmTileEmpty.cc VmTileImg.cc VmMap.cc VmMapControls.cc dialogs.cc)
 
 if (DEFINED ENV{CROSS})
   set(ENV{PKG_CONFIG_PATH} "/mingw64/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
