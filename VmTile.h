@@ -39,10 +39,6 @@ class VmMap;
 
 class VmTile : public Gtk::DrawingArea
 {
-    std::string file_name, file_basename, file_ext;
-    bool dirty, empty, selected;
-    int xk, yk;
-    int w, h;
     static VmTile *dnd_tile;
     
     void park_tile_file(void);
@@ -52,7 +48,7 @@ class VmTile : public Gtk::DrawingArea
     void on_menu_popup(void);
 
   public:
-    VmTile(VmMap &m, const char *fn, int xk = -1, int yk = -1);
+    VmTile(VmMap &m, int xk = -1, int yk = -1);
     virtual ~VmTile();
 
     friend std::ostream &operator<<(std::ostream &out, VmTile &t);
@@ -95,6 +91,7 @@ class VmTile : public Gtk::DrawingArea
   protected:
     //Override default signal handler:
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
+    virtual void on_draw_specific(const Cairo::RefPtr<Cairo::Context>& cr) = 0;
     bool on_button_press_event(GdkEventButton *e) override;
     bool on_configure_event(GdkEventConfigure *configure_event) override;
     bool on_enter_notify_event(GdkEventCrossing* crossing_event) override;
@@ -108,6 +105,10 @@ class VmTile : public Gtk::DrawingArea
 	const Glib::RefPtr<Gdk::DragContext>& context, int x, int y,
 	const Gtk::SelectionData& selection_data, guint info, guint time);
 
+    std::string file_name, file_basename, file_ext;
+    bool dirty, empty, selected;
+    int xk, yk;
+    int w, h;
     Glib::RefPtr<Gdk::Pixbuf> m_image;
     Glib::RefPtr<Gdk::Pixbuf> m_image_scaled;
     Glib::RefPtr<Gdk::Pixbuf> m_image_icon;

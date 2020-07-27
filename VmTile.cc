@@ -14,12 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with vice-mapper.  If not, see <https://www.gnu.org/licenses/>.
  * 
- * File:		myarea.cc
+ * File:		VmTile.cc
  * Date:		Tue May  5 21:23:45 2020
  * Author:		pottendo (pottendo)
  *  
  * Abstract:
- *     tile class 
+ *     tile parent class 
  * 
  * Modifications:
  * 	$Log$
@@ -29,13 +29,11 @@
 #include <giomm/resource.h>
 #include <gdkmm/general.h> // set_source_pixbuf()
 #include <gdkmm/pixbuf.h>
-#include <giomm/file.h>
 #include <giomm/error.h>
 #include <giomm/simpleactiongroup.h>
 #include <glibmm/fileutils.h>
 #include <iostream>
 #include <string>
-#include <regex>
 #include <time.h>
 #include "VmTile.h"
 #include "VmMap.h"
@@ -54,124 +52,16 @@ int VmTile::max_resY = -1;
 set<VmTile *> VmTile::all_tiles;
 
 /* MyArea members */
-VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
+VmTile::VmTile(VmMap &m, int x, int y)
     : mw(m)
 {
-    if (fn) {
-	Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(fn);
-	set_fname(f->get_path(), f->get_basename());
-	if (VmMap::current_path == "") {
-	    VmMap::current_path = f->get_parent()->get_path();
-	    mw_status->show(VmStatus::STATM, VmMap::current_path);
-	}
-	
-	try {
-	    m_image_scaled = m_image = Gdk::Pixbuf::create_from_file(fn);//, resX, resY);
-	    w = m_image->get_width();
-	    h = m_image->get_height();
-	}
-	catch(const Gio::ResourceError& ex) {
-	    mw_err << "ResourceError: " << ex.what() << std::endl;
-	    throw -1;
-	}
-	catch(const Gdk::PixbufError& ex) {
-	    mw_err << "PixbufError: " << ex.what() << std::endl;
-	    throw -1;
-	}
-	std::cmatch cm;
-	std::regex re_ext("(.*)\\.(png|PNG|gif|GIF|jpg|JPG)");
-	std::regex_match(file_basename.c_str(), cm, re_ext, std::regex_constants::match_default);
-	if (cm.size() <= 0) {
-	    mw_out << __FUNCTION__ << ": couldn't find extension in name " << file_basename << endl;
-	    throw -1;
-	}
-	file_ext = cm[cm.size()-1];
-	if (VmMap::current_ext == "") {
-	    VmMap::current_ext = file_ext;
-	    mw_out << __FUNCTION__ << ": extension set to '" << VmMap::current_ext << "'." << endl;
-	}
-	// heuristic to ignore full maps, which shouldn't be listed
-	string file_base = string(cm[cm.size()-2]) + ".png"; 
-	//mw_out << __FUNCTION__ << ": file base: " << file_base << endl;
-	
-	std::string regstr("(.*)" + std::string(def_basename) +
-			   "([0-9][0-9])x([0-9][0-9]*)\\.(png|PNG|gif|GIF|jpg|JPG)");
-	std::regex re(regstr); 
-	std::regex_match(file_basename.c_str(), cm, re, std::regex_constants::match_default);
-	/*
-	mw_out << cm.size() << " matches for " << fn << " were: " << endl;
-	for (unsigned i=0; i<cm.size(); ++i) {
-	    mw_out << "[" << cm[i] << "] ";
-	}
-	mw_out << endl;
-	*/
-	
-	if (cm.size() > 0) {	// OK, we've found a placed tile folling the filename convention
-	    xk = std::stod(cm[cm.size()-3]);
-	    yk = std::stod(cm[cm.size()-2]);
-	    if ((xk == 0) || (yk == 0)) {
-		mw_out << __FUNCTION__ << "basename not following convention " << def_basename << "XXxYY.<valid ext>): "
-		       << file_basename << std::endl;
-		throw -1; // maps start at 01x01
-	    }
-	    (void) update_minmax();
-	    VmTile *t;
-	    if ((t = mw.get_tile(xk, yk)) != nullptr) {
-		if (t->is_empty()) {
-		    delete t;
-		    mw.set_tile(xk,yk, nullptr);
-		}
-		else {
-		    mw_out << __FUNCTION__ << ": refusing to overload tile with " << *this << endl;
-		    throw -1;
-		}
-	    }
-	    mw.add_tile(this);
-	}
-	else {			// some image file, but not following convention -> unplaced tile
-	    if (!m_image) {
-		mw_out << __FUNCTION__ << ": *** m_image == 0, but no exception..." << endl;
-		throw -1;
-	    }
-	    if (string(f->get_parent()->get_basename()) + ".png" == file_base){
-		mw_out << __FUNCTION__ << ": ignoring potential full map " << file_basename << endl;
-		throw -1;
-	    }
-	    m_image_icon = m_image->scale_simple(m_image->get_width()/4,
-						 m_image->get_height()/4,
-						 Gdk::INTERP_BILINEAR);
-	    xk = -1;		// xk == -1 is the internal convention for all unplaced tiles
-	    yk = -1;
-	    mw.add_unplaced_tile(this);
-	}
-	empty = false;
-	all_tiles.insert(this);
-	min_resX = MIN(min_resX, w);
-	max_resX = MAX(max_resX, w);
-	min_resY = MIN(min_resY, h);
-	max_resY = MAX(max_resY, h);
-	/*
-	mw_out << __FUNCTION__ << ": minX/maX=" << min_resX << "/"
-	       << max_resX << ", minY/maxY=" << min_resY << "/" << max_resY << endl;
-	*/
-	VmMap::nr_tiles++;
-    }
-    else {
-	xk = x; yk = y;
-	w = max_resX;
-	h = max_resY;
-	file_name = file_basename = "<empty>";
-	m_image = VmMap::empty_image;
-	empty = true;
-    }
+    // these may be re-initialized by specfic constructor
+    xk = x; yk = y;
+    w = max_resX;
+    h = max_resY;
     set_dirty(FALSE);		// initially we're in sync with files.
     m_pMenuPopup = nullptr;	// setup popup only if needed.
     alloc_count++;		// recored number of allocated tiles
-
-    // Show at least a quarter of the image.
-    if (m_image) {
-	set_size_request(m_image->get_width()/3, m_image->get_height()/3);
-    }
 
     set_hexpand(TRUE);
     set_vexpand(TRUE);
@@ -180,15 +70,8 @@ VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
 					    Gtk::TARGET_SAME_APP /*| Gtk::TARGET_OTHER_WIDGET*/) );
     drag_source_set(listTargets, Gdk::BUTTON1_MASK, Gdk::ACTION_COPY|Gdk::ACTION_MOVE);
     drag_dest_set(listTargets);
-    drag_source_set_icon(m_image->scale_simple(m_image->get_width()/3,
-					       m_image->get_height()/3,
-					       Gdk::INTERP_BILINEAR));
     
     // connect signals
-    /*
-    signal_configure_event()
-	.connect(sigc::mem_fun(*this, &VmTile::on_configure_event), false);
-    */
     signal_drag_data_get()
 	.connect(sigc::mem_fun(*this, &VmTile::on_button_drag_data_get));
     signal_drag_data_received()
@@ -202,7 +85,7 @@ VmTile::VmTile(VmMap &m, const char *fn, int x, int y)
 
 VmTile::~VmTile()
 {
-    //mw_out << "*** Destructor called for " << *this << endl;
+    mw_out << "*** Destructor called for " << *this << endl;
     if (m_pMenuPopup)
 	delete m_pMenuPopup;
     alloc_count--;
@@ -338,31 +221,9 @@ VmTile::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
     if (is_selected()) {
 	m_image_scaled->saturate_and_pixelate(m_image_scaled, 0.9, TRUE);
     }
-    if (is_empty()) {
-	if ((xk == 0) || (yk == 0) || (xk == map_max) || (yk == map_max)) {
-	    /* draw a border box */
-	    cr->set_source_rgb(0.6, 0.6, 0.6);
-	    cr->rectangle(0, 0, get_allocated_width(), get_allocated_height());
-	    cr->fill();
-	}
-	else {
-	    /* draw a light box */
-	    cr->set_source_rgb(0.9, 0.9, 0.9);
-	    cr->move_to(0, 0);
-	    cr->line_to(get_allocated_width(), 0);
-	    cr->line_to(get_allocated_width(), get_allocated_height());
-	    cr->line_to(0, get_allocated_height());
-	    cr->line_to(0, 0);
-	    cr->stroke();
-	    /* show coordinates */
-	    cr->set_source_rgb(0.8, 0.8, 0.9);
-	    char t[6];
-	    sprintf(t, "%02dx%02d", xk, yk);
-	    auto layout = create_pango_layout(t);
-	    cr->move_to(1,1);
-	    layout->show_in_cairo_context(cr);
-	}
-    }
+
+    on_draw_specific(cr);
+    
     Gtk::Allocation allocation = get_allocation();
     const int width = allocation.get_width();
     const int height = allocation.get_height();

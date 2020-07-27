@@ -40,6 +40,8 @@
 #include <regex>
 #include "VmMap.h"
 #include "VmMapControls.h"
+#include "VmTileEmpty.h"
+#include "VmTileImg.h"
 #include "dialogs.h"
 
 using namespace::std;
@@ -268,7 +270,7 @@ VmMap::remove_tile(VmTile *a, bool map_remove)
 	map_grid.remove(*a);
 	if (!map_remove) {
 	    // placed tile
-	    VmTile *new_empty = new VmTile(*this, NULL, a->getX(), a->getY());
+	    VmTile *new_empty = new VmTileEmpty(*this, a->getX(), a->getY());
 	    add_tile(new_empty);
 	    mw_out << __FUNCTION__ << ": attached new " << *new_empty << endl;
 	    resize_map();
@@ -300,7 +302,7 @@ VmMap::reload_unplaced_tiles(char *path)
 	if (t) continue;	// skip if a tile with the filename exists
 	mw_out << __FUNCTION__ << ": new tile: " << fp << endl;
 	try {
-	    t = new VmTile(*this, fp.c_str());
+	    t = new VmTileImg(*this, fp.c_str());
 	}
 	catch (...) {
 	    continue;		// ignore non-tiles
@@ -318,7 +320,7 @@ VmMap::reload_unplaced_tiles(char *path)
     mw_status->show(VmStatus::STATM, current_path);
     update_state();
     if (!tiles_placed && tiles[map_max / 2][map_max / 2] == nullptr)
-	add_tile(new VmTile(*this, NULL, map_max / 2, map_max / 2));
+	add_tile(new VmTileEmpty(*this, map_max / 2, map_max / 2));
 }
 
 void
@@ -443,7 +445,7 @@ VmMap::fill_empties()
 	for (x = VmTile::xmin; x <= VmTile::xmax; x++) {
 	    for (y = VmTile::ymin; y <= VmTile::ymax; y++) {
 		if (tiles[x][y] == NULL) {
-		    add_tile(new VmTile(*this, NULL, x, y));
+		    add_tile(new VmTileEmpty(*this, x, y));
 		}
 	    }
 	}
