@@ -37,7 +37,7 @@ VmTileEmpty::VmTileEmpty(VmMap &m, int x, int y)
 					       m_image->get_height()/3,
 					       Gdk::INTERP_BILINEAR));
     empty = true;
-    mw_out << __FUNCTION__ << ": created." << endl;
+    //mw_out << __FUNCTION__ << ": created." << endl;
 }
 
 void

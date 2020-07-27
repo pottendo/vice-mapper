@@ -85,7 +85,7 @@ VmTile::VmTile(VmMap &m, int x, int y)
 
 VmTile::~VmTile()
 {
-    mw_out << "*** Destructor called for " << *this << endl;
+    //mw_out << "*** Destructor called for " << *this << endl;
     if (m_pMenuPopup)
 	delete m_pMenuPopup;
     alloc_count--;

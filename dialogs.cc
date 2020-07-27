@@ -228,6 +228,7 @@ on_MenuQuit_activate(Gtk::MenuItem *m)
 	VmMsg("Really Quit?", "unsaved changes will be lost").run() != Gtk::RESPONSE_OK) {
 	return;
     }
+    mw_map->remove_map();
     app->quit();
 }
 
