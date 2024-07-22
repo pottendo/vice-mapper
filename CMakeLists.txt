@@ -21,7 +21,7 @@ project(mapper)
 
 set (VER 1.5.0)
 
-set(SRC main.cc VmTile.cc VmTileEmpty.cc VmTileImg.cc VmMap.cc VmMapControls.cc dialogs.cc)
+set(SRC main.cc VmTile.cc VmTileEmpty.cc VmTileImg.cc VmTilePath.cc VmMap.cc VmMapControls.cc dialogs.cc)
 
 if (DEFINED ENV{CROSS})
   set(ENV{PKG_CONFIG_PATH} "/mingw64/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
@@ -84,12 +84,9 @@ if(DEFINED ENV{MINGW_PREFIX})
 endif()
 
 message (STATUS "building for ${ARCH}...")
-
-add_compile_options(${CXX_INCLUDES} ${GTK_CFLAGS_OTHER} -DMAPPER_VERSION=\"${VER}\" -g -Wall -Wno-deprecated-declarations -I.)
+add_compile_options(${CXX_INCLUDES} ${GTK_CFLAGS_OTHER} -DMAPPER_VERSION=\"${VER}\" -g -Wall -Wno-deprecated-declarations -I. -I/usr/lib/gdkmm-3.0/include -I/usr/lib/gtkmm-3.0/include -I/usr/lib/pangomm-2.48/include -I/usr/lib/glibmm-2.68/include -I/usr/lib/glib-2.0/include -I/usr/lib/sigc++-2.0/include -I/usr/lib/cairomm-1.16/include -I/usr/lib/atkmm-1.6/include -I/usr/lib/giomm-2.68/include)
 link_directories (${GTK_LIBRARY_DIRS})
 
 # Compile
 add_executable(${PROGRAMEXE} ${SRC})
 target_link_libraries(${PROGRAMEXE} ${GTK_LIBRARIES} ${ARCHLIBS})
-
-

@@ -32,8 +32,11 @@
 #include <gtkmm/button.h>
 #include <gtkmm/togglebutton.h>
 #include <gtkmm/adjustment.h>
+#include <gtkmm/box.h>
+#include <gtkmm/grid.h>
 
 #include "VmTile.h"
+#include "VmTilePath.h"
 
 typedef enum { CZX, CZY, CRUP, CRDO, CRLE, CRRI } VmMapCtrlAdj;
 
@@ -46,11 +49,13 @@ class VmMapControls
 //    Gtk::Adjustment *adjx;
     Glib::RefPtr<Gtk::Adjustment> adj[6];
     Gtk::ToggleButton *zl;
+    Gtk::Grid *pg;
+    VmTilePath *pnw;
 
     bool zoom_lock;
 public:
     VmMapControls(VmMap &m);
-    ~VmMapControls() {};
+    virtual ~VmMapControls();
     
     inline Gtk::Frame *get_widget(void) { return cf; }
     inline Glib::RefPtr<Gtk::Adjustment> get_adj(VmMapCtrlAdj a) { return adj[a]; }

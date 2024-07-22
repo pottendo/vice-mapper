@@ -18,6 +18,7 @@
 class VmTileEmpty : public VmTile {
   protected:
     virtual void on_draw_specific(const Cairo::RefPtr<Cairo::Context>& cr) override;
+
   public:
     VmTileEmpty(VmMap &m, int x = -1, int y = -1);
     virtual ~VmTileEmpty() {};

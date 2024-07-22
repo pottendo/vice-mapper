@@ -63,6 +63,20 @@ VmMapControls::VmMapControls(VmMap &m)
     zl = nullptr;
     builder->get_widget("VmMapControlsZoomLock", zl);
     zoom_lock = zl->get_active();
+
+    pg = nullptr;
+    builder->get_widget("VmMapControlsPathGrid", pg);
+    pnw = new VmTilePath(mw, P_NW);
+    pg->attach(*pnw, 0, 0);
+    pnw = new VmTilePath(mw, P_N);
+    pg->attach(*pnw, 1, 0);
+    pnw = new VmTilePath(mw, P_NE);
+    pg->attach(*pnw, 2, 0);
+}
+
+VmMapControls::~VmMapControls() 
+{
+    delete pnw;
 }
 
 void
